@@ -220,7 +220,7 @@ namespace DOL.GS.ServerProperties
         [ServerProperty("system", "db_language", "What language is the DB", "EN")]
         public static string DB_LANGUAGE { get; set; }
 
-        [ServerProperty("system", "statprint_frequency", "How often (milliseconds) should statistics be printed on the server console.", 30000)]
+        [ServerProperty("system", "statprint_frequency", "How often (milliseconds) should statistics be printed on the server console.", 120000)]
         public static int STATPRINT_FREQUENCY { get; set; }
 
         /// <summary>
@@ -448,7 +448,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should the server load the example scripts
         /// </summary>
-        [ServerProperty("server", "load_examples", "Should the server load the example scripts", true)]
+        [ServerProperty("server", "load_examples", "Should the server load the example scripts", false)]
         public static bool LOAD_EXAMPLES { get; set; }
 
         /// <summary>
