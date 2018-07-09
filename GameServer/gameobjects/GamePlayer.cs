@@ -1678,7 +1678,7 @@ namespace DOL.GS
 
                 default:
                     {
-                        if (!ServerProperties.Properties.DISABLE_TUTORIAL)
+                        if (!Properties.DISABLE_TUTORIAL)
                         {
                             // Tutorial
                             if (BindRegion == 27)
@@ -1851,6 +1851,7 @@ namespace DOL.GS
                                 if (oldgrave != null)
                                 {
                                     oldgrave.Delete();
+                                    oldgrave.DeleteFromDatabase();
                                 }
                             }
 
@@ -1859,6 +1860,23 @@ namespace DOL.GS
 
                         GameGravestone gravestone = new GameGravestone(this, lostExp);
                         gravestone.AddToWorld();
+
+                        //add the newly created gravestone to the database
+                        DBGravestones grave = new DBGravestones();
+                        grave.TranslationId = gravestone.TranslationId;
+                        grave.Name = gravestone.Name;
+                        grave.ExamineArticle = gravestone.ExamineArticle;
+                        grave.Model = gravestone.Model;
+                        grave.Heading = gravestone.Heading;
+                        grave.Region = gravestone.CurrentRegionID;
+                        grave.X = gravestone.X;
+                        grave.Y = gravestone.Y;
+                        grave.Z = gravestone.Z;
+                        grave.XPValue = gravestone.XPValue;
+                        grave.ObjectId = gravestone.InternalID;
+                        GameServer.Database.AddObject(grave);
+                        gravestone.SaveIntoDatabase();
+
                         character.GravestoneRegion = gravestone.CurrentRegionID;
                         character.HasGravestone = true;
                         Out.SendMessage(LanguageMgr.GetTranslation(Client.Account.Language, "GamePlayer.Release.GraveErected"), eChatType.CT_YouDied, eChatLoc.CL_SystemWindow);
@@ -2084,6 +2102,7 @@ namespace DOL.GS
         /// </summary>
         public virtual void Pray()
         {
+            DOLCharacters character = DBCharacter;
             string cantPrayMessage = string.Empty;
             GameGravestone gravestone = TargetObject as GameGravestone;
 
@@ -2135,7 +2154,11 @@ namespace DOL.GS
                                                                     }
                                                                     stn.XPValue = 0;
                                                                     stn.Delete();
-                                                                 });
+                                                                    stn.DeleteFromDatabase();
+                                                                    character.HasGravestone = false;
+                                                                    character.GravestoneRegion = 0;
+                                                                    GameServer.Database.SaveObject(character);
+            });
             m_prayAction.Start(PrayDelay);
 
             Sit(true);

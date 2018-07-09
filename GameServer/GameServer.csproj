@@ -379,6 +379,7 @@
     <Compile Include="gameutils\ClientExtensions.cs" />
     <Compile Include="gameutils\GameDuel.cs" />
     <Compile Include="gameutils\GamePlayerUtils.cs" />
+	<Compile Include="gameutils\GraveMgr.cs" />
     <Compile Include="gameutils\LootGeneratorAtlanteanGlass.cs" />
     <Compile Include="gameutils\LootGeneratorAurulite.cs" />
     <Compile Include="gameutils\LootGeneratorChest.cs" />
