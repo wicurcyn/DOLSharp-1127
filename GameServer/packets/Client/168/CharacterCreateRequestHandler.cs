@@ -684,6 +684,20 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     Log.Error($"Error deleting char ml steps, char OID={character.ObjectId}, Exception:{e}");
                                 }
                             }
+
+                            // delete gravestone if character has one
+                            try
+                            {
+                                var objs = GameServer.Database.SelectObjects<DBGravestones>("`Gravestones_ID` = @Gravestones_ID", new QueryParameter("@Gravestones_ID", character.ObjectId));
+                                GameServer.Database.DeleteObject(objs);
+                            }
+                            catch (Exception e)
+                            {
+                                if (Log.IsErrorEnabled)
+                                {
+                                    Log.ErrorFormat("No gravestone found for deleted character, char OID={0}, Exception:{1}", character.ObjectId, e);
+                                }
+                            }
                         }
 
                         string deletedChar = character.Name;

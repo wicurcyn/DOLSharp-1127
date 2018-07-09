@@ -852,6 +852,10 @@ namespace DOL.GS
                     return false;
                 }
 
+                //Load Gravstone manager
+                if (!InitComponent(GraveMgr.Init(), "Gravestone Manager"))
+                    return false;
+
                 // Load the quest managers if enabled
                 if (Properties.LOAD_QUESTS)
                 {
