@@ -119,6 +119,7 @@
     <Compile Include="SQLObjectDatabase.cs" />
     <Compile Include="Tables\CharacterXDataQuest.cs" />
     <Compile Include="Tables\ClassXSpecialization.cs" />
+	<Compile Include="Tables\Gravestones.cs" />
     <Compile Include="Tables\HousingConsignmentMerchant.cs" />
     <Compile Include="Tables\LanguageDoor.cs" />
     <Compile Include="Tables\LanguageGameObject.cs" />
