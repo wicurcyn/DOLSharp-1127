@@ -3352,6 +3352,23 @@ namespace DOL.GS
         }
 
         /// <summary>
+		/// Used for delve spell data. GetSpellByID doesnt return spelldata needed for delve
+		/// </summary>		
+		public static Spell GetSpellDataByID(int spellID)
+        {
+            Spell spell;
+            if (m_spellIndex.TryGetValue(spellID, out spell))
+            {
+                return spell;
+            }
+            else if (log.IsErrorEnabled)
+            {
+                log.ErrorFormat("Could not find spell with ID {0}", spellID);
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Returns spell with id, level of spell is always 1
         /// </summary>
         /// <param name="spellID"></param>

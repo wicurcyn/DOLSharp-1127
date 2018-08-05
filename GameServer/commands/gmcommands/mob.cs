@@ -1709,6 +1709,7 @@ namespace DOL.GS.Commands
         {
             try
             {
+                // regular dataquests
                 GameObject.FillDataQuestCache();
                 targetMob.LoadDataQuests(client.Player);
                 foreach (GamePlayer player in targetMob.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
@@ -1717,6 +1718,15 @@ namespace DOL.GS.Commands
                 }
 
                 client.Out.SendMessage(targetMob.DataQuestList.Count + " Data Quests loaded for this mob.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
+                // dataquest reward quests
+                GameObject.FillDQRewardQCache();
+                targetMob.LoadDQRewardQs(client.Player);
+                foreach (GamePlayer player in targetMob.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
+                {
+                    player.Out.SendNPCsQuestEffect(targetMob, targetMob.GetQuestIndicator(player));
+                }
+
+                client.Out.SendMessage(targetMob.DataQuestList.Count + " DQRewardsQs loaded for this mob.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
             }
             catch (Exception ex)
             {

@@ -4622,101 +4622,138 @@ namespace DOL.GS.Spells
         /// </summary>
         /// <param name="dw"></param>
         /// <param name="id"></param>
-        public virtual void TooltipDelve(ref MiniDelveWriter dw, int id)
+        public virtual void TooltipDelve(ref MiniDelveWriter dw, int id, GameClient client)
         {
             if (dw == null)
             {
                 return;
             }
+            int level = Spell.Level;
+            int spellID = Spell.ID;
 
-            dw.AddKeyValuePair("Function", "light"); // Function of type "light" allows custom description to show with no hardcoded text.  Temporary Fix - tolakram
-            // .Value("Function", spellHandler.FunctionName ?? "0")
-            dw.AddKeyValuePair("Index", unchecked((short)id));
+            foreach (SpellLine line in client.Player.GetSpellLines())
+            {
+                Spell s = SkillBase.GetSpellList(line.KeyName).Where(o => o.ID == spellID).FirstOrDefault();
+                if (s != null)
+                {
+                    level = s.Level;
+                    break;
+                }
+            }
+            string function = Spell.GetDelveFunction();
+
+            if (function != null)
+            {
+                dw.AddKeyValuePair("Function", function);
+            }
+            dw.AddKeyValuePair("Index", id);
             dw.AddKeyValuePair("Name", Spell.Name);
 
+            if (Spell.GetDelveAbility() != 0)
+            {
+                dw.AddKeyValuePair("ability", Spell.GetDelveAbility());
+            }
+            if (Spell.GetDelveBonus() != 0)
+            {
+                dw.AddKeyValuePair("bonus", Spell.GetDelveBonus());
+            }
             if (Spell.CastTime > 2000)
             {
-                dw.AddKeyValuePair("cast_timer", Spell.CastTime - 2000); // minus 2 seconds (why mythic?)
+                dw.AddKeyValuePair("cast_timer", Spell.CastTime - 2000); //minus 2 seconds (why mythic?)
             }
             else if (!Spell.IsInstantCast)
             {
-                dw.AddKeyValuePair("cast_timer", 0); // minus 2 seconds (why mythic?)
+                dw.AddKeyValuePair("cast_timer", 0);
             }
-
-            if (Spell.IsInstantCast)
-            {
-                dw.AddKeyValuePair("instant","1");
-            }
-
-            // .Value("damage", spellHandler.GetDelveValueDamage, spellHandler.GetDelveValueDamage != 0)
-            if ((int)Spell.DamageType > 0)
-            {
-                dw.AddKeyValuePair("damage_type", (int)Spell.DamageType + 1); // Damagetype not the same as dol
-            }
-
-            // .Value("type1", spellHandler.GetDelveValueType1, spellHandler.GetDelveValueType1 > 0)
-            if (Spell.Level > 0)
-            {
-                dw.AddKeyValuePair("level", Spell.Level);
-            }
-
-            if (Spell.CostPower)
-            {
-                dw.AddKeyValuePair("power_cost", Spell.Power);
-            }
-
-            // .Value("round_cost",spellHandler.GetDelveValueRoundCost,spellHandler.GetDelveValueRoundCost!=0)
-            // .Value("power_level", spellHandler.GetDelveValuePowerLevel,spellHandler.GetDelveValuePowerLevel!=0)
-            if (Spell.Range > 0)
-            {
-                dw.AddKeyValuePair("range", Spell.Range);
-            }
-
-            if (Spell.Duration > 0)
-            {
-                dw.AddKeyValuePair("duration", Spell.Duration / 1000); // seconds
-            }
-
-            if (GetDurationType() > 0)
-            {
-                dw.AddKeyValuePair("dur_type", GetDurationType());
-            }
-
-            // .Value("parm",spellHandler.GetDelveValueParm,spellHandler.GetDelveValueParm>0)
-            if (Spell.HasRecastDelay)
-            {
-                dw.AddKeyValuePair("timer_value", Spell.RecastDelay / 1000);
-            }
-
-            // .Value("bonus", spellHandler.GetDelveValueBonus, spellHandler.GetDelveValueBonus > 0)
-            // .Value("no_combat"," ",Util.Chance(50))//TODO
-            // .Value("link",14000)
-            // .Value("ability",4) // ??
-            // .Value("use_timer",4)
-            if (GetSpellTargetType() > 0)
-            {
-                dw.AddKeyValuePair("target", GetSpellTargetType());
-            }
-
-            // .Value("frequency", spellHandler.GetDelveValueFrequency, spellHandler.GetDelveValueFrequency != 0)
-            if (!string.IsNullOrEmpty(Spell.Description))
-            {
-                dw.AddKeyValuePair("description_string", Spell.Description);
-            }
-
-            if (Spell.IsAoE)
-            {
-                dw.AddKeyValuePair("radius", Spell.Radius);
-            }
-
+            //if (Spell.GetDelveCostType() != 0)
+            //	dw.AddKeyValuePair("cost_type", Spell.GetDelveCostType());
             if (Spell.IsConcentration)
             {
                 dw.AddKeyValuePair("concentration_points", Spell.Concentration);
             }
+            if (Spell.GetDelveDamage() != 0)
+            {
+                dw.AddKeyValuePair("damage", Spell.GetDelveDamage());
+            }
+            if ((int)Spell.DamageType > 0)
+            {
+                dw.AddKeyValuePair("damage_type", Spell.GetDelveDamageType());
+            }
+            if (GetDurationType() > 0)
+            {
+                dw.AddKeyValuePair("dur_type", GetDurationType());
+            }
+            if (Spell.Duration > 0)
+            {
+                dw.AddKeyValuePair("duration", Spell.Duration / 1000); //seconds
+            }
+            if (Spell.IsInstantCast)
+            {
+                dw.AddKeyValuePair("instant", "1");
+            }
+            if (Spell.Frequency > 0)
+            {
+                dw.AddKeyValuePair("frequency", Spell.GetDelveFrequency());
+            }
+            // test patch 0023 used for ability spells (dirty tricks, flurry) relies on getting a level value from DB, probably can be done another way
+            // basically, a dummy entry is spellDB is needed for these abilities to delve correctly.
+            //dw.AddKeyValuePair("level", Math.Max(level, Spell.DelveLevel)); 
+            dw.AddKeyValuePair("level", level);
 
-            // .Value("num_targets", spellHandler.GetDelveValueNumTargets, spellHandler.GetDelveValueNumTargets>0)
-            // .Value("no_interrupt", spell.Interruptable ? (char)0 : (char)1) //Buggy?
-            // log.Info(dw.ToString());
+            if (Spell.GetDelveLink() != 0)
+            {
+                dw.AddKeyValuePair("link", Spell.GetDelveLink());
+            }
+            if (Spell.GetDelveLinkEffect() != 0)
+            {
+                dw.AddKeyValuePair("link_effect", Spell.GetDelveLinkEffect());
+            }
+            if (Spell.GetDelveParm(client) != 0)
+            {
+                dw.AddKeyValuePair("parm", Spell.GetDelveParm(client));
+            }
+            if (Spell.CostPower)
+            {
+                dw.AddKeyValuePair("power_cost", Spell.Power);
+            }
+            if (Spell.GetDelvePowerLevel(level) != 0)
+            {
+                dw.AddKeyValuePair("power_level", Spell.GetDelvePowerLevel(level));
+            }
+            if (Spell.IsAoE)
+            {
+                dw.AddKeyValuePair("radius", Spell.Radius);
+            }
+            if (Spell.Range > 0)
+            {
+                dw.AddKeyValuePair("range", Spell.Range);
+            }
+            if (Spell.RecastDelay > 0)
+            {
+                dw.AddKeyValuePair("recast_timer", Spell.RecastDelay / 1000);
+            }
+            if (GetSpellTargetType() > 0)
+            {
+                dw.AddKeyValuePair("target", Spell.GetDelveTargetType());
+            }
+            if (Spell.GetDelveNoCombat() != null)
+            {
+                dw.AddKeyValuePair("no_combat", Spell.GetDelveNoCombat());
+            }
+            if (Spell.HasRecastDelay)
+            {
+                dw.AddKeyValuePair("timer_value", Spell.RecastDelay / 1000);
+            }
+            if (Spell.Uninterruptible)
+            {
+                dw.AddKeyValuePair("no_interrupt", "\u0001");
+            }
+            if (Spell.GetDelveType1() != 0)
+            {
+                dw.AddKeyValuePair("type1", Spell.GetDelveType1());
+            }
+            //if (Spell.GetDelveLinkEffect() != 0) // patch 0023 tooltip delve for abilityspells
+            //	client.Out.SendDelveInfo(DetailDisplayHandler.DelveAttachedSpell(client, Spell.SubSpellID));
         }
 
         /// <summary>
@@ -4739,7 +4776,7 @@ namespace DOL.GS.Spells
                 case "Group":
                     return 3;
                 case "Area":
-                    return 0; // TODO
+                    return 9;
                 default:
                     return 0;
             }

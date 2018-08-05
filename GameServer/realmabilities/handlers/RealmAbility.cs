@@ -52,10 +52,30 @@ namespace DOL.GS.RealmAbilities
         /// </summary>
         public virtual int MaxLevel => 0;
 
+        public virtual int GetValueDelve(int level)
+        {
+            return level;
+        }
+
+        /// <summary>
+        /// used for 1.110 RA delves
+        /// </summary>        
+        public virtual int AmountPerLevel(int level)
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// used for 1.110 RA delves
+        /// </summary>
+        public virtual int GetDurationDelve(int level)
+        {
+            return 0;
+        }
+
         /// <summary>
         /// Delve for this RA
-        /// </summary>
-        /// <param name="w"></param>
+        /// </summary>        
         public virtual void AddDelve(ref MiniDelveWriter w)
         {
             w.AddKeyValuePair("Name", Name);
@@ -70,6 +90,26 @@ namespace DOL.GS.RealmAbilities
                 {
                     w.AddKeyValuePair($"TrainingCost_{i + 1}", CostForUpgrade(i));
                 }
+                w.AddKeyValuePair(string.Format("AmountLvl_{0}", i), AmountPerLevel(i));
+            }
+        }
+
+        /// <summary>
+		/// Delve for this RA 1.110+ with gameclient param for multiple delves with one RA. TODO review
+		/// </summary>
+		public virtual void AddDelve(ref MiniDelveWriter w, int level, GameClient clt)
+        {
+            w.AddKeyValuePair("Name", Name);
+            if (Icon > 0)
+                w.AddKeyValuePair("icon", Icon);
+
+            for (int i = 1; i <= MaxLevel; i++)
+            {
+                if (CostForUpgrade(i) > 0)
+                {
+                    w.AddKeyValuePair(string.Format("TrainingCost_{0}", (i)), CostForUpgrade(i));
+                }
+                w.AddKeyValuePair(string.Format("AmountLvl_{0}", i), AmountPerLevel(i));
             }
         }
 

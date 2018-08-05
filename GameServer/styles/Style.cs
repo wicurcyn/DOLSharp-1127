@@ -127,7 +127,12 @@ namespace DOL.GS.Styles
         /// The database style object, used to retrieve information for this object
         /// </summary>
         protected DBStyle baseStyle ;
-
+        
+        /// <summary>
+        /// list of procspells, used when delving procs on styles
+        /// </summary>
+        public List<DBStyleXSpell> ProcSpells;
+        
         /// <summary>
         /// Constructs a new Style object based on a database Style object
         /// </summary>
@@ -136,10 +141,11 @@ namespace DOL.GS.Styles
             : base(style.Name, style.ID, (ushort)style.Icon, style.SpecLevelRequirement, style.StyleID)
         {
             baseStyle = style;
+            ProcSpells = new List<DBStyleXSpell>();
         }
 
         public int ClassID => baseStyle.ClassId;
-
+        
         /// <summary>
         /// (readonly)(procs) The list of procs available for this style
         /// </summary>

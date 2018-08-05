@@ -196,6 +196,8 @@ namespace DOLGameServerConsole
         public void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DataQuest quest) { }
 
         public void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, DataQuest quest) { }
+        public void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest) { }// patch 0026
+        public void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest) { }// patch 0026
 
         public void SendQuestAbortCommand(GameNPC abortingNPC, ushort questid, string abortMessage) { }
 
