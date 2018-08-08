@@ -92,7 +92,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// The minimum client version required to connect
         /// </summary>
-        [ServerProperty("system", "client_version_min", "Minimum Client Version - Edit this to change which client version at the least have to be used: -1 = any, 1.80 = 180", -1)]
+        [ServerProperty("system", "client_version_min", "Minimum Client Version - Edit this to change which client version at the least have to be used: -1 = any, 1.80 = 180", 1124)]
         public static int CLIENT_VERSION_MIN { get; set; }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should the server load quests
         /// </summary>
-        [ServerProperty("system", "load_quests", "Should the server load quests, values True,False", true)]
+        [ServerProperty("system", "load_quests", "Should the server load quests, values True,False", false)]
         public static bool LOAD_QUESTS { get; set; }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should the server disable the tutorial zone
         /// </summary>
-        [ServerProperty("world", "disable_tutorial", "should the server disable the tutorial zone", false)]
+        [ServerProperty("world", "disable_tutorial", "should the server disable the tutorial zone", true)]
         public static bool DISABLE_TUTORIAL { get; set; }
 
         [ServerProperty("world", "world_item_decay_time", "How long (milliseconds) will an item dropped on the ground stay in the world.", (uint)180000)]
@@ -574,7 +574,7 @@ namespace DOL.GS.ServerProperties
         [ServerProperty("world", "world_object_update_interval", "How often (milliseconds) will objects (static, housing, doors, broadcast updates to the clients. Minimum allowed = 10000 (10 seconds). 0 will disable this update.", (uint)30000)]
         public static uint WORLD_OBJECT_UPDATE_INTERVAL { get; set; }
 
-        [ServerProperty("world", "world_playertoplayer_update_interval", "How often (milliseconds) will other players packet be broadcasted again to the clients. Minimum allowed = 1000 (1 seconds). 0 will disable this update.", (uint)1000)]
+        [ServerProperty("world", "world_playertoplayer_update_interval", "How often (milliseconds) will other players packet be broadcasted again to the clients. Minimum allowed = 1000 (1 seconds). 0 will disable this update.", (uint)0)]
         public static uint WORLD_PLAYERTOPLAYER_UPDATE_INTERVAL { get; set; }
 
         [ServerProperty("world", "world_player_update_interval", "How often (milliseconds) will players be checked for updates. Minimum allowed = 100 (100 milliseconds).", (uint)300)]
