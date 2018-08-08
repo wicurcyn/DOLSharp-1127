@@ -763,6 +763,17 @@ namespace DOL.Tests
             }
         }
 
+        public Action<TestPacketLib, GameNPC, GamePlayer, DQRewardQ> SendQuestOfferWindowDQRMethod { get; set; } //patch 0026
+        public void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest)
+        {
+            if (SendQuestOfferWindowDataMethod != null) SendQuestOfferWindowDQRMethod(this, questNPC, player, quest);
+        }
+        public Action<TestPacketLib, GameNPC, GamePlayer, DQRewardQ> SendQuestRewardWindowDQRMethod { get; set; } //patch 0026
+        public void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest)
+        {
+            if (SendQuestRewardWindowDataMethod != null) SendQuestRewardWindowDQRMethod(this, questNPC, player, quest);
+        }
+
         public Action<TestPacketLib> SendGroupWindowUpdateMethod { get; set; }
 
         public void SendGroupWindowUpdate()

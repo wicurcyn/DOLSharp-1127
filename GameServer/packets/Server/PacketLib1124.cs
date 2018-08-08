@@ -2846,34 +2846,34 @@ namespace DOL.GS.PacketHandler
         
 		public virtual void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DataQuest quest)
 		{
-			//SendQuestWindow(questNPC, player, quest, true);
+			SendQuestWindow(questNPC, player, quest, true);
 		}
-        /* TO BE ADDED SOON
+        
 		public virtual void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest) //patch 0026
 		{
-		}*/
+		}
 		public virtual void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, RewardQuest quest)
 		{
 			SendQuestWindow(questNPC, player, quest, true);
 		}
 		public virtual void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, DataQuest quest)
 		{
-			//SendQuestWindow(questNPC, player, quest, false);
+			SendQuestWindow(questNPC, player, quest, false);
 		}
-        /* TO BE ADDED SOON
+        
 		public virtual void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest) //patch 0026
 		{
-		}*/
+		}
         public virtual void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, RewardQuest quest)
 		{
 			SendQuestWindow(questNPC, player, quest, false);
 		}		
-        /* TO BE ADDED SOON
+        
 		protected virtual void SendQuestWindow(GameNPC questNPC, GamePlayer player, DataQuest quest, bool offer)
 		{
 			using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.Dialog)))
 			{
-				ushort QuestID = quest.ClientQuestID;
+				ushort QuestID = quest.ClientQuestId;
 				pak.WriteShort((offer) ? (byte)0x22 : (byte)0x21); // Dialog
 				pak.WriteShort(QuestID);
 				pak.WriteShort((ushort)questNPC.ObjectID);
@@ -2953,11 +2953,11 @@ namespace DOL.GS.PacketHandler
 				}
 				SendTCP(pak);
 			}
-		}*/
-        /* TO BE ADDED SOON
+		}
+        
 		protected virtual void SendQuestWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest, bool offer) // patch 0026
 		{
-		}*/
+		}
 
 		protected virtual void SendQuestWindow(GameNPC questNPC, GamePlayer player, RewardQuest quest,	bool offer)
 		{

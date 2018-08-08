@@ -17,9 +17,11 @@
  *
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using DOL.Database;
 using DOL.GS.Effects;
 using DOL.GS.Quests;
@@ -31,85 +33,84 @@ using log4net;
 
 namespace DOL.GS.PacketHandler.Client.v168
 {
-    /// <summary>
-    /// delve button shift+i = detail of spell object...
-    /// </summary>
-    [PacketHandler(PacketHandlerType.TCP, eClientPackets.DetailRequest, "Handles detail display", eClientStatus.PlayerInGame)]
-    public class DetailDisplayHandler : IPacketHandler
-    {
-        /// <summary>
-        /// Defines a logger for this class.
-        /// </summary>
-        protected static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+	/// <summary>
+	/// delve button shift+i = detail of spell object...
+	/// </summary>
+	[PacketHandler(PacketHandlerType.TCP, eClientPackets.DetailRequest, "Handles detail display", eClientStatus.PlayerInGame)]
+	public class DetailDisplayHandler : IPacketHandler
+	{
+		/// <summary>
+		/// Defines a logger for this class.
+		/// </summary>
+		protected static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public void HandlePacket(GameClient client, GSPacketIn packet)
-        {
-            if (client?.Player == null)
+		public void HandlePacket(GameClient client, GSPacketIn packet)
+		{
+			if (client?.Player == null)
             {
                 return;
             }
 
-            ushort objectType = packet.ReadShort();
-            var extraId = packet.ReadInt();
-            ushort objectId = packet.ReadShort();
-            string caption = string.Empty;
-            var objectInfo = new List<string>();
+			ushort objectType = packet.ReadShort();
+			var extraId = packet.ReadInt();
+			ushort objectId = packet.ReadShort();
+			string caption = string.Empty;
+			var objectInfo = new List<string>();
 
-            /*
-            Type    Description         Id
-            1       Inventory item      Slot (ie. 0xC for 2 handed weapon)
-            2       Spell               spell level + spell line ID * 100 (starting from 0)
-            3       ???
-            4       Merchant item       Slot (divide by 30 to get page)
-            5       Buff/effect         The buff id (each buff has a unique id)
-            6       Style               style list index = ID-100-abilities count
-            7       Trade window        position in trade window (starting form 0)
-            8       Ability             100+position in players abilities list (?)
-            9       Trainers skill      position in trainers window list
-            10      Market Search       slot?
-            19      Reward Quest
-             */
+			/*
+			Type    Description         Id
+			1       Inventory item      Slot (ie. 0xC for 2 handed weapon)
+			2       Spell               spell level + spell line ID * 100 (starting from 0)
+			3       ???
+			4       Merchant item       Slot (divide by 30 to get page)
+			5       Buff/effect         The buff id (each buff has a unique id)
+			6       Style               style list index = ID-100-abilities count
+			7       Trade window        position in trade window (starting form 0)
+			8       Ability             100+position in players abilities list (?)
+			9       Trainers skill      position in trainers window list
+			10		Market Search		slot?
+			19		Reward Quest
+			 */
 
-            ChatUtil.SendDebugMessage(client, $"Delve objectType={objectType}, objectID={objectId}, extraID={extraId}");
+			ChatUtil.SendDebugMessage(client, string.Format("Delve objectType={0}, objectID={1}, extraID={2}", objectType, objectId, extraId));
 
-            ItemTemplate item = null;
-            InventoryItem invItem = null;
+			ItemTemplate item = null;
+			InventoryItem invItem = null;
 
-            var snapSkills = client.Player.GetAllUsableSkills();
-            var snapLists = client.Player.GetAllUsableListSpells();
-
-            // find the first non-specialization index.
-            int indexAtSpecOid = Math.Max(0, snapSkills.FindIndex(it => (it.Item1 is Specialization) == false)) + (objectId - 100);
-
-            switch (objectType)
-            {
-                case 1: // Display Infos on inventory item
-                case 10: // market search
-                    {
-                        if (objectType == 1)
-                        {
-                            // first try any active inventory object
+			var snapSkills = client.Player.GetAllUsableSkills();
+			var snapLists = client.Player.GetAllUsableListSpells();
+			// find the first non-specialization index.
+			int indexAtSpecOid = Math.Max(0, snapSkills.FindIndex(it => (it.Item1 is Specialization) == false)) + (objectId - 100);
+			
+			switch (objectType)
+			{					
+				case 1: //Display Infos on inventory item
+				case 10: // market search
+					{
+						if (objectType == 1)
+						{
+							// first try any active inventory object
                             var invObject = client.Player.ActiveInventoryObject;
                             if (invObject?.GetClientInventory(client.Player) != null)
                             {
                                 invObject.GetClientInventory(client.Player).TryGetValue(objectId, out invItem);
                             }
 
-                            // finally try direct inventory access
-                            if (invItem == null)
-                            {
-                                invItem = client.Player.Inventory.GetItem((eInventorySlot)objectId);
-                            }
+							// finally try direct inventory access
+							if (invItem == null)
+							{
+								invItem = client.Player.Inventory.GetItem((eInventorySlot)objectId);
+							}
 
-                            // Failed to get any inventory
-                            if (invItem == null)
-                            {
-                                return;
-                            }
-                        }
-                        else if (objectType == 10)
-                        {
-                            if (!(client.Player.TempProperties.getProperty<object>(MarketExplorer.EXPLORER_ITEM_LIST, null) is List<InventoryItem> list))
+							// Failed to get any inventory
+							if (invItem == null)
+							{
+								return;
+							}
+						}
+						else if (objectType == 10)
+						{
+							if (!(client.Player.TempProperties.getProperty<object>(MarketExplorer.EXPLORER_ITEM_LIST, null) is List<InventoryItem> list))
                             {
                                 list = client.Player.TempProperties.getProperty<object>("TempSearchKey", null) as List<InventoryItem>;
                                 if (list == null)
@@ -129,25 +130,25 @@ namespace DOL.GS.PacketHandler.Client.v168
                             {
                                 return;
                             }
-                        }
+						}
 
-                        // Aredhel: Start of a more sophisticated item delve system.
-                        // The idea is to have every item inherit from an item base class,
-                        // this base class will provide a method
-                        //
-                        // public virtual void Delve(List<String>, GamePlayer player)
-                        //
-                        // which can be overridden in derived classes to provide additional
-                        // information. Same goes for spells, just add the spell delve
-                        // in the Delve() hierarchy. This will on one hand make this class
-                        // much more concise (1800 lines at the time of this writing) and
-                        // on the other hand the whole delve system much more flexible, for
-                        // example when adding new item types (artifacts, for example) you
-                        // provide *only* an overridden Delve() method, use the base
-                        // Delve() and you're done, spells, charges and everything else.
+						// Aredhel: Start of a more sophisticated item delve system.
+						// The idea is to have every item inherit from an item base class,
+						// this base class will provide a method
+						//
+						// public virtual void Delve(List<String>, GamePlayer player)
+						//
+						// which can be overridden in derived classes to provide additional
+						// information. Same goes for spells, just add the spell delve
+						// in the Delve() hierarchy. This will on one hand make this class
+						// much more concise (1800 lines at the time of this writing) and
+						// on the other hand the whole delve system much more flexible, for
+						// example when adding new item types (artifacts, for example) you
+						// provide *only* an overridden Delve() method, use the base
+						// Delve() and you're done, spells, charges and everything else.
 
-                        // Let the player class create the appropriate item to delve
-                        if (invItem != null)
+						// Let the player class create the appropriate item to delve
+						if (invItem != null)
                         {
                             caption = invItem.Name;
 
@@ -290,12 +291,12 @@ namespace DOL.GS.PacketHandler.Client.v168
                             }
                         }
 
-                        break;
-                    }
-
-                case 2: // spell List
-                    {
-                        int lineId = objectId / 100;
+						break;						
+					}
+					
+				case 2: //spell List
+					{
+						int lineId = objectId / 100;
                         int spellId = objectId % 100;
 
                         Skill sk = null;
@@ -351,14 +352,13 @@ namespace DOL.GS.PacketHandler.Client.v168
                                 objectInfo.Add("There is no special information.");
                             }
                         }
-
-                        break;
-                    }
-
-                case 3: // spell Hybrid
-                    {
-
-                        SpellLine spellLine = null;
+		
+						break;
+					}
+					
+				case 3: //spell Hybrid
+					{
+						SpellLine spellLine = null;
                         Spell spell = null;
 
                         // are we in list ?
@@ -376,12 +376,12 @@ namespace DOL.GS.PacketHandler.Client.v168
                         caption = spell.Name;
                         WriteSpellInfo(objectInfo, spell, spellLine, client);
                         break;
-                    }
-
-                case 4: // Display Infos on Merchant objects
-                case 19: // Display Info quest reward
-                    {
-                        if (objectType == 4)
+					}
+					
+				case 4: //Display Infos on Merchant objects
+				case 19: //Display Info quest reward				
+					{
+						if (objectType == 4)
                         {
                             GameMerchant merchant = null;
                             if (client.Player.TargetObject is GameMerchant gameMerchant)
@@ -399,9 +399,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                             item = merchant.TradeItems.GetItem(pagenumber, (eMerchantWindowSlot)slotnumber);
                         }
-                        else if (objectType == 19)
-                        {
-                            ushort questId = (ushort)((extraId << 12) | (ushort)(objectId >> 4));
+						else if (objectType == 19)
+						{
+							ushort questId = (ushort)((extraId << 12) | (ushort)(objectId >> 4));
                             int index = objectId & 0x0F;
 
                             GameLiving questGiver = null;
@@ -416,8 +416,8 @@ namespace DOL.GS.PacketHandler.Client.v168
                             {
                                 return; // questID == 0, wrong ID ?
                             }
-
-                            if (questId <= DataQuest.DataquestClientoffset)
+							
+							if (questId <= DataQuest.DataquestClientoffset)
                             {
                                 AbstractQuest q = client.Player.IsDoingQuest(QuestMgr.GetQuestTypeForID(questId));
 
@@ -464,7 +464,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     item = rewards[index];
                                 }
                             }
-                            else // Data quest support, check for RewardQuest type
+							else // Data quest support, check for RewardQuest type
                             {
                                 DataQuest dq = null;
 
@@ -496,16 +496,15 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     }
                                 }
                             }
-                        }
+						}
 
-                        if (item == null)
+						if (item == null)
                         {
                             return;
                         }
+						caption = item.Name;
 
-                        caption = item.Name;
-
-                        if (client.Player.DelveItem(item, objectInfo))
+						if (client.Player.DelveItem(item, objectInfo))
                         {
                             break;
                         }
@@ -555,7 +554,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                             WritePoisonInfo(objectInfo, item, client);
                         }
 
-                        if (item.Object_Type == (int)eObjectType.Magical && item.Item_Type == 40) // potion
+						if (item.Object_Type == (int)eObjectType.Magical && item.Item_Type == 40) // potion
                         {
                             WritePotionInfo(objectInfo, item, client);
                         }
@@ -565,12 +564,144 @@ namespace DOL.GS.PacketHandler.Client.v168
                         {
                             WriteTechnicalInfo(objectInfo, client, GameInventoryItem.Create(item), item.MaxDurability, item.MaxCondition);
                         }
+						
+						break;
+						
+					}					
+				// reward quest delve 1.115+	
+				case 29: // patch 0020 delve items in quest window 1.115+
+					{						
+						if (objectType == 29)
+						{							
+							int index = objectId & 0x0F;
+							ushort questID = (ushort)((extraId >> 5) | (ushort)(objectId >> 4));
+							GameLiving questGiver = null;
+							if (client.Player.TargetObject is GameLiving) //- Unty
+								questGiver = (GameLiving)client.Player.TargetObject;
 
-                        break;
-                    }
+							ChatUtil.SendDebugMessage(client, "Quest ID: " + questID);
 
-                case 5: // icons on top (buffs/dots)
-                    {
+							if (questID == 0)
+								return; // questID == 0, wrong ID ?
+							/*
+							if (questID <= DataQuest.DATAQUEST_CLIENTOFFSET)
+							{
+								AbstractQuest q = client.Player.IsDoingQuest(QuestMgr.GetQuestTypeForID(questID));
+
+								if (q == null)
+								{
+									// player not doing quest, most likely on offer screen
+									if (questGiver != null)
+									{
+										try
+										{
+											q = (AbstractQuest)Activator.CreateInstance(QuestMgr.GetQuestTypeForID(questID), new object[] { client.Player, 1 });
+										}
+										catch (Exception e)
+										{
+											log.ErrorFormat("Error creating instance - {0}", e);
+										}
+									}
+
+									if (q == null)
+									{
+										ChatUtil.SendDebugMessage(client, "Can't find or create quest!");
+										return;
+									}
+								}
+
+								if (!(q is RewardQuest))
+									return; // this is not new quest
+
+								List<ItemTemplate> rewards = null;
+								if (index < 8)
+									rewards = (q as RewardQuest).Rewards.BasicItems;
+								else
+								{
+									rewards = (q as RewardQuest).Rewards.OptionalItems;
+									index -= 8;
+								}
+								if (rewards != null && index >= 0 && index < rewards.Count)
+								{
+									item = rewards[index];
+								}
+							}*/
+							//if (questID > DataQuest.DATAQUEST_CLIENTOFFSET) // patch 0026
+							// patch 0031
+								DQRewardQ dqrq = null;
+								questID = (ushort)(objectId >> 4);
+								//int index = (ushort)(objectID - DataQuest.DATAQUEST_CLIENTOFFSET - questID);
+								//questID = (ushort)(DataQuest.ClientQuestID - DataQuest.DATAQUEST_CLIENTOFFSET);
+								foreach (DBDQRewardQ d in GameObject.DQRewardCache)
+								{
+									if (d.ID == questID)
+									{
+										dqrq = new DQRewardQ(d);
+										break;
+									}
+								}
+
+								if (dqrq != null)
+								{
+									List<ItemTemplate> rewards = null;
+									if (index < 8)
+										rewards = dqrq.FinalRewards;
+									else
+									{
+										rewards = dqrq.OptionalRewards;
+										index -= 8;
+									}
+									if (rewards != null && index >= 0 && index < rewards.Count)
+									{
+										item = rewards[index];
+									}
+								}
+							/*
+							else // Data quest support, check for RewardQuest type
+							{
+								DataQuest dq = null;
+								questID = (ushort)(objectID >> 4);
+								//int index = (ushort)(objectID - DataQuest.DATAQUEST_CLIENTOFFSET - questID);
+								//questID = (ushort)(DataQuest.ClientQuestID - DataQuest.DATAQUEST_CLIENTOFFSET);
+								foreach (DBDataQuest d in GameObject.DataQuestCache)
+								{
+									if (d.ID == questID)
+									{
+										dq = new DataQuest(d);
+										break;
+									}
+								}
+
+								if (dq != null && dq.StartType == DataQuest.eStartType.RewardQuest)
+								{
+									List<ItemTemplate> rewards = null;
+									if (index < 8)
+										rewards = dq.FinalRewards;
+									else
+									{
+										rewards = dq.OptionalRewards;
+										index -= 8;
+									}
+									if (rewards != null && index >= 0 && index < rewards.Count)
+									{
+										item = rewards[index];
+									}
+								}
+							}*/
+						}
+
+						if (item == null)
+							return;
+
+						caption = item.Name;
+
+						if (client.Player.DelveItem<ItemTemplate>(item, objectInfo))
+							break;
+						break;
+					}
+						
+				case 5: //icons on top (buffs/dots)
+					{
                         IGameEffect foundEffect = null;
                         lock (client.Player.EffectList)
                         {
@@ -616,8 +747,8 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         break;
                     }
-
-                case 6: // style
+					
+				case 6: // style
                     {
                         Style style = null;
 
@@ -637,8 +768,8 @@ namespace DOL.GS.PacketHandler.Client.v168
                         WriteStyleInfo(objectInfo, style, client);
                         break;
                     }
-
-                case 7: // trade windows
+					
+				case 7: // trade windows
                     {
                         ITradeWindow playerTradeWindow = client.Player.TradeWindow;
                         if (playerTradeWindow == null)
@@ -808,8 +939,8 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         break;
                     }
-
-                case 12: // Item info to Group Chat
+					
+				case 12: // Item info to Group Chat
                     {
                         invItem = client.Player.Inventory.GetItem((eInventorySlot)objectId);
                         if (invItem == null)
@@ -861,8 +992,8 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         return;
                     }
-
-                case 15: // Item info to Chat group
+					
+				case 15: // Item info to Chat group
                     {
                         invItem = client.Player.Inventory.GetItem((eInventorySlot)objectId);
                         if (invItem == null)
@@ -891,10 +1022,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         return;
                     }
-
-                // styles
-                case 20:
-                    {
+				//styles
+				case 20:
+					{
                         Style style = null;
                         // Search Id
                         Skill sk = client.TrainerSkillCache?
@@ -915,14 +1045,13 @@ namespace DOL.GS.PacketHandler.Client.v168
                         WriteStyleInfo(objectInfo, style, client);
                         break;
                     }
-
-                    // spells
-                case 22:
-                    // songs
-                case 21:
-                    // Ability
-                case 23:
-                    {
+				//spells
+				case 22:
+				//songs
+				case 21:
+				// Ability
+				case 23:
+					{
                         Skill sk = null;
                         if (client.TrainerSkillCache != null)
                         {
@@ -961,8 +1090,8 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         break;
                     }
-
-                case 100:// repair
+					
+				case 100:// repair
                     {
                         invItem = client.Player.Inventory.GetItem((eInventorySlot)objectId);
                         if (invItem != null)
@@ -991,8 +1120,8 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         return;
                     }
-
-                case 102:// salvage
+					
+				case 102:// salvage
                     {
                         invItem = client.Player.Inventory.GetItem((eInventorySlot)objectId);
                         if (invItem != null)
@@ -1036,8 +1165,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         return;
                     }
-
-                case 24:// SpellsNew
+					
+				// v1.110+
+				case 24:// SpellsNew
                     if (client.CanSendTooltip(24, objectId))
                     {
                         client.Out.SendDelveInfo(DelveSpell(client, objectId));
@@ -1056,8 +1186,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                     {
                         client.Out.SendDelveInfo(DelveSong(client, objectId));
                     }
-
-                    client.Out.SendDelveInfo(DelveSpell(client, objectId));
+                    
                     break;
                 case 27:// RANew
                     if (client.CanSendTooltip(27, objectId))
@@ -1072,9 +1201,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                         client.Out.SendDelveInfo(DelveAbility(client, objectId));
                     }
 
-                    break;
-
-                default:
+                    break;			        
+				
+				default:
                     {
                         // Try retieving champion lines
                         int clSpecId = objectType - 150;
@@ -1119,16 +1248,16 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     }
                                 }
                             }
-                            catch
+                            catch // TODO fix empty catch
                             {
                             }
                         }
 
                         break;
-                    }
-            }
+                    }					
+			}
 
-            if (objectInfo.Count > 0)
+			if (objectInfo.Count > 0)
             {
                 client.Out.SendCustomTextWindow(caption, objectInfo);
             }
@@ -1136,21 +1265,17 @@ namespace DOL.GS.PacketHandler.Client.v168
             {
                 Log.Warn($"DetailDisplayHandler no info for objectID {objectId} of type {objectType}. Item: {(item == null ? (invItem == null ? "null" : invItem.Id_nb) : item.Id_nb)}, client: {client}");
             }
-        }
+		}
 
-        public static void WriteStyleInfo(IList<string> objectInfo, Style style, GameClient client)
-        {
-            client.Player.DelveWeaponStyle(objectInfo, style);
-        }
+		public static void WriteStyleInfo(IList<string> objectInfo, Style style, GameClient client)
+		{
+			client.Player.DelveWeaponStyle(objectInfo, style);
+		}
 
-        /// <summary>
-        /// Write a formatted description of a spell
-        /// </summary>
-        /// <param name="output"></param>
-        /// <param name="spell"></param>
-        /// <param name="spellLine"></param>
-        /// <param name="client"></param>
-        public void WriteSpellInfo(IList<string> output, Spell spell, SpellLine spellLine, GameClient client)
+		/// <summary>
+		/// Write a formatted description of a spell
+		/// </summary>		
+		public void WriteSpellInfo(IList<string> output, Spell spell, SpellLine spellLine, GameClient client)
         {
             if (client?.Player == null)
             {
@@ -1214,11 +1339,11 @@ namespace DOL.GS.PacketHandler.Client.v168
         }
 
         public void WriteTechnicalInfo(IList<string> output, GameClient client, InventoryItem item)
-        {
+		{
             WriteTechnicalInfo(output, client, item, item.Durability, item.Condition);
-        }
+		}
 
-        public void WriteTechnicalInfo(IList<string> output, GameClient client, InventoryItem item, int dur, int con)
+		public void WriteTechnicalInfo(IList<string> output, GameClient client, InventoryItem item, int dur, int con)
         {
             output.Add(" ");
             output.Add("--- Item Technical Information ---");
@@ -1290,7 +1415,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             output.Add($"        PackageID: {item.PackageID}");
         }
 
-        protected string GetShortItemInfo(InventoryItem item, GameClient client)
+		protected string GetShortItemInfo(InventoryItem item, GameClient client)
         {
             // TODO: correct info format if anyone is interested...
             /*
@@ -1368,19 +1493,19 @@ namespace DOL.GS.PacketHandler.Client.v168
             return str;
         }
 
-        /// <summary>
-        /// Damage Modifiers:
-        /// - X.X Base DPS
-        /// - X.X Clamped DPS
-        /// - XX Weapon Speed
-        /// - XX% Quality
-        /// - XX% Condition
-        /// Damage Type: XXX
-        ///
-        /// Effective Damage:
-        /// - X.X DPS
-        /// </summary>
-        public void WriteClassicWeaponInfos(IList<string> output, InventoryItem item, GameClient client)
+		/// <summary>
+		/// Damage Modifiers:
+		/// - X.X Base DPS
+		/// - X.X Clamped DPS
+		/// - XX Weapon Speed
+		/// - XX% Quality
+		/// - XX% Condition
+		/// Damage Type: XXX
+		///
+		/// Effective Damage:
+		/// - X.X DPS
+		/// </summary>
+		public void WriteClassicWeaponInfos(IList<string> output, InventoryItem item, GameClient client)
         {
             double itemDps = item.DPS_AF / 10.0;
             double clampedDps = Math.Min(itemDps, 1.2 + 0.3 * client.Player.Level);
@@ -1422,7 +1547,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        public void WriteUsableClasses(IList<string> output, InventoryItem item, GameClient client)
+		public void WriteUsableClasses(IList<string> output, InventoryItem item, GameClient client)
         {
             WriteUsableClasses(output, item.Template, client);
         }
@@ -1449,18 +1574,18 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        /// <summary>
-        /// Damage Modifiers (when used with shield styles):
-        /// - X.X Base DPS
-        /// - X.X Clamped DPS
-        /// - XX Shield Speed
-        /// </summary>
-        public void WriteClassicShieldInfos(IList<string> output, InventoryItem item, GameClient client)
-        {
-            WriteClassicShieldInfos(output, item.Template, client);
-        }
-
-        public void WriteClassicShieldInfos(IList<string> output, ItemTemplate item, GameClient client)
+		/// <summary>
+		/// Damage Modifiers (when used with shield styles):
+		/// - X.X Base DPS
+		/// - X.X Clamped DPS
+		/// - XX Shield Speed
+		/// </summary>
+		public void WriteClassicShieldInfos(IList<string> output, InventoryItem item, GameClient client)
+		{
+			WriteClassicShieldInfos(output, item.Template, client);
+		}
+		
+		public void WriteClassicShieldInfos(IList<string> output, ItemTemplate item, GameClient client)
         {
             double itemDps = item.DPS_AF / 10.0;
             double clampedDps = Math.Min(itemDps, 1.2 + 0.3 * client.Player.Level);
@@ -1496,19 +1621,19 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        /// <summary>
-        /// Armor Modifiers:
-        /// - X.X Base Factor
-        /// - X.X Clamped Factor
-        /// - XX% Absorption
-        /// - XX% Quality
-        /// - XX% Condition
-        /// Damage Type: XXX
-        ///
-        /// Effective Armor:
-        /// - X.X Factor
-        /// </summary>
-        public void WriteClassicArmorInfos(IList<string> output, InventoryItem item, GameClient client)
+		/// <summary>
+		/// Armor Modifiers:
+		/// - X.X Base Factor
+		/// - X.X Clamped Factor
+		/// - XX% Absorption
+		/// - XX% Quality
+		/// - XX% Condition
+		/// Damage Type: XXX
+		///
+		/// Effective Armor:
+		/// - X.X Factor
+		/// </summary>
+		public void WriteClassicArmorInfos(IList<string> output, InventoryItem item, GameClient client)
         {
             output.Add(" ");
             output.Add(" ");
@@ -1557,12 +1682,12 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        public void WriteMagicalBonuses(IList<string> output, ItemTemplate item, GameClient client, bool shortInfo)
-        {
-            WriteMagicalBonuses(output, GameInventoryItem.Create(item), client, shortInfo);
-        }
+		public void WriteMagicalBonuses(IList<string> output, ItemTemplate item, GameClient client, bool shortInfo)
+		{
+			WriteMagicalBonuses(output, GameInventoryItem.Create(item), client, shortInfo);
+		}
 
-        public void WriteMagicalBonuses(IList<string> output, InventoryItem item, GameClient client, bool shortInfo)
+		public void WriteMagicalBonuses(IList<string> output, InventoryItem item, GameClient client, bool shortInfo)
         {
             int oldCount = output.Count;
 
@@ -1931,7 +2056,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        protected bool IsPvEBonus(eProperty property)
+		protected bool IsPvEBonus(eProperty property)
         {
             switch (property)
             {
@@ -1953,7 +2078,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        protected void WriteFocusLine(IList<string> list, int focusCat, int focusLevel)
+		protected void WriteFocusLine(IList<string> list, int focusCat, int focusLevel)
         {
             if (SkillBase.CheckPropertyType((eProperty)focusCat, ePropertyType.Focus))
             {
@@ -1966,8 +2091,8 @@ namespace DOL.GS.PacketHandler.Client.v168
         {
             WriteHorseInfo(list, item.Template, client, horseName);
         }
-
-        protected void WriteHorseInfo(IList<string> list, ItemTemplate item, GameClient client, string horseName)
+		
+		protected void WriteHorseInfo(IList<string> list, ItemTemplate item, GameClient client, string horseName)
         {
             list.Add(" ");
             list.Add(" ");
@@ -2000,12 +2125,12 @@ namespace DOL.GS.PacketHandler.Client.v168
             list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WriteHorseInfo.Food"));
         }
 
-        protected void WritePoisonInfo(IList<string> list, ItemTemplate item, GameClient client)
-        {
-            WritePoisonInfo(list, GameInventoryItem.Create(item), client);
-        }
+		protected void WritePoisonInfo(IList<string> list, ItemTemplate item, GameClient client)
+		{
+			WritePoisonInfo(list, GameInventoryItem.Create(item), client);
+		}
 
-        protected void WritePoisonInfo(IList<string> list, InventoryItem item, GameClient client)
+		protected void WritePoisonInfo(IList<string> list, InventoryItem item, GameClient client)
         {
             if (item.PoisonSpellID != 0)
             {
@@ -2044,80 +2169,71 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
 
-        /// <summary>
-        /// Nidel: Write potions infos. Spell's infos include
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="item"></param>
-        /// <param name="client"></param>
-        private static void WritePotionInfo(IList<string> list, ItemTemplate item, GameClient client)
-        {
-            WritePotionInfo(list, GameInventoryItem.Create(item), client);
-        }
+		/// <summary>
+		/// Nidel: Write potions infos. Spell's infos include
+		/// </summary>		
+		private static void WritePotionInfo(IList<string> list, ItemTemplate item, GameClient client)
+		{
+			WritePotionInfo(list, GameInventoryItem.Create(item), client);
+		}
 
-        private static void WritePotionInfo(IList<string> list, InventoryItem item, GameClient client)
-        {
-            if (item.SpellID != 0)
-            {
-                SpellLine potionLine = SkillBase.GetSpellLine(GlobalSpellsLines.Potions_Effects);
-                if (potionLine != null)
-                {
-                    List<Spell> spells = SkillBase.GetSpellList(potionLine.KeyName);
+		private static void WritePotionInfo(IList<string> list, InventoryItem item, GameClient client)
+		{
+			if (item.SpellID != 0)
+			{
+				SpellLine potionLine = SkillBase.GetSpellLine(GlobalSpellsLines.Potions_Effects);
+				if (potionLine != null)
+				{
+					List<Spell> spells = SkillBase.GetSpellList(potionLine.KeyName);
 
-                    foreach (Spell spl in spells)
-                    {
-                        if (spl.ID == item.SpellID)
-                        {
-                            list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.ChargedMagic"));
-                            list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.Charges", item.Charges));
-                            list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.MaxCharges", item.MaxCharges));
-                            list.Add(" ");
-                            WritePotionSpellsInfos(list, client, spl, potionLine);
-                            list.Add(" ");
-                            long nextPotionAvailTime = client.Player.TempProperties.getProperty<long>("LastPotionItemUsedTick_Type" + spl.SharedTimerGroup);
+					foreach (Spell spl in spells)
+					{
+						if (spl.ID == item.SpellID)
+						{
+							list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.ChargedMagic"));
+							list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.Charges", item.Charges));
+							list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.MaxCharges", item.MaxCharges));
+							list.Add(" ");
+							WritePotionSpellsInfos(list, client, spl, potionLine);
+							list.Add(" ");
+							long nextPotionAvailTime = client.Player.TempProperties.getProperty<long>("LastPotionItemUsedTick_Type" + spl.SharedTimerGroup);
+							// Satyr Update: Individual Reuse-Timers for Pots need a Time looking forward
+							// into Future, set with value of "itemtemplate.CanUseEvery" and no longer back into past
+							if (nextPotionAvailTime > client.Player.CurrentRegion.Time)
+							{
+								list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.UseItem3", Util.FormatTime((nextPotionAvailTime - client.Player.CurrentRegion.Time) / 1000)));
+							}
+							else
+							{
+								int minutes = item.CanUseEvery / 60;
+								int seconds = item.CanUseEvery % 60;
 
-                            // Satyr Update: Individual Reuse-Timers for Pots need a Time looking forward
-                            // into Future, set with value of "itemtemplate.CanUseEvery" and no longer back into past
-                            if (nextPotionAvailTime > client.Player.CurrentRegion.Time)
-                            {
-                                list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.UseItem3", Util.FormatTime((nextPotionAvailTime - client.Player.CurrentRegion.Time) / 1000)));
-                            }
-                            else
-                            {
-                                int minutes = item.CanUseEvery / 60;
-                                int seconds = item.CanUseEvery % 60;
+								if (minutes == 0)
+								{
+									list.Add(String.Format("Can use item every: {0} sec", seconds));
+								}
+								else
+								{
+									list.Add(String.Format("Can use item every: {0}:{1:00} min", minutes, seconds));
+								}
+							}
 
-                                if (minutes == 0)
-                                {
-                                    list.Add($"Can use item every: {seconds} sec");
-                                }
-                                else
-                                {
-                                    list.Add($"Can use item every: {minutes}:{seconds:00} min");
-                                }
-                            }
+							if (spl.CastTime > 0)
+							{
+								list.Add(" ");
+								list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.NoUseInCombat"));
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
 
-                            if (spl.CastTime > 0)
-                            {
-                                list.Add(" ");
-                                list.Add(LanguageMgr.GetTranslation(client.Account.Language, "DetailDisplayHandler.WritePotionInfo.NoUseInCombat"));
-                            }
-
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Nidel: Write spell's infos of potions and subspell's infos with recursive method.
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="client"></param>
-        /// <param name="spl"></param>
-        /// <param name="line"></param>
-        private static void WritePotionSpellsInfos(IList<string> list, GameClient client, Spell spl, NamedSkill line)
+		/// <summary>
+		/// Nidel: Write spell's infos of potions and subspell's infos with recursive method.
+		/// </summary>		
+		private static void WritePotionSpellsInfos(IList<string> list, GameClient client, Spell spl, NamedSkill line)
         {
             if (spl != null)
             {
@@ -2152,286 +2268,359 @@ namespace DOL.GS.PacketHandler.Client.v168
                     }
                 }
             }
-        }
-
-        /** General info @ v1.110:
-         *  - Examples can be found at http://dl.dropbox.com/u/48908369/delve.txt
-         *  - 'Expires' can be left out
-         *  - No idea what 'Fingerprint' does
-         **/
+        }        
+		// v 1.110+ 
         public static string DelveAbility(GameClient clt, int id)
-        { /* or skill */
+        {			
+        	Skill sk = clt.Player.GetAllUsableSkills().Where(e => e.Item1.InternalID == id).OrderBy(e => e.Item1 is Ability ? 0 : 1).Select(e => e.Item1).FirstOrDefault();
+        	
+        	if(sk == null)
+        	{
+				sk = SkillBase.GetAbilityByInternalID(id);
+			}
+			
+        	if(sk == null)
+			{	
+        		sk = SkillBase.GetSpecializationByInternalID(id);		
+			}
+			
+			MiniDelveWriter dw = new MiniDelveWriter(sk is Ability ? "Ability" : "Skill");
+        	dw.AddKeyValuePair("Index", unchecked((short)id));
 
-            Skill sk = clt.Player.GetAllUsableSkills().Where(e => e.Item1.InternalID == id).OrderBy(e => e.Item1 is Ability ? 0 : 1).Select(e => e.Item1).FirstOrDefault();
-
-            if (sk == null)
-            {
-                sk = SkillBase.GetAbilityByInternalID(id);
-            }
-
-            if (sk == null)
-            {
-                sk = SkillBase.GetSpecializationByInternalID(id);
-            }
-
-            MiniDelveWriter dw = new MiniDelveWriter(sk is Ability ? "Ability" : "Skill");
-
-            dw.AddKeyValuePair("Index", unchecked((short)id));
-
-            if (sk != null)
+            if (sk != null) 
             {
                 dw.AddKeyValuePair("Name", sk.Name);
             }
             else
             {
-                dw.AddKeyValuePair("Name", "(not found)");
+            	dw.AddKeyValuePair("Name", "(not found)");
             }
-
+            
             return dw.ToString();
         }
 
-        /// <summary>
-        /// Delve Info for Songs (V1.110+)
-        /// </summary>
-        /// <param name="clt">Client</param>
-        /// <param name="id">SpellID</param>
-        /// <returns></returns>
-        public static string DelveSong(GameClient clt, int id)
-        {
-            MiniDelveWriter dw = new MiniDelveWriter("Song");
-            dw.AddKeyValuePair("Index", unchecked((short)id));
+		/// <summary>
+		/// Delve Info for Songs (V1.110+)
+		/// </summary>		
+		public static string DelveSong(GameClient clt, int id)
+		{
+			MiniDelveWriter dw = new MiniDelveWriter("Song");
+			dw.AddKeyValuePair("Index", unchecked((short)id));
+			
+			Spell spell = SkillBase.GetSpellByTooltipID((ushort)id);			
+			
+			ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
+			
+			if (spellHandler != null)
+			{
+				dw.AddKeyValuePair("effect", spell.ID);
+				dw.AddKeyValuePair("Name", spellHandler.Spell.Name);
+				clt.Out.SendDelveInfo(DelveSongSpell(clt, spell.ID));
+				return dw.ToString();
+			}
 
-            Spell spell = SkillBase.GetSpellByTooltipID((ushort)id);
+			// not found
+			dw.AddKeyValuePair("Name", "(not found)");
+			return dw.ToString();
+		}
 
-            ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
-
-            if (spellHandler != null)
-            {
-                dw.AddKeyValuePair("effect", spellHandler.Spell.InternalID);
-                dw.AddKeyValuePair("Name", spellHandler.Spell.Name);
-                return dw.ToString();
-            }
-
-            // not found
-            dw.AddKeyValuePair("Name", "(not found)");
-            return dw.ToString();
-        }
-
-        /// <summary>
-        /// Delve Info for Spells (V1.110+)
-        /// </summary>
-        /// <param name="clt">Client</param>
-        /// <param name="id">SpellID</param>
-        /// <returns></returns>
+		/// <summary>
+		/// Delve Info for Spells (V1.110+)
+		/// </summary>		
         public static string DelveSpell(GameClient clt, int id)
         {
             MiniDelveWriter dw = new MiniDelveWriter("Spell");
-
+            
             Spell spell = SkillBase.GetSpellByTooltipID((ushort)id);
+            
+        	// Spell object are mostly "DB" Object, we can't subclass this object easily, but Spellhandler create subclass using "SpellType"
+        	// We better rely on the handler to delve it correctly ! using reserved spellline as we can't guess it ! player can delve other object effect !
+			ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
+			
+			if (spellHandler != null)
+			{
+				spellHandler.TooltipDelve(ref dw, id, clt);
+				// If spell has a subspell, we need to send another call to delve that subspell info
+				if (spell.SubSpellId > 0)
+				{
+					clt.Out.SendDelveInfo(DelveAttachedSpell(clt, spell.SubSpellId));
+				}				
+				return dw.ToString();
+			}
 
-            // Spell object are mostly "DB" Object, we can't subclass this object easily, but Spellhandler create subclass using "SpellType"
-            // We better rely on the handler to delve it correctly ! using reserved spellline as we can't guess it ! player can delve other object effect !
-            ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
-
-            if (spellHandler != null)
-            {
-                spellHandler.TooltipDelve(ref dw, id);
-                return dw.ToString();
-            }
-
-            // not found
-            dw.AddKeyValuePair("Index", unchecked((short)id));
-            dw.AddKeyValuePair("Name", "(not found)");
+        	// not found
+        	dw.AddKeyValuePair("Index", unchecked((short)id));
+        	dw.AddKeyValuePair("Name", "(not found)");
             return dw.ToString();
         }
-
-        public static string DelveStyle(GameClient clt, int id)
+        
+		/// <summary>
+		/// Delve Info for style spells and subspells (V1.110+)
+		/// These are bleeds, snares etc and must be delved as a spell to correctly show on the tooltip
+		/// </summary>		
+        public static string DelveStyleSpell(GameClient clt, int id)
         {
-            Tuple<Skill,Skill> sk = clt.Player.GetAllUsableSkills().FirstOrDefault(e => e.Item1.InternalID == id && e.Item1 is Style);
+            MiniDelveWriter dw = new MiniDelveWriter("Spell");
+            Spell spell = SkillBase.GetSpellByID(id);
+            
+			ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
+			
+			if (spellHandler != null)
+			{
+				spellHandler.TooltipDelve(ref dw, id, clt);
+                if (spell.SubSpellId > 0)
+                {
+                    clt.Out.SendDelveInfo(DelveStyleSpell(clt, spell.SubSpellId));
+                }
+				return dw.ToString();
+			}
 
-            Style style = null;
-            if (sk?.Item1 == null)
-            {
-                style = SkillBase.GetStyleByInternalID(id);
-            }
-            else if (sk.Item1 is Style)
-            {
-                style = (Style)sk.Item1;
-            }
+        	// not found
+        	dw.AddKeyValuePair("Index", unchecked((short)id));
+        	dw.AddKeyValuePair("Name", "(not found)");
+            return dw.ToString();
+        }
+        
+		public static string DelveStyle(GameClient clt, int id)
+        {
+			Tuple<Skill,Skill> sk = clt.Player.GetAllUsableSkills().Where(e => e.Item1.InternalID == id && e.Item1 is Style).FirstOrDefault();
+        	
+			Style style = null;
+        	if(sk == null || sk.Item1 == null)
+        	{
+            	style = SkillBase.GetStyleByInternalID(id);
+        	}
+        	else if (sk.Item1 is Style)
+        	{
+        		style = (Style)sk.Item1;
+        	}
 
             MiniDelveWriter dw = new MiniDelveWriter("Style");
             dw.AddKeyValuePair("Index",  unchecked((short)id));
 
             if (style != null)
-            {
-                // Not implemented:
-                // (Style (FollowupStyle "Sapphire Slash")(LevelBonus "2")(OpeningDamage "16")(Skill "1")(Expires "1343375647"))
-                // (Style (Fingerprint "1746652963")(FollowupStyle "Thigh Cut")(Hidden "1")OpeningDamage "55")(Skill "118")(SpecialNumber "1511")(SpecialType "1")(Expires "1342381240"))
-                // Skill = GetSpecToInternalIndex
-                // find opening style, and follow up !!
-                IEnumerable<Style> styles = clt.Player.GetSpecList().SelectMany(e => e.PretendStylesForLiving(clt.Player, clt.Player.MaxLevel)).ToList();
-
-                // Is a followup
-                if (style.OpeningRequirementType == Style.eOpening.Offensive && style.AttackResultRequirement == Style.eAttackResultRequirement.Style)
-                {
-                    Style st = styles.FirstOrDefault(s => s.ID == style.OpeningRequirementValue);
-                    if (st != null)
-                    {
-                        // opening style should be only one.
-                        dw.AddKeyValuePair("OpeningStyle", st.Name);
-                    }
-                }
-
-                // Has Followup ?
-                foreach (Style stl in styles.Where(s => (s.OpeningRequirementType == Style.eOpening.Offensive && s.AttackResultRequirement == Style.eAttackResultRequirement.Style && s.OpeningRequirementValue == style.ID)))
-                {
-                    // we found the style that needs this one for opening.
-                    dw.AppendKeyValuePair("FollowupStyle", stl.Name);
-                }
-
-                dw.AddKeyValuePair("Name", style.Name);
-                dw.AddKeyValuePair("Icon", style.Icon);
-                dw.AddKeyValuePair("Level", style.Level);
-                dw.AddKeyValuePair("Fatigue", style.EnduranceCost);
-
-                // .Value("SpecialType", (int)style.SpecialType, style.SpecialType != 0)
-                // .Value("SpecialNumber", GetSpecialNumber(style), GetSpecialNumber(style)!=0)
-                if (style.BonusToDefense != 0)
-                {
-                    dw.AddKeyValuePair("DefensiveMod", style.BonusToDefense);
-                }
-
-                if (style.BonusToHit != 0)
-                {
-                    dw.AddKeyValuePair("AttackMod", style.BonusToHit);
-                }
-
-                dw.AddKeyValuePair("OpeningType", (int)style.OpeningRequirementType);
-                if (style.OpeningRequirementType == Style.eOpening.Positional)
-                {
-                    dw.AddKeyValuePair("OpeningNumber", style.OpeningRequirementValue);
-                }
-
-                // .Value("OpeningResult",GetOpeningResult(style,clt),GetOpeningResult(style,clt)>0)
-                // .Value("OpeningStyle",GetOpeningStyle(style),(Style.eAttackResult)GetOpeningResult(style,clt) == Style.eAttackResult.Style)
-                if (style.WeaponTypeRequirement > 0)
-                {
-                    dw.AddKeyValuePair("Weapon", style.GetRequiredWeaponName());
-                }
-
-                if (style.StealthRequirement)
-                {
-                    dw.AddKeyValuePair("Hidden", "1");
-                }
-
-                // .Value("TwoHandedIcon", 10, style.TwoHandAnimation > 0)
-                // .Value("Skill",43)
-                if (style.GrowthRate > 0)
-                {
-                    dw.AddKeyValuePair("OpeningDamage",style.GrowthRate * 100);
-                }
-
-                // .Value("SpecialValue", GetSpecialValue(style),GetSpecialValue(style)!=0)
-                // .Value("FollowupStyle",style.DelveFollowUpStyles,!string.IsNullOrEmpty(style.DelveFollowUpStyles))
+            {               
+				
+				IEnumerable<Style> styles = clt.Player.GetSpecList().SelectMany(e => e.PretendStylesForLiving(clt.Player, clt.Player.MaxLevel));
+				//OpeningResult:
+				int openingResult = 0;
+				int sameTarget = 0;
+				if (style.OpeningRequirementType == Style.eOpening.Defensive && (int)style.AttackResultRequirement != 0)
+				{
+					openingResult = (int)style.AttackResultRequirement;
+					if (openingResult == 3)
+					{	
+						sameTarget = 1;
+					}
+				}
+				
+				// Is a followup
+				if (style.OpeningRequirementType == Style.eOpening.Offensive && style.AttackResultRequirement == Style.eAttackResultRequirement.Style)
+				{
+					Style st = styles.Where(s => s.ID == style.OpeningRequirementValue).FirstOrDefault();
+					if (st != null)
+					{
+						// opening style should be only one.
+						dw.AddKeyValuePair("OpeningStyle", st.Name);
+					}
+				}
+				
+				// Has Followup ?
+				foreach (Style stl in styles.Where(s => (s.OpeningRequirementType == Style.eOpening.Offensive && s.AttackResultRequirement == Style.eAttackResultRequirement.Style && s.OpeningRequirementValue == style.ID)))
+				{
+					// we found the style that needs this one for opening.
+					dw.AppendKeyValuePair("FollowupStyle", stl.Name);
+				}
+				
+				//SpecialNumber:
+				int specialNumber = 0;
+				int specialType = 0;
+				int specialValue = 0;
+				if (style.ProcSpells.Count > 0)
+				{
+					foreach (DBStyleXSpell proc in style.ProcSpells)
+					{
+						if (proc.ClassID != 0 && proc.ClassID != clt.Player.CharacterClass.ID) continue;
+						Spell spell = SkillBase.GetSpellDataByID(proc.SpellID);
+						if (spell != null)
+						{
+							if (spell.SpellType == "Taunt" || spell.SpellType == "StyleTaunt")
+							{
+								specialType = 2;
+								specialValue = (int)spell.Value;
+							}
+							else
+							{
+								specialType = 1;
+								specialNumber = spell.ID;
+							}
+							break;
+						}						
+					}
+				}				
+				
+				if (style.BonusToHit != 0)
+				{
+					dw.AddKeyValuePair("AttackMod", style.BonusToHit);
+				}
+				if (style.BonusToDefense != 0)
+				{
+					dw.AddKeyValuePair("DefensiveMod", style.BonusToDefense);
+				}
+				
+				dw.AddKeyValuePair("Fatigue", style.EnduranceCost);				
+				if (style.StealthRequirement)
+				{
+					dw.AddKeyValuePair("Hidden", "1");
+				}
+				
+				dw.AddKeyValuePair("Icon", style.Icon);
+				dw.AddKeyValuePair("Level", style.Level);
+				if (style.GrowthRate > 0)
+				{
+					dw.AddKeyValuePair("LevelBonus", style.GrowthRate);
+				}
+				
+				dw.AddKeyValuePair("Name", style.Name);
+				if (openingResult != 0)
+				{
+					dw.AddKeyValuePair("OpeningResult", openingResult);
+				}
+				
+				if (style.GrowthRate >= 0)
+				{
+					dw.AddKeyValuePair("OpeningDamage", style.GrowthOffset);
+				}
+				
+				if (style.OpeningRequirementType == Style.eOpening.Positional)
+				{
+					dw.AddKeyValuePair("OpeningNumber", style.OpeningRequirementValue);
+				}
+				
+				if ((int)style.OpeningRequirementType != 0)
+				{
+					dw.AddKeyValuePair("OpeningType", (int)style.OpeningRequirementType);
+				}
+				
+				if (sameTarget != 0)
+				{
+					dw.AddKeyValuePair("SameTarget", sameTarget);
+				}
+				
+				dw.AddKeyValuePair("Skill", GlobalConstants.GetSpecToInternalIndex(style.Spec));
+				if (specialNumber != 0)
+				{
+					dw.AddKeyValuePair("SpecialNumber", specialNumber);
+				}
+				if (specialType != 0)
+				{
+					dw.AddKeyValuePair("SpecialType", specialType);
+				}
+				
+				if (specialValue != 0)
+				{
+					dw.AddKeyValuePair("SpecialValue", specialValue);				
+				}
+				
+				if (style.WeaponTypeRequirement > 0)
+				{
+					dw.AddKeyValuePair("Weapon", style.GetRequiredWeaponName());				
+				}
+				if (specialNumber != 0)
+				{
+					clt.Out.SendDelveInfo(DelveStyleSpell(clt, specialNumber));
+				}
             }
             else
             {
                 dw.AddKeyValuePair("Name", "(not found)");
             }
-
+            
             return dw.ToString();
         }
 
-        /*
-        public static int GetSpecialNumber(Style style)
-        {
-            if (style.SpecialType == Style.eSpecialType.Effect)
-            {
-                Spell spell = SkillBase.GetSpellById(style.SpecialValue);
-                if (spell != null)
-                    return spell.ClientEffect;
-            }
-            return 0;
-        }
-
-        public static int GetSpecialValue(Style style)
-        {
-            switch(style.SpecialType)
-            {
-                case Style.eSpecialType.ExtendedRange:
-                    return 128; // Extended Range für Reaver style
-                case Style.eSpecialType.Taunt:
-                    return style.SpecialValue;
-            }
-            return 0;
-        }*/
-
-        /*public static int GetOpeningResult(Style style,GameClient clt)
-        {
-            switch(StyleProcessor.ResolveAttackResult(style,clt.Player.PlayerCharacter.Class))
-            {
-                case GameLiving.eAttackResult.Any:
-                    return (int)Style.eAttackResult.Any;
-                case GameLiving.eAttackResult.Missed:
-                    return (int) Style.eAttackResult.Miss;
-                case GameLiving.eAttackResult.Parried:
-                    return (int)Style.eAttackResult.Parry;
-                case GameLiving.eAttackResult.Evaded:
-                    return (int)Style.eAttackResult.Evade;
-                case GameLiving.eAttackResult.Blocked:
-                    return (int)Style.eAttackResult.Block;
-                case GameLiving.eAttackResult.Fumbled:
-                    return (int)Style.eAttackResult.Fumble;
-                case GameLiving.eAttackResult.HitStyle:
-                    return (int)Style.eAttackResult.Style;
-                case GameLiving.eAttackResult.HitUnstyled:
-                    return (int)Style.eAttackResult.Hit;
-            }
-            return 0;
-        }*/
-        /*
-        public static string GetOpeningStyle(Style style)
-        {
-            if (style.OpeningRequirementValue > 0)
-            {
-                Style style2 = SkillBase.GetStyleByID(style.OpeningRequirementValue);
-                if (style2!=null)
-                    return style2.Name;
-                return "";
-            }
-            return "";
-        }*/
-
-        /// <summary>
-        /// Delve the realm abilities for v1.110+ clients
-        /// </summary>
-        /// <param name="clt"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
+		/// <summary>
+		/// Delve the realm abilities for v1.110+ clients
+		/// </summary>		
         public static string DelveRealmAbility(GameClient clt, int id)
         {
-            Skill ra = clt.Player.GetAllUsableSkills()
+			Skill ra = clt.Player.GetAllUsableSkills()
                 .Where(e => e.Item1.InternalID == id && e.Item1 is Ability)
                 .Select(e => e.Item1)
                 .FirstOrDefault() ?? SkillBase.GetAbilityByInternalID(id);
-
-            MiniDelveWriter dw = new MiniDelveWriter("RealmAbility");
-            dw.AddKeyValuePair("Index",  unchecked((short)id));
-
-            if (ra is RealmAbility ability)
+			
+			MiniDelveWriter dw = new MiniDelveWriter("RealmAbility");
+			dw.AddKeyValuePair("Index",  unchecked((short)id));
+			
+            if (ra is RealmAbility)
             {
-                ability.AddDelve(ref dw);
+           		((RealmAbility)ra).AddDelve(ref dw, ra.Level, clt);
+           		
             }
             else if (ra != null)
             {
                 dw.AddKeyValuePair("Name", ra.Name);
-            }
+            }           
             else
             {
-                dw.AddKeyValuePair("Name", "(not found)");
-            }
-
+           		dw.AddKeyValuePair("Name", "(not found)");
+            }          
+			
             return dw.ToString();
-        }
+        }        
+		
+		/// <summary>
+		/// Delve Info for subspells as spellID is used not tooltip. Some custom delve too(V1.110+)
+		/// </summary>		
+        public static string DelveAttachedSpell(GameClient clt, int id)
+        {
+            MiniDelveWriter dw = new MiniDelveWriter("Spell");
+            Spell spell = SkillBase.GetSpellByID(id);
+        	
+			ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
+			
+			if (spellHandler != null)
+			{
+				spellHandler.TooltipDelve(ref dw, id, clt);
+				if (!string.IsNullOrEmpty(spell.Description))
+				{
+					string desc = String.Format(spell.Description, spell.Value);
+					var newDesc = desc.Replace(@"\n", "\n");				
+					dw.AddKeyValuePair("delve_string", newDesc);
+				}
+				if (spell.SubSpellId > 0 ) // if sub spells have 3 'links' for delving
+				{
+					clt.Out.SendDelveInfo(DelveStyleSpell(clt, spell.SubSpellId));
+				}
+				return dw.ToString();
+			}
+
+        	// not found
+        	dw.AddKeyValuePair("Index", unchecked((short)id));
+        	dw.AddKeyValuePair("Name", "(not found)");
+            return dw.ToString();
+        }	
+		
+        /// <summary>
+		/// Delve Info for Songs as spellID is used, not tooltip. Some custom delve too(V1.110+)
+		/// </summary>		
+        public static string DelveSongSpell(GameClient clt, int id)
+        {
+            MiniDelveWriter dw = new MiniDelveWriter("Spell");
+            Spell spell = SkillBase.GetSpellByID(id);            
+        	
+			ISpellHandler spellHandler = ScriptMgr.CreateSpellHandler(clt.Player, spell, SkillBase.GetSpellLine(GlobalSpellsLines.Reserved_Spells));
+			
+			if (spellHandler != null)
+			{
+				spellHandler.TooltipDelve(ref dw, id, clt);				
+				return dw.ToString();
+			}
+
+        	// not found
+        	dw.AddKeyValuePair("Index", unchecked((short)id));
+        	dw.AddKeyValuePair("Name", "(not found)");
+            return dw.ToString();
+        }	
     }
 }
