@@ -2851,7 +2851,8 @@ namespace DOL.GS.PacketHandler
         
 		public virtual void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest) //patch 0026
 		{
-		}
+            SendQuestWindow(questNPC, player, quest, true);
+        }
 		public virtual void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, RewardQuest quest)
 		{
 			SendQuestWindow(questNPC, player, quest, true);
@@ -2863,7 +2864,8 @@ namespace DOL.GS.PacketHandler
         
 		public virtual void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest) //patch 0026
 		{
-		}
+            SendQuestWindow(questNPC, player, quest, false);
+        }
         public virtual void SendQuestRewardWindow(GameNPC questNPC, GamePlayer player, RewardQuest quest)
 		{
 			SendQuestWindow(questNPC, player, quest, false);
@@ -2957,7 +2959,85 @@ namespace DOL.GS.PacketHandler
         
 		protected virtual void SendQuestWindow(GameNPC questNPC, GamePlayer player, DQRewardQ quest, bool offer) // patch 0026
 		{
-		}
+            using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.Dialog)))
+            {
+                ushort QuestID = quest.ClientQuestID;
+                pak.WriteShort((offer) ? (byte)0x22 : (byte)0x21); // Dialog
+                pak.WriteShort(QuestID);
+                pak.WriteShort((ushort)questNPC.ObjectID);
+                pak.WriteByte(0x00); // unknown
+                pak.WriteByte(0x00); // unknown
+                pak.WriteByte(0x00); // unknown
+                pak.WriteByte(0x00); // unknown
+                pak.WriteByte((offer) ? (byte)0x02 : (byte)0x01); // Accept/Decline or Finish/Not Yet
+                pak.WriteByte(0x01); // Wrap
+                pak.WritePascalString(quest.Name);
+
+                String personalizedSummary = BehaviourUtils.GetPersonalizedMessage(quest.Description, player);
+                if (personalizedSummary.Length > 255)
+                {
+                    pak.WritePascalString(personalizedSummary.Substring(0, 255)); // Summary is max 255 bytes or client will crash !
+                }
+                else
+                {
+                    pak.WritePascalString(personalizedSummary);
+                }
+
+                if (offer)
+                {
+                    String personalizedStory = BehaviourUtils.GetPersonalizedMessage(quest.Story, player);
+
+                    if (personalizedStory.Length > MAX_STORY_LENGTH)
+                    {
+                        pak.WriteShort(MAX_STORY_LENGTH);
+                        pak.WriteStringBytes(personalizedStory.Substring(0, MAX_STORY_LENGTH));
+                    }
+                    else
+                    {
+                        pak.WriteShort((ushort)personalizedStory.Length);
+                        pak.WriteStringBytes(personalizedStory);
+                    }
+                }
+                else
+                {
+                    if (quest.FinishText.Length > MAX_STORY_LENGTH)
+                    {
+                        pak.WriteShort(MAX_STORY_LENGTH);
+                        pak.WriteStringBytes(quest.FinishText.Substring(0, MAX_STORY_LENGTH));
+                    }
+                    else
+                    {
+                        pak.WriteShort((ushort)quest.FinishText.Length);
+                        pak.WriteStringBytes(quest.FinishText);
+                    }
+                }
+
+                pak.WriteShort(QuestID);
+                pak.WriteByte((byte)quest.Goals.Count); // #goals count
+                foreach (DQRQuestGoal goal in quest.Goals)
+                {
+                    pak.WritePascalString(String.Format("{0}\r", goal.Description));
+                }
+                pak.WriteInt((uint)(quest.RewardMoney));
+                pak.WriteByte((byte)quest.ExperiencePercent(player));
+                pak.WriteByte((byte)quest.FinalRewards.Count);
+                int rewardLoc = 0;
+                int optionalRewardLoc = 7;
+                foreach (ItemTemplate reward in quest.FinalRewards)
+                {
+                    WriteItemData(pak, GameInventoryItem.Create(reward), (quest.ID * 16 + rewardLoc));
+                    ++rewardLoc;
+                }
+                pak.WriteByte((byte)quest.NumOptionalRewardsChoice);
+                pak.WriteByte((byte)quest.OptionalRewards.Count);
+                foreach (ItemTemplate reward in quest.OptionalRewards)
+                {
+                    ++optionalRewardLoc;
+                    WriteItemData(pak, GameInventoryItem.Create(reward), (quest.ID * 16 + optionalRewardLoc));
+                }
+                SendTCP(pak);
+            }
+        }
 
 		protected virtual void SendQuestWindow(GameNPC questNPC, GamePlayer player, RewardQuest quest,	bool offer)
 		{
@@ -4928,7 +5008,7 @@ namespace DOL.GS.PacketHandler
 			{
 				pak.WriteShort((ushort)color);
 			}
-			//						flag |= 0x01; // newGuildEmblem
+			//flag |= 0x01; // newGuildEmblem
 			flag |= 0x02; // enable salvage button
 			AbstractCraftingSkill skill = CraftingMgr.getSkillbyEnum(GameClient.Player.CraftingPrimarySkill);
 			if (skill != null && skill is AdvancedCraftingSkill/* && ((AdvancedCraftingSkill)skill).IsAllowedToCombine(GameClient.Player, item)*/)
@@ -5100,7 +5180,7 @@ namespace DOL.GS.PacketHandler
 			{
 				pak.WriteShort((ushort)color);
 			}
-			//						flag |= 0x01; // newGuildEmblem
+			//flag |= 0x01; // newGuildEmblem
 			flag |= 0x02; // enable salvage button
 			AbstractCraftingSkill skill = CraftingMgr.getSkillbyEnum(GameClient.Player.CraftingPrimarySkill);
 			if (skill != null && skill is AdvancedCraftingSkill/* && ((AdvancedCraftingSkill)skill).IsAllowedToCombine(GameClient.Player, item)*/)
