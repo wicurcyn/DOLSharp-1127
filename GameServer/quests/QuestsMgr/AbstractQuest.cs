@@ -50,7 +50,7 @@ namespace DOL.GS.Quests
         /// <summary>
         /// The player doing the quest
         /// </summary>
-        private GamePlayer _questPlayer;
+        protected GamePlayer _questPlayer;
 
         /// <summary>
         /// The quest database object, storing the information for the player

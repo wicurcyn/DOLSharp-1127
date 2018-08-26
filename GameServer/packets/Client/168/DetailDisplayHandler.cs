@@ -630,8 +630,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 							// patch 0031
 								DQRewardQ dqrq = null;
 								questID = (ushort)(objectId >> 4);
-								//int index = (ushort)(objectID - DataQuest.DATAQUEST_CLIENTOFFSET - questID);
-								//questID = (ushort)(DataQuest.ClientQuestID - DataQuest.DATAQUEST_CLIENTOFFSET);
+								
 								foreach (DBDQRewardQ d in GameObject.DQRewardCache)
 								{
 									if (d.ID == questID)
@@ -656,11 +655,11 @@ namespace DOL.GS.PacketHandler.Client.v168
 										item = rewards[index];
 									}
 								}
-							/*
+							
 							else // Data quest support, check for RewardQuest type
 							{
 								DataQuest dq = null;
-								questID = (ushort)(objectID >> 4);
+								questID = (ushort)(objectId >> 4);
 								//int index = (ushort)(objectID - DataQuest.DATAQUEST_CLIENTOFFSET - questID);
 								//questID = (ushort)(DataQuest.ClientQuestID - DataQuest.DATAQUEST_CLIENTOFFSET);
 								foreach (DBDataQuest d in GameObject.DataQuestCache)
@@ -687,7 +686,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 										item = rewards[index];
 									}
 								}
-							}*/
+							}
 						}
 
 						if (item == null)

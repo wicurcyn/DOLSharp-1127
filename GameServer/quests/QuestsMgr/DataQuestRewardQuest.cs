@@ -164,7 +164,7 @@ namespace DOL.GS.Quests
         /// </summary>        
         public DQRewardQ(DBDQRewardQ dqrewardq)
         {
-            QuestPlayer = null;
+            _questPlayer = null;
             m_step = 1;
             m_dqRewardQ = dqrewardq;
             ParseQuestData();            
@@ -175,7 +175,7 @@ namespace DOL.GS.Quests
 		/// </summary>		
 		public DQRewardQ(DBDQRewardQ dqrewardq, GameObject startingObject)
 		{
-			QuestPlayer = null;
+            _questPlayer = null;
 			m_step = 1;
 			m_dqRewardQ = dqrewardq;
 			
@@ -191,7 +191,7 @@ namespace DOL.GS.Quests
 		public DQRewardQ(GamePlayer questingPlayer, DBDQRewardQ dqrewardq, CharacterXDQRewardQ charQuest)
 		//	: this(questingPlayer, null, dqrewardq, charQuest)
 		{
-			QuestPlayer = questingPlayer;
+            _questPlayer = questingPlayer;
 			m_step = 1;
 			m_dqRewardQ = dqrewardq;
 			m_charQuest = charQuest;
@@ -216,7 +216,7 @@ namespace DOL.GS.Quests
 		/// </summary>		
 		public DQRewardQ(GamePlayer questingPlayer, GameObject sourceObject, DBDQRewardQ dqrewardq, CharacterXDQRewardQ charQuest)
 		{
-			QuestPlayer = questingPlayer;
+            _questPlayer = questingPlayer;
 			m_step = 1;
 			m_dqRewardQ = dqrewardq;
 			m_charQuest = charQuest;			
@@ -673,21 +673,21 @@ namespace DOL.GS.Quests
 						CurrentGoal = newgoals;// we do this , to check for an interactfinish goaltype
 					}
 				}
-				QuestPlayer.Out.SendQuestListUpdate();
-				QuestPlayer.Out.SendMessage("To see the next step, open your Journal", eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
-				QuestPlayer.Out.SendMessage("To see the next step, open your Journal", eChatType.CT_Important, eChatLoc.CL_SystemWindow);	
+                _questPlayer.Out.SendQuestListUpdate();
+                _questPlayer.Out.SendMessage("To see the next step, open your Journal", eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
+                _questPlayer.Out.SendMessage("To see the next step, open your Journal", eChatType.CT_Important, eChatLoc.CL_SystemWindow);	
 				if (CurrentGoal.Type == DQRQuestGoal.GoalType.InteractFinish)
 				{
 					Nextstep = eGoalType.InteractFinish; // we set this here so it still comes up as a goal in journal, and we can complete it straight away
 				}
 				if (m_startNPC != null)
 				{
-					UpdateQuestIndicator(m_startNPC, QuestPlayer);
+					UpdateQuestIndicator(m_startNPC, _questPlayer);
 				}
 	
-				foreach (GameNPC npc in QuestPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
+				foreach (GameNPC npc in _questPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
 				{
-					UpdateQuestIndicator(npc, QuestPlayer);
+					UpdateQuestIndicator(npc, _questPlayer);
 				}
 			}
 			catch (Exception ex)
@@ -785,7 +785,7 @@ namespace DOL.GS.Quests
 		/// </summary>
 		public virtual string FinishText
 		{
-			get { return BehaviourUtils.GetPersonalizedMessage(m_dqRewardQ.FinishText, QuestPlayer); }
+			get { return BehaviourUtils.GetPersonalizedMessage(m_dqRewardQ.FinishText, _questPlayer); }
 		}
 
 		/// <summary>
@@ -1332,44 +1332,44 @@ namespace DOL.GS.Quests
 				{
 					
 					CurrentGoal.Advance();
-					//QuestPlayer.Out.SendQuestListUpdate(); //TODO check which is better, this call, or the one in the questgoal.advance
-					
-					
-						if (GoalsCompleted() && Nextstep == eGoalType.InteractFinish)
-						{							
-							//foreach (GameNPC npc in QuestPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
-					       // {					         	
-								if (obj as GameNPC != null && FinishName == obj.Name)// && (TargetRegion == 0 || TargetRegion == npc.CurrentRegionID))) //TODO checks?									
+                    //_questPlayer.Out.SendQuestListUpdate(); //TODO check which is better, this call, or the one in the questgoal.advance
+
+
+                    if (GoalsCompleted() && Nextstep == eGoalType.InteractFinish)
+						{
+                        //foreach (GameNPC npc in _questPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
+                        // {					         	
+                        if (obj as GameNPC != null && FinishName == obj.Name)// && (TargetRegion == 0 || TargetRegion == npc.CurrentRegionID))) //TODO checks?									
 					         	{
-									//Nextstep = eGoalType.InteractFinish;
-									//UpdateQuestIndicator(obj as GameNPC, QuestPlayer);
-					         		QuestPlayer.Out.SendQuestRewardWindow(obj as GameNPC, QuestPlayer, this);
+                            //Nextstep = eGoalType.InteractFinish;
+                            //UpdateQuestIndicator(obj as GameNPC, _questPlayer);
+                            _questPlayer.Out.SendQuestRewardWindow(obj as GameNPC, _questPlayer, this);
 									return true;
 					         	}	        
 							
-						}						
-				
+						}
 
-					// Then say any source text for the new step
-					/* TODO maybe put something here to support text after receiving a quest item or something
+
+                    // Then say any source text for the new step
+                    /* TODO maybe put something here to support text after receiving a quest item or something
 					if (!string.IsNullOrEmpty(SourceText))
 					{
-						TryTurnTo(obj, QuestPlayer);
+						TryTurnTo(obj, _questPlayer);
 
 						if (obj != null)
                         {
                             if (obj.Realm == eRealm.None)
                             {
-                                SendMessage(QuestPlayer, SourceText, 0, eChatType.CT_Say, eChatLoc.CL_ChatWindow);
+                                SendMessage(_questPlayer, SourceText, 0, eChatType.CT_Say, eChatLoc.CL_ChatWindow);
                             }
                             else
                             {
-                                SendMessage(QuestPlayer, SourceText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+                                SendMessage(_questPlayer, SourceText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
                             }
                         }
 					}*/
 
-					return true;
+                    return true;
 				}
 			}
 			catch (Exception ex)
@@ -1601,24 +1601,24 @@ namespace DOL.GS.Quests
 						TryTurnTo(obj, player);		
 						if (!string.IsNullOrEmpty(GoalTargetText))
 						{
-							SendMessage(QuestPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
 						}
 						if (CurrentGoal.Type == DQRQuestGoal.GoalType.Interact)
 						{
 							AdvanceQuestStep(eGoalType.Interact, obj);
                             if (obj as GameNPC != null)
                             {
-                                UpdateQuestIndicator(obj as GameNPC, QuestPlayer);
+                                UpdateQuestIndicator(obj as GameNPC, _questPlayer);
                             }
-                            else QuestPlayer.Out.SendEmoteAnimation(QuestPlayer, eEmote.PlayerPickup);
+                            else _questPlayer.Out.SendEmoteAnimation(_questPlayer, eEmote.PlayerPickup);
                             return;
 						}
 						if (CurrentGoal.Type == DQRQuestGoal.GoalType.InteractFinish)
 						{
 							AdvanceQuestStep(eGoalType.Interact, obj);
-							//UpdateQuestIndicator(obj as GameNPC, QuestPlayer);
-						}
-						return;
+                            //UpdateQuestIndicator(obj as GameNPC, _questPlayer);
+                        }
+                        return;
 					}
 				}
 				if (GoalsCompleted() && obj as GameNPC != null && FinishName == obj.Name)
@@ -1776,11 +1776,11 @@ namespace DOL.GS.Quests
 						if (living.Realm == eRealm.None)
 						{
 							// mobs and other non realm objects send chat text and not popup text.
-							SendMessage(QuestPlayer, GoalTargetText, 0, eChatType.CT_Say, eChatLoc.CL_ChatWindow);
+							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_Say, eChatLoc.CL_ChatWindow);
 						}
 						else
 						{
-							SendMessage(QuestPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
 						}
 					}
 					AdvanceQuestStep(eGoalType.Interact, living);
@@ -1860,54 +1860,54 @@ namespace DOL.GS.Quests
 		/// </summary>
 		public virtual bool FinishQuest(GameObject obj)
 		{
-			if (QuestPlayer == null || m_charQuest == null || !m_charQuest.IsPersisted)
+			if (_questPlayer == null || m_charQuest == null || !m_charQuest.IsPersisted)
 				return false;
 
 			int lastStep = Step;
 
-			TryTurnTo(obj, QuestPlayer);			
+			TryTurnTo(obj, _questPlayer);			
 
 			// try rewards first
 
-			lock (QuestPlayer.Inventory)
+			lock (_questPlayer.Inventory)
 			{
-				if (QuestPlayer.Inventory.IsSlotsFree(m_finalRewards.Count + m_optionalRewardChoice.Count, eInventorySlot.FirstBackpack, eInventorySlot.LastBackpack))
+				if (_questPlayer.Inventory.IsSlotsFree(m_finalRewards.Count + m_optionalRewardChoice.Count, eInventorySlot.FirstBackpack, eInventorySlot.LastBackpack))
 				{
 					const string xpError = "Your XP is turned off, you must turn it on to complete this quest!";
 					const string rpError = "Your RP is turned off, you must turn it on to complete this quest!";					
 					
 					if (RewardXP > 0)
 					{
-						if (!QuestPlayer.GainXP) // deny finishing quest if xp or rp is turned off for player
+						if (!_questPlayer.GainXP) // deny finishing quest if xp or rp is turned off for player
 						{
 							QuestPlayer.Out.SendMessage(xpError, eChatType.CT_Staff, eChatLoc.CL_SystemWindow);
 							return false;
 						}
-						else if (RewardRP > 0 && !QuestPlayer.GainRP)
+						else if (RewardRP > 0 && !_questPlayer.GainRP)
 						{
-							QuestPlayer.Out.SendMessage(rpError, eChatType.CT_Staff, eChatLoc.CL_SystemWindow);
+                            QuestPlayer.Out.SendMessage(rpError, eChatType.CT_Staff, eChatLoc.CL_SystemWindow);
 							return false;
 						}
-						
-						QuestPlayer.GainExperience(GameLiving.eXPSource.Quest, RewardXP);
+
+                        _questPlayer.GainExperience(GameLiving.eXPSource.Quest, RewardXP);
 					}
 
 					if (RewardRP > 0)
 					{
-						if (!QuestPlayer.GainRP)
+						if (!_questPlayer.GainRP)
 						{
 							QuestPlayer.Out.SendMessage(rpError, eChatType.CT_Staff, eChatLoc.CL_SystemWindow);
 							return false;
 						}
-						
-						QuestPlayer.GainRealmPoints(RewardRP);
+
+                        _questPlayer.GainRealmPoints(RewardRP);
 					}
 
 					foreach (ItemTemplate item in m_finalRewards)
 					{
 						if (item != null)
 						{
-							GiveItem(QuestPlayer, item);
+							GiveItem(_questPlayer, item);
 						}
 					}
 
@@ -1915,30 +1915,30 @@ namespace DOL.GS.Quests
 					{
 						if (item != null)
 						{
-							GiveItem(QuestPlayer, item);
+							GiveItem(_questPlayer, item);
 						}
 					}
 
 					if (RewardCLXP > 0)
-					{					
-						QuestPlayer.GainChampionExperience(RewardCLXP, GameLiving.eXPSource.Quest);
+					{
+                        _questPlayer.GainChampionExperience(RewardCLXP, GameLiving.eXPSource.Quest);
 						
 					}
 					
 					if (RewardBP > 0)
-					{					
-						QuestPlayer.GainBountyPoints(RewardBP);					
+					{
+                        _questPlayer.GainBountyPoints(RewardBP);					
 					}
 						
 					if (RewardMoney > 0)
 					{
-						QuestPlayer.AddMoney(RewardMoney, "You are awarded {0}!");
+                        _questPlayer.AddMoney(RewardMoney, "You are awarded {0}!");
 	                    InventoryLogging.LogInventoryAction("(QUEST;" + Name + ")", QuestPlayer, eInventoryActionType.Quest, RewardMoney);						
 					}					
 				}
 				else
 				{
-					SendMessage(QuestPlayer, "Your inventory does not have enough space to finish this quest!", 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+					SendMessage(_questPlayer, "Your inventory does not have enough space to finish this quest!", 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
 					return false;
 				}
 			}
@@ -1946,19 +1946,19 @@ namespace DOL.GS.Quests
 			m_charQuest.Step = 0;
 			m_charQuest.Count++;
 			GameServer.Database.SaveObject(m_charQuest);
-			
-			QuestPlayer.Out.SendMessage("You have completed the quest: " + Name, eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
-			QuestPlayer.Out.SendMessage(String.Format(LanguageMgr.GetTranslation(QuestPlayer.Client, "AbstractQuest.FinishQuest.Completed", Name)), eChatType.CT_Important, eChatLoc.CL_SystemWindow);
-			
-			// Remove this quest from the players active quest list and either
-			// Add or update the quest in the players finished list
 
-			QuestPlayer.QuestList.Remove(this);
+            _questPlayer.Out.SendMessage("You have completed the quest: " + Name, eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
+            _questPlayer.Out.SendMessage(String.Format(LanguageMgr.GetTranslation(_questPlayer.Client, "AbstractQuest.FinishQuest.Completed", Name)), eChatType.CT_Important, eChatLoc.CL_SystemWindow);
+
+            // Remove this quest from the players active quest list and either
+            // Add or update the quest in the players finished list
+
+            _questPlayer.QuestList.Remove(this);
 
 			bool addq = true;
-			lock (QuestPlayer.QuestListFinished)
+			lock (_questPlayer.QuestListFinished)
 			{
-				foreach (AbstractQuest q in QuestPlayer.QuestListFinished)
+				foreach (AbstractQuest q in _questPlayer.QuestListFinished)
 				{
 					if (q is DQRewardQ && (q as DQRewardQ).ID == ID)
 					{
@@ -1972,27 +1972,27 @@ namespace DOL.GS.Quests
 
 			if (addq)
 			{
-				QuestPlayer.QuestListFinished.Add(this);
+                _questPlayer.QuestListFinished.Add(this);
 			}
 
-			QuestPlayer.Out.SendQuestListUpdate();
+            _questPlayer.Out.SendQuestListUpdate();
 
-			// TODO swap sound depending on realm
-			QuestPlayer.Out.SendSoundEffect(11, 0, 0, 0, 0, 0);			
+            // TODO swap sound depending on realm
+            _questPlayer.Out.SendSoundEffect(11, 0, 0, 0, 0, 0);			
 
 			if (obj is GameNPC)
 			{
-				UpdateQuestIndicator(obj as GameNPC, QuestPlayer);
+				UpdateQuestIndicator(obj as GameNPC, _questPlayer);
 			}
 
 			if (m_startNPC != null)
 			{
-				UpdateQuestIndicator(m_startNPC, QuestPlayer);
+				UpdateQuestIndicator(m_startNPC, _questPlayer);
 			}
 
-			foreach (GameNPC npc in QuestPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
+			foreach (GameNPC npc in _questPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
 			{
-				UpdateQuestIndicator(npc, QuestPlayer);
+				UpdateQuestIndicator(npc, _questPlayer);
 			}
 
 			return true;
@@ -2017,33 +2017,33 @@ namespace DOL.GS.Quests
         /// </summary>
         public override void AbortQuest()
 		{
-			if (QuestPlayer == null || m_charQuest == null || !m_charQuest.IsPersisted) return;
+			if (_questPlayer == null || m_charQuest == null || !m_charQuest.IsPersisted) return;
 
-			if (QuestPlayer.QuestList.Contains(this))
+			if (_questPlayer.QuestList.Contains(this))
 			{
-				QuestPlayer.QuestList.Remove(this);
+                _questPlayer.QuestList.Remove(this);
 			}
 
 			if (m_charQuest.Count == 0)
 			{
-				if (QuestPlayer.QuestListFinished.Contains(this))
+				if (_questPlayer.QuestListFinished.Contains(this))
 				{
-					QuestPlayer.QuestListFinished.Remove(this);
+                    _questPlayer.QuestListFinished.Remove(this);
 				}
 
 				DeleteFromDatabase();
 			}
 
-			QuestPlayer.Out.SendQuestListUpdate();
-			QuestPlayer.Out.SendMessage(LanguageMgr.GetTranslation(QuestPlayer.Client, "AbstractQuest.AbortQuest"), eChatType.CT_System, eChatLoc.CL_SystemWindow);
+            _questPlayer.Out.SendQuestListUpdate();
+            _questPlayer.Out.SendMessage(LanguageMgr.GetTranslation(_questPlayer.Client, "AbstractQuest.AbortQuest"), eChatType.CT_System, eChatLoc.CL_SystemWindow);
 
 			if (m_startNPC != null)
 			{
-				UpdateQuestIndicator(m_startNPC, QuestPlayer);
+				UpdateQuestIndicator(m_startNPC, _questPlayer);
 			}
-			else foreach (GameNPC npc in QuestPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
+			else foreach (GameNPC npc in _questPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
 			{
-				UpdateQuestIndicator(npc, QuestPlayer);
+				UpdateQuestIndicator(npc, _questPlayer);
 			}
 		}
 
