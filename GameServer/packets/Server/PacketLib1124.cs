@@ -3114,84 +3114,143 @@ namespace DOL.GS.PacketHandler
 		}
 		protected virtual void SendQuestPacket(AbstractQuest q, int index)
 		{
-			if (q == null)// || !(q is RewardQuest))
-			{
-				using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.QuestEntry)))
-				{
-					pak.WriteByte((byte) index);
-					if (q == null)
-					{
-						pak.WriteByte(0);
-						pak.WriteByte(0);
-						pak.WriteByte(0);
-						pak.WriteByte(0);
-						pak.WriteByte(0);
-					}
-					else
-					{
-						string name = string.Format("{0} (Level {1})", q.Name, q.Level);
-						string desc = string.Format("[Step #{0}]: {1}", q.Step,	q.Description);
-						if (name.Length > byte.MaxValue)
-						{
-							if (log.IsWarnEnabled) log.Warn(q.GetType().ToString() + ": name is too long for 1.68+ clients (" + name.Length + ") '" + name + "'");
-							name = name.Substring(0, byte.MaxValue);
-						}
-						if (desc.Length > byte.MaxValue)
-						{
-							if (log.IsWarnEnabled) log.Warn(q.GetType().ToString() + ": description is too long for 1.68+ clients (" + desc.Length + ") '" + desc + "'");
-							desc = desc.Substring(0, byte.MaxValue);
-						}
-						pak.WriteByte((byte)name.Length);
-						pak.WriteShortLowEndian((ushort)desc.Length);
-						pak.WriteByte(0); // Quest Zone ID ?
-						pak.WriteByte(0);
-						pak.WriteStringBytes(name); //Write Quest Name without trailing 0
-						pak.WriteStringBytes(desc); //Write Quest Description without trailing 0
-					}
-					
-					SendTCP(pak);
-				}
-				return;
-			}
-            /*
-			RewardQuest quest = q as RewardQuest;
-			using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.QuestEntry)))
-			{
-				pak.WriteByte((byte)index);
-				pak.WriteByte((byte)quest.Name.Length);
-				pak.WriteShort(0x00); // unknown
-				pak.WriteByte((byte)quest.Goals.Count);
-				pak.WriteByte((byte)quest.Level);
-				pak.WriteStringBytes(quest.Name);
-				pak.WritePascalString(quest.Description);
-				int goalindex = 0;
-				foreach (RewardQuest.QuestGoal goal in quest.Goals)
-				{
-					goalindex++;
-					String goalDesc = String.Format("{0}\r", goal.Description);
-					pak.WriteShortLowEndian((ushort)goalDesc.Length);
-					pak.WriteStringBytes(goalDesc);
-					pak.WriteShortLowEndian((ushort)goal.ZoneID2);
-					pak.WriteShortLowEndian((ushort)goal.XOffset2);
-					pak.WriteShortLowEndian((ushort)goal.YOffset2);
-					pak.WriteShortLowEndian(0x00);	// unknown
-					pak.WriteShortLowEndian((ushort)goal.Type);
-					pak.WriteShortLowEndian(0x00);	// unknown
-					pak.WriteShortLowEndian((ushort)goal.ZoneID1);
-					pak.WriteShortLowEndian((ushort)goal.XOffset1);
-					pak.WriteShortLowEndian((ushort)goal.YOffset1);
-					pak.WriteByte((byte)((goal.IsAchieved) ? 0x01 : 0x00));
-					if (goal.QuestItem == null)
-						pak.WriteByte(0x00);
-					else
-					{
-						pak.WriteByte((byte)goalindex);
-						WriteTemplateData(pak, goal.QuestItem, 1);
-					}
-				}
-				SendTCP(pak);
-			}*/
+            if (q == null)
+            {
+                using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.QuestEntry)))
+                {
+                    pak.WriteByte((byte)index);
+                    pak.WriteByte(0);
+                    pak.WriteByte(0);
+                    pak.WriteByte(0);
+                    pak.WriteByte(0);
+                    pak.WriteByte(0);
+                    SendTCP(pak);
+                    return;
+                }
+            }
+            else if (q is DQRewardQ)
+            {
+                DQRewardQ quest = q as DQRewardQ;
+                using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.QuestEntry)))
+                {
+                    pak.WriteByte((byte)index);
+                    pak.WriteByte((byte)quest.Name.Length);
+                    pak.WriteShort(0x00); // unknown
+                    pak.WriteByte((byte)quest.Goals.Count);
+                    pak.WriteByte((byte)quest.Level);
+                    pak.WriteStringBytes(quest.Name);
+                    pak.WritePascalString(quest.Description);
+                    int goalindex = 0;
+                    foreach (DQRQuestGoal goal in quest.Goals)
+                    {
+                        goalindex++;
+                        String goalDesc = String.Format("{0}\r", goal.Description);
+                        pak.WriteShortLowEndian((ushort)goalDesc.Length);
+                        pak.WriteStringBytes(goalDesc);
+                        pak.WriteShortLowEndian((ushort)goal.ZoneID2);
+                        pak.WriteShortLowEndian((ushort)goal.XOffset2);
+                        pak.WriteShortLowEndian((ushort)goal.YOffset2);
+                        pak.WriteShortLowEndian(0x00);  // unknown
+                        pak.WriteShortLowEndian((ushort)goal.Type);
+                        pak.WriteShortLowEndian(0x00);  // unknown
+                        pak.WriteShortLowEndian((ushort)goal.ZoneID1);
+                        pak.WriteShortLowEndian((ushort)goal.XOffset1);
+                        pak.WriteShortLowEndian((ushort)goal.YOffset1);
+                        pak.WriteByte((byte)((goal.IsAchieved) ? 0x01 : 0x00));
+                        if (goal.QuestItem == null)
+                        {
+                            pak.WriteByte(0x00);
+                        }
+                        else
+                        {
+                            pak.WriteByte((byte)goalindex);
+                            WriteTemplateData(pak, goal.QuestItem, 1);
+                        }
+                    }
+                    SendTCP(pak);
+                    return;
+                }
+            }
+
+            else if (q is RewardQuest)
+            {
+                RewardQuest quest = q as RewardQuest;
+                using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.QuestEntry)))
+                {
+                    pak.WriteByte((byte)index);
+                    pak.WriteByte((byte)quest.Name.Length);
+                    pak.WriteShort(0x00); // unknown
+                    pak.WriteByte((byte)quest.Goals.Count);
+                    pak.WriteByte((byte)quest.Level);
+                    pak.WriteStringBytes(quest.Name);
+                    pak.WritePascalString(quest.Description);
+                    int goalindex = 0;
+                    foreach (RewardQuest.QuestGoal goal in quest.Goals)
+                    {
+                        goalindex++;
+                        String goalDesc = String.Format("{0}\r", goal.Description);
+                        pak.WriteShortLowEndian((ushort)goalDesc.Length);
+                        pak.WriteStringBytes(goalDesc);
+                        pak.WriteShortLowEndian((ushort)goal.ZoneId2);
+                        pak.WriteShortLowEndian((ushort)goal.XOffset2);
+                        pak.WriteShortLowEndian((ushort)goal.YOffset2);
+                        pak.WriteShortLowEndian(0x00);  // unknown
+                        pak.WriteShortLowEndian((ushort)goal.Type);
+                        pak.WriteShortLowEndian(0x00);  // unknown
+                        pak.WriteShortLowEndian((ushort)goal.ZoneId1);
+                        pak.WriteShortLowEndian((ushort)goal.XOffset1);
+                        pak.WriteShortLowEndian((ushort)goal.YOffset1);
+                        pak.WriteByte((byte)((goal.IsAchieved) ? 0x01 : 0x00));
+                        if (goal.QuestItem == null)
+                        {
+                            pak.WriteByte(0x00);
+                        }
+                        else
+                        {
+                            pak.WriteByte((byte)goalindex);
+                            WriteTemplateData(pak, goal.QuestItem, 1);
+                        }
+                    }
+                    SendTCP(pak);
+                    return;
+                }
+            }
+            else
+            {
+                using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.QuestEntry)))
+                {
+                    pak.WriteByte((byte)index);
+                    
+                    string name = string.Format("{0} (Level {1})", q.Name, q.Level);
+                    string desc = string.Format("[Step #{0}]: {1}", q.Step, q.Description);
+                    if (name.Length > byte.MaxValue)
+                    {
+                        if (log.IsWarnEnabled)
+                        {
+                            log.Warn(q.GetType().ToString() + ": name is too long for 1.68+ clients (" + name.Length + ") '" + name + "'");
+                        }
+                        name = name.Substring(0, byte.MaxValue);
+                    }
+                    if (desc.Length > byte.MaxValue)
+                    {
+                        if (log.IsWarnEnabled)
+                        {
+                            log.Warn(q.GetType().ToString() + ": description is too long for 1.68+ clients (" + desc.Length + ") '" + desc + "'");
+                        }
+                        desc = desc.Substring(0, byte.MaxValue);
+                    }
+                    pak.WriteByte((byte)name.Length);
+                    pak.WriteShortLowEndian((ushort)desc.Length);
+                    pak.WriteByte(0); // Quest Zone ID ?
+                    pak.WriteByte(0);
+                    pak.WriteStringBytes(name); //Write Quest Name without trailing 0
+                    pak.WriteStringBytes(desc); //Write Quest Description without trailing 0                   
+
+                    SendTCP(pak);
+                }                
+            }           
 		}
+
 		public virtual void SendRealm(eRealm realm)
 		{
 			using (var pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.Realm)))

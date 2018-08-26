@@ -1726,7 +1726,7 @@ namespace DOL.GS.Commands
                     player.Out.SendNPCsQuestEffect(targetMob, targetMob.GetQuestIndicator(player));
                 }
 
-                client.Out.SendMessage(targetMob.DataQuestList.Count + " DQRewardsQs loaded for this mob.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
+                client.Out.SendMessage(targetMob.DQRewardQList.Count + " DQRewardsQs loaded for this mob.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
             }
             catch (Exception ex)
             {
