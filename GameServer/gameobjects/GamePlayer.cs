@@ -14612,7 +14612,17 @@ break;
 
             VerifySpecPoints();
 
-            LoadQuests();
+            try
+            {
+                LoadQuests();
+            }
+            catch (Exception e)
+            {                
+                if (log.IsErrorEnabled)
+                {
+                    log.ErrorFormat("Problem loading quests for player {0} : {1}", Name, e);
+                }
+            }
 
             // Load Task object of player ...
             var tasks = GameServer.Database.SelectObjects<DBTask>("`Character_ID` = @Character_ID", new QueryParameter("@Character_ID", InternalID));
