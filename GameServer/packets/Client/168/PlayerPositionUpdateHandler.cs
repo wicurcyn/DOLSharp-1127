@@ -505,7 +505,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             //stealth is set here
             if (client.Player.IsStealthed)
 			{
-				playerState |= 0x0200;
+				playerOutAction |= 0x02;
 			}
             
             outpak.WriteFloatLowEndian(newPlayerX);
