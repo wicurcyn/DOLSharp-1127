@@ -16,37 +16,29 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
- //patch 0060
+
 namespace DOL.GS.PacketHandler.Client.v168
 {
-	/// <summary>
-	/// Handles spell cast requests from client
-	/// </summary>
-	[PacketHandlerAttribute(PacketHandlerType.TCP, eClientPackets.UseSlot, "Handle Player Use Slot Request.", eClientStatus.PlayerInGame)]
-	
-
+    /// <summary>
+    /// Handles spell cast requests from client
+    /// </summary>
+    [PacketHandler(PacketHandlerType.TCP, eClientPackets.UseSlot, "Handle Player Use Slot Request.", eClientStatus.PlayerInGame)]
+    
     public class UseSlotHandler : IPacketHandler
     {
-        
-
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
             client.Player.X = (int)packet.ReadFloatLowEndian();
             client.Player.Y = (int)packet.ReadFloatLowEndian();
             client.Player.Z = (int)packet.ReadFloatLowEndian();
-            client.Player.CurrentSpeed = (short)packet.ReadFloatLowEndian();
-            short casterSpeed = client.Player.CurrentSpeed;
+            client.Player.CurrentSpeed = (short)packet.ReadFloatLowEndian();            
             client.Player.Heading = packet.ReadShort();
-            ushort targetVisible = packet.ReadShort(); // target visible ? 0xA000 : 0x0000
+            ushort flags = packet.ReadShort(); // target visible ? 0xA000 : 0x0000
             int slot = packet.ReadByte();
             int type = packet.ReadByte();
 
-            new UseSlotAction1124(client.Player, casterSpeed, targetVisible, slot, type).Start(1);
+            new UseSlotAction1124(client.Player, flags, slot, type).Start(1);
         }
-
-        
-
-        
 
         /// <summary>
         /// Handles player use slot actions
@@ -56,12 +48,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             /// <summary>
             /// The speed and flags data
             /// </summary>
-            protected readonly int m_flagSpeedData;
-
-            /// <summary>
-            /// The speed and flags data
-            /// </summary>
-            protected readonly ushort m_targetVisible;
+            protected readonly ushort m_flags;
 
             /// <summary>
             /// The slot index
@@ -80,12 +67,11 @@ namespace DOL.GS.PacketHandler.Client.v168
             /// <param name="flagSpeedData">The speed and flags data</param>
             /// <param name="slot">The slot index</param>
             /// <param name="useType">The use type</param>
-            public UseSlotAction1124(GamePlayer actionSource, int flagSpeedData, ushort targetVisible, int slot, int useType) : base(actionSource)
+            public UseSlotAction1124(GamePlayer actionSource, ushort flags, int slot, int useType) : base(actionSource)
             {
-                m_flagSpeedData = flagSpeedData;
                 m_slot = slot;
                 m_useType = useType;
-                m_targetVisible = targetVisible;
+                m_flags = flags;
             }
 
             /// <summary>
@@ -93,21 +79,12 @@ namespace DOL.GS.PacketHandler.Client.v168
             /// </summary>
             protected override void OnTick()
             {
-                var player = (GamePlayer)m_actionSource;
-                if ((m_flagSpeedData & 0x200) != 0)
-                {
-                    player.CurrentSpeed = (short)(-(m_flagSpeedData & 0x1ff)); // backward movement
-                }
-                else
-                {
-                    player.CurrentSpeed = (short)(m_flagSpeedData & 0x1ff); // forwardmovement
-                }
-                player.IsStrafing = (m_flagSpeedData & 0x4000) != 0;
-                player.TargetInView = (m_targetVisible & 0xa000) != 0;
-                player.GroundTargetInView = ((m_targetVisible & 0x1000) != 0);
+                var player = (GamePlayer)m_actionSource;                
+                player.IsStrafing = (m_flags & 0x4000) != 0;
+                player.TargetInView = (m_flags & 0xa000) != 0;
+                player.GroundTargetInView = ((m_flags & 0x1000) != 0);
                 player.UseSlot(m_slot, m_useType);
             }
         }
-        
     }
 }

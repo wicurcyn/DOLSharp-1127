@@ -17,7 +17,6 @@
  *
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using DOL.GS.Styles;
@@ -25,8 +24,8 @@ using log4net;
 
 namespace DOL.GS.PacketHandler.Client.v168
 {
-	[PacketHandlerAttribute(PacketHandlerType.TCP, eClientPackets.UseSkill, "Handles Player Use Skill Request.", eClientStatus.PlayerInGame)]
-	
+    [PacketHandler(PacketHandlerType.TCP, eClientPackets.UseSkill, "Handles Player Use Skill Request.", eClientStatus.PlayerInGame)]
+
     public class UseSkillHandler : IPacketHandler
     {
         /// <summary>
@@ -34,26 +33,21 @@ namespace DOL.GS.PacketHandler.Client.v168
         /// </summary>
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        
-
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
             client.Player.X = (int)packet.ReadFloatLowEndian();
             client.Player.Y = (int)packet.ReadFloatLowEndian();
             client.Player.Z = (int)packet.ReadFloatLowEndian();
-            client.Player.CurrentSpeed = (short)packet.ReadFloatLowEndian();
-            short casterSpeed = client.Player.CurrentSpeed;
+            client.Player.CurrentSpeed = (short)packet.ReadFloatLowEndian();            
             client.Player.Heading = packet.ReadShort();
-            ushort targetVisible = packet.ReadShort(); // target visible ? 0xA000 : 0x0000
+            ushort flags = packet.ReadShort(); // target visible ? 0xA000 : 0x0000
             int index = packet.ReadByte();
             int type = packet.ReadByte();
             // two bytes at end, not sure what for
 
-            new UseSkillAction1124(client.Player, casterSpeed, targetVisible, index, type).Start(1);
-        }  
-
+            new UseSkillAction1124(client.Player, flags, index, type).Start(1);
+        }
         
-
         /// <summary>
         /// Handles player use skill actions
         /// </summary>
@@ -62,12 +56,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             /// <summary>
             /// The speed and flags data
             /// </summary>
-            protected readonly int m_flagSpeedData;
-
-            /// <summary>
-            /// The speed and flags data
-            /// </summary>
-            protected readonly ushort m_targetVisible;
+            protected readonly ushort m_flags;
 
             /// <summary>
             /// The skill index
@@ -86,13 +75,12 @@ namespace DOL.GS.PacketHandler.Client.v168
             /// <param name="flagSpeedData">The skill type</param>
             /// <param name="index">The skill index</param>
             /// <param name="type">The skill type</param>
-            public UseSkillAction1124(GamePlayer actionSource, int flagSpeedData, ushort targetVisible, int index, int type)
+            public UseSkillAction1124(GamePlayer actionSource, ushort flags, int index, int type)
                 : base(actionSource)
             {
-                m_flagSpeedData = flagSpeedData;
                 m_index = index;
                 m_type = type;
-                m_targetVisible = targetVisible;
+                m_flags = flags;
             }
 
             /// <summary>
@@ -102,20 +90,13 @@ namespace DOL.GS.PacketHandler.Client.v168
             {
                 GamePlayer player = (GamePlayer)m_actionSource;
                 if (player == null)
+                {
                     return;
-
-                if ((m_flagSpeedData & 0x200) != 0)
-                {
-                    player.CurrentSpeed = (short)(-(m_flagSpeedData & 0x1ff)); // backward movement
-                }
-                else
-                {
-                    player.CurrentSpeed = (short)(m_flagSpeedData & 0x1ff); // forwardmovement
                 }
 
-                player.IsStrafing = (m_flagSpeedData & 0x4000) != 0;
-                player.TargetInView = (m_targetVisible & 0xa000) != 0; // why 2 bits? that has to be figured out
-                player.GroundTargetInView = ((m_targetVisible & 0x1000) != 0);
+                player.IsStrafing = (m_flags & 0x4000) != 0;
+                player.TargetInView = (m_flags & 0xa000) != 0; // why 2 bits? that has to be figured out
+                player.GroundTargetInView = ((m_flags & 0x1000) != 0);
 
                 List<Tuple<Skill, Skill>> snap = player.GetAllUsableSkills();
 
@@ -170,9 +151,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                             return;
                     }
 
-                    // See what we should do depending on skill type !
-
-
+                    // See what we should do depending on skill type !                    
                     if (sk is Specialization)
                     {
                         Specialization spec = (Specialization)sk;
@@ -212,6 +191,6 @@ namespace DOL.GS.PacketHandler.Client.v168
                 }
             }
         }
-        
+
     }
 }
