@@ -449,7 +449,8 @@ namespace DOL.GS
 				case "ConstitutionBuff":
 				case "StrengthBuff":
 				case "DexterityBuff": return "stat";
-
+				
+				case "Disease": return "disease";
 				case "DamageOverTime": return "dot";
 
 				case "Confusion":
@@ -825,7 +826,7 @@ namespace DOL.GS
 				case "DirectDamageWithDebuff":
 				case "MesmerizeDurationBuff":
 				case "PaladinArmorFactorBuff":
-				
+				case "Disease": // this is disease strength decrease
 				case "ArmorFactorBuff": return (int)Value;
 
 				case "StyleSpeedDecrease": return (int)(100 - Value);
@@ -880,6 +881,7 @@ namespace DOL.GS
 				case "SummonNecroPet":
 				case "SummonTheurgistPet":
 				case "SummonUnderhill":
+				case "Disease": // this is disease speed decrease
 				case "DamageOverTime": return (int)Damage;
 
 				case "StrengthShear":
