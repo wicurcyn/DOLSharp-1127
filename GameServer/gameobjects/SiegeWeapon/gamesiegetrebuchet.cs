@@ -39,7 +39,7 @@ namespace DOL.GS
                 0,// none
                 5000,// aiming
                 15000,// arming
-                0,// loading
+                5000,// loading
                 4500// fireing
             };// en ms
         }
