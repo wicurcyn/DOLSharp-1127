@@ -24,6 +24,7 @@ namespace DOL.GS.Commands
 	"creates siege weapons",
 	"/siegeweapon create miniram/lightram/mediumram/heavyram/catapult/ballista/palintone/cauldron/trebuchet")]
 	public class SiegeWeaponCommandHandler : AbstractCommandHandler, ICommandHandler
+	{
 		public void OnCommand(GameClient client, string[] args)
 		{
 			if (args.Length < 3)
