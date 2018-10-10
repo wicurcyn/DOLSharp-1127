@@ -5550,12 +5550,22 @@ namespace DOL.GS.PacketHandler
         public virtual void SendRiding(GameObject rider, GameObject steed, bool dismount)
         {
             int slot = 0;
-            if (steed is GameNPC && rider is GamePlayer && dismount == false)
+            if (steed is GameNPC && rider is GamePlayer playerRider)
             {
-                slot = (steed as GameNPC).RiderSlot(rider as GamePlayer);
+                if (dismount == false)
+                {
+                    slot = (steed as GameNPC).RiderSlot(playerRider);
+                    playerRider.SteedSeatPosition = slot;
+                }
+                else
+                {
+                    playerRider.SteedSeatPosition = 0;
+                }
             }
             if (slot == -1)
+			{
                 log.Error("SendRiding error, slot is -1 with rider " + rider.Name + " steed " + steed.Name);
+			}
             using (var pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.Riding)))
             {
                 pak.WriteShort((ushort)rider.ObjectID);
