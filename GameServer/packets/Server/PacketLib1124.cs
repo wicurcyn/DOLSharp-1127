@@ -2721,8 +2721,7 @@ namespace DOL.GS.PacketHandler
                 pak.WriteShort(GameClient.Player.CurrentRegion.Skin);
                 pak.WriteByte((byte)(flags));
                 if (GameClient.Player.CurrentRegion.IsHousing)
-                {
-                    pak.WriteByte((byte)GameServer.Instance.Configuration.ServerType); // guess?
+                {                    
                     pak.WritePascalString(GameServer.Instance.Configuration.ServerName); //server name
                 }
                 else pak.WriteByte(0);
