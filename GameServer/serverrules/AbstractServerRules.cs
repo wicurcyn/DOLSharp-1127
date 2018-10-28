@@ -1507,6 +1507,7 @@ namespace DOL.GS.ServerRules
 
                     // experience points
                     long xpReward;
+					long campBonus = 0;
                     long groupExp = 0;
                     long outpostXP = 0;
 
@@ -1604,7 +1605,7 @@ namespace DOL.GS.ServerRules
                         campBonusPerc = fullCampBonus;
                     }
 
-                    var campBonus = (long)(xpReward * campBonusPerc);
+                    campBonus = (long)(xpReward * campBonusPerc);
 
                     // outpost XP
                     // 1.54 http://www.camelotherald.com/more/567.shtml
