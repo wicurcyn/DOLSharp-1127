@@ -52,16 +52,17 @@ namespace DOL.GS
 
         public static string GetBonusMessage(GamePlayer player, int bonusAmount, eZoneBonusType type)
         {
-            switch (type)
+            System.Globalization.NumberFormatInfo format = System.Globalization.NumberFormatInfo.InvariantInfo;
+			switch (type)
             {
                 case eZoneBonusType.XP:
-                    return LanguageMgr.GetTranslation(player.Client.Account.Language, "ZoneBonus.AdditionalXP", bonusAmount);
+                    return LanguageMgr.GetTranslation(player.Client.Account.Language, "ZoneBonus.AdditionalXP", bonusAmount.ToString("N0", format));
                 case eZoneBonusType.RP:
                     return LanguageMgr.GetTranslation(player.Client.Account.Language, "ZoneBonus.AdditionalRP", bonusAmount);
                 case eZoneBonusType.BP:
                     return LanguageMgr.GetTranslation(player.Client.Account.Language, "ZoneBonus.AdditionalBP", bonusAmount);
                 case eZoneBonusType.COIN:
-                    return LanguageMgr.GetTranslation(player.Client.Account.Language, "ZoneBonus.AdditionalCoin");
+                    return LanguageMgr.GetTranslation(player.Client.Account.Language, "ZoneBonus.AdditionalCoin"); // TODO need proper formatting here
                 default:
                     return "No Bonus Type Found";
             }

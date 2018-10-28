@@ -4625,32 +4625,17 @@ namespace DOL.GS
 
             if (killer != null)
             {
-                if (IsWorthReward)
-                {
-                    DropLoot(killer);
-                }
-
+                //Message sequence live like. Death message first
                 Message.SystemToArea(this, GetName(0, true) + " dies!", eChatType.CT_PlayerDied, killer);
                 if (killer is GamePlayer)
                 {
                     ((GamePlayer)killer).Out.SendMessage(GetName(0, true) + " dies!", eChatType.CT_PlayerDied, eChatLoc.CL_SystemWindow);
                 }
-            }
-
-            StopFollowing();
-
-            if (Group != null)
-            {
-                Group.RemoveMember(this);
-            }
-
-            if (killer != null)
-            {
-                // Handle faction alignement changes // TODO Review
+                // Faction messages second. Handle faction alignement changes
                 if ((Faction != null) && (killer is GamePlayer))
                 {
-                    // Get All Attackers. // TODO check if this shouldn't be set to Attackers instead of XPGainers ?
-                    foreach (DictionaryEntry de in XPGainers)
+                    // Get All Attackers. // 
+                    foreach (DictionaryEntry de in this.XPGainers)
                     {
                         GameLiving living = de.Key as GameLiving;
                         GamePlayer player = living as GamePlayer;
@@ -4661,17 +4646,30 @@ namespace DOL.GS
                             player = ((living as GameNPC).Brain as IControlledBrain).GetPlayerOwner();
                         }
 
-                        if (player != null && player.ObjectState == GameObject.eObjectState.Active && player.IsAlive && player.IsWithinRadius(this, WorldMgr.MAX_EXPFORKILL_DISTANCE))
+                        if (player != null && !player.IsObjectGreyCon(this) && player.ObjectState == GameObject.eObjectState.Active && player.IsAlive && player.IsWithinRadius(this, WorldMgr.MAX_EXPFORKILL_DISTANCE))
                         {
                             Faction.KillMember(player);
                         }
                     }
                 }
 
-                // deal out exp and realm points based on server rules
+                // Experience messages third. Deal out exp and realm points based on server rules
                 GameServer.ServerRules.OnNPCKilled(this, killer);
+                //Last message is loot.
+                if (IsWorthReward) // TODO - camp bonus should be reduced here
+                {
+                    DropLoot(killer);
+                }
+
                 base.Die(killer);
             }
+
+            StopFollowing();
+
+            if (Group != null)
+            {
+                Group.RemoveMember(this);
+            }            
 
             Delete();
 

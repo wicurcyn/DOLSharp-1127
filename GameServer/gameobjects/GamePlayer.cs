@@ -5508,9 +5508,9 @@ namespace DOL.GS
             if (allowMultiply)
             {
                 // we only want to modify the base rate, not the group or camp bonus
+                expTotal -= expOutpostBonus;
                 expTotal -= expGroupBonus;
                 expTotal -= expCampBonus;
-                expTotal -= expOutpostBonus;
 
                 // [StephenxPimentel] - Zone Bonus XP Support
                 if (ServerProperties.Properties.ENABLE_ZONE_BONUSES)
