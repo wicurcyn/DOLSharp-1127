@@ -190,9 +190,8 @@ namespace DOL.GS.ServerRules
                 return false;
             }
 
-            // ogre: sometimes other players shouldn't be attackable
-            GamePlayer playerAttacker = (GamePlayer) attacker;
-            if (playerAttacker != null && defender is GamePlayer playerDefender)
+            // ogre: sometimes other players shouldn't be attackable            
+            if (attacker is GamePlayer playerAttacker && defender is GamePlayer playerDefender)
             {
                 // check group
                 if (playerAttacker.Group != null && playerAttacker.Group.IsInTheGroup(playerDefender))
