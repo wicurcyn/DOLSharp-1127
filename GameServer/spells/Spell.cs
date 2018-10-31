@@ -1024,10 +1024,31 @@ namespace DOL.GS
 				
 				case "ArcheryDoT": return 8;
 				case "ArrowDamageTypes": return 2;
+				
+				case "Charm": return GetCharmParm();
 			}
 			return 0;
 		}
 
+		/// <summary>
+        /// Parm id specifically for charm type spells
+        /// </summary>
+        public int GetCharmParm()
+        {
+            switch (AmnesiaChance)
+            {
+                case 1: return 3; // humanoid
+                case 2: return 5; // animal
+                case 3: return 13; // insect
+                case 4: return 50; // human animal
+                case 5: return 51; // human animal insect
+                case 6: return 52; // human animal insect magical
+                case 7: return 53; // human animal insect magical undead
+                case 8: return 6; // reptile
+                default: return 54; // all
+            }
+        }
+		
 		public int GetDelveCastTimer()
 		{
 			switch (SpellType)
