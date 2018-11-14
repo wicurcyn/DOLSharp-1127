@@ -2250,7 +2250,8 @@ namespace DOL.GS
             m_isCloakHoodUp = dbMob.IsCloakHoodUp;
             m_visibleActiveWeaponSlots = dbMob.VisibleWeaponSlots;
 
-            Gender = (eGender)dbMob.Gender;
+            int chooseGender = NPCGender.GetNPCGenderFromModel((int)Model);            
+            Gender = (eGender)chooseGender;
             OwnerID = dbMob.OwnerID;
 
             if (npcTemplate != null && npcTemplate.ReplaceMobValues)
@@ -2430,18 +2431,9 @@ namespace DOL.GS
             var splitModel = template.Model.SplitCSV(true);
             ushort.TryParse(splitModel[Util.Random(0,splitModel.Count - 1)], out choosenModel);
             Model = choosenModel;
-
-            // Graveen: template.Gender is 0,1 or 2 for respectively eGender.Neutral("it"), eGender.Male ("he"),
-            // eGender.Female ("she"). Any other value is randomly choosing a gender for current GameNPC
-            int choosenGender = template.Gender > 2 ? Util.Random(0,2) : template.Gender;
-
-            switch (choosenGender)
-            {
-                default:
-                case 0 : Gender = eGender.Neutral; break;
-                case 1 : Gender = eGender.Male; break;
-                case 2 : Gender = eGender.Female; break;
-            }
+			
+            int chosenGender = NPCGender.GetNPCGenderFromModel((int)Model);
+            this.Gender = (eGender)chosenGender;
 
             byte choosenSize = 50;
             if (!Util.IsEmpty(template.Size))

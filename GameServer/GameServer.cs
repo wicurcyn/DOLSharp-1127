@@ -854,8 +854,14 @@ namespace DOL.GS
 
                 //Load Gravstone manager
                 if (!InitComponent(GraveMgr.Init(), "Gravestone Manager"))
+                {
+					return false;
+				}
+				//Preload NPC genders
+                if (!InitComponent(NPCGender.Init(), "Preload NPC genders"))
+                {
                     return false;
-
+                }
                 // Load the quest managers if enabled
                 if (Properties.LOAD_QUESTS)
                 {
