@@ -24,6 +24,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using DOL.GameUtils;
 using DOL.Config;
 using DOL.Database;
 using DOL.Database.Attributes;

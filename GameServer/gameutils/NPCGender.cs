@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using log4net;
 
-namespace DOL.gameutils
+namespace DOL.GameUtils
 {
     public class NPCGender
     {
