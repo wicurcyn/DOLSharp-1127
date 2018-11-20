@@ -24,6 +24,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using DOL.GameUtils;
 using DOL.Config;
 using DOL.Database;
 using DOL.Database.Attributes;
@@ -854,8 +855,14 @@ namespace DOL.GS
 
                 //Load Gravstone manager
                 if (!InitComponent(GraveMgr.Init(), "Gravestone Manager"))
+                {
+					return false;
+				}
+				//Preload NPC genders
+                if (!InitComponent(NPCGender.Init(), "Preload NPC genders"))
+                {
                     return false;
-
+                }
                 // Load the quest managers if enabled
                 if (Properties.LOAD_QUESTS)
                 {
