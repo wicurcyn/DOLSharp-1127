@@ -61,15 +61,11 @@ namespace DOL.Database
 		private string m_xOffSet;
 		private string m_yOffSet;
 		private string m_zoneID;
-		private string m_xOffSet2;
-		private string m_yOffSet2;
-		private string m_zoneID2;
+		// TODO commented out until i find out what these are used for
+		//private string m_xOffSet2;
+		//private string m_yOffSet2;
+		//private string m_zoneID2;
 		
-		//private string m_questGoal03;
-		//private string m_questGoal04;
-		//private string m_questGoal05;
-
-
 		public DBDQRewardQ()
 		{
 		}
@@ -436,7 +432,7 @@ namespace DOL.Database
 		/// Code that can be used for various quest activities
 		/// Can be null, currently not used
 		/// </summary>
-		[DataElement(AllowDbNull = true)]
+		/*[DataElement(AllowDbNull = true)] //TODO commented out until i find out what these are used for
 		public string XOffSet2
 		{
 			get { return m_xOffSet2; }
@@ -461,6 +457,6 @@ namespace DOL.Database
 		{
 			get { return m_zoneID2; }
 			set { m_zoneID2 = value; Dirty = true; }
-		}
+		}*/
 	}
 }

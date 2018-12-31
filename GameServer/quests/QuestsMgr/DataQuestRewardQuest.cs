@@ -467,7 +467,7 @@ namespace DOL.GS.Quests
 						m_zoneID.Add(Convert.ToInt32(str));
 					}
 				}
-				
+				/* TODO commented out until i find out what these are used for
 				lastParse = m_dqRewardQ.XOffSet2;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
@@ -496,7 +496,7 @@ namespace DOL.GS.Quests
 					{
 						m_zoneID2.Add(Convert.ToInt32(str));
 					}
-				}
+				}*/
             }			
 			
 			catch (Exception ex)
@@ -902,7 +902,7 @@ namespace DOL.GS.Quests
 		/// <summary>
 		/// ZoneID2 used for displaying quest dot on map
 		/// </summary>
-		public List<int> ZoneID2
+		/*public List<int> ZoneID2 // TODO commented out until i find out what these are used for
 		{
 			get { return m_zoneID2; }
 		}
@@ -919,7 +919,7 @@ namespace DOL.GS.Quests
 		public List<int> YOffSet2
 		{
 			get	{ return m_yOffSet2; }
-		}		
+		}*/
 		
 		/// <summary>
 		/// Current step of this quest. Only used to determine if quest is completed or active. 0 = complete, 1 = active
@@ -1952,7 +1952,7 @@ namespace DOL.GS.Quests
 
             // Remove this quest from the players active quest list and either
             // Add or update the quest in the players finished list
-
+			_questPlayer.Out.SendQuestListUpdate();
             _questPlayer.QuestList.Remove(this);
 
 			bool addq = true;
@@ -1975,7 +1975,7 @@ namespace DOL.GS.Quests
                 _questPlayer.QuestListFinished.Add(this);
 			}
 
-            _questPlayer.Out.SendQuestListUpdate();
+            
 
             // TODO swap sound depending on realm
             _questPlayer.Out.SendSoundEffect(11, 0, 0, 0, 0, 0);			
@@ -2018,6 +2018,10 @@ namespace DOL.GS.Quests
         public override void AbortQuest()
 		{
 			if (_questPlayer == null || m_charQuest == null || !m_charQuest.IsPersisted) return;
+			
+			Step = 0;
+			_questPlayer.Out.SendQuestListUpdate();
+            _questPlayer.Out.SendMessage(LanguageMgr.GetTranslation(_questPlayer.Client, "AbstractQuest.AbortQuest"), eChatType.CT_System, eChatLoc.CL_SystemWindow);
 
 			if (_questPlayer.QuestList.Contains(this))
 			{
@@ -2033,10 +2037,7 @@ namespace DOL.GS.Quests
 
 				DeleteFromDatabase();
 			}
-
-            _questPlayer.Out.SendQuestListUpdate();
-            _questPlayer.Out.SendMessage(LanguageMgr.GetTranslation(_questPlayer.Client, "AbstractQuest.AbortQuest"), eChatType.CT_System, eChatLoc.CL_SystemWindow);
-
+            
 			if (m_startNPC != null)
 			{
 				UpdateQuestIndicator(m_startNPC, _questPlayer);
@@ -2391,7 +2392,7 @@ namespace DOL.GS.Quests
 		{
 			get { return m_quest.YOffSet.Count == 0 ? 0 : m_quest.YOffSet[GoalIndex - 1]; }
 		}
-
+		/* TODO commented out until i find out what these are used for
 		public int ZoneID2
 		{
 			get { return m_quest.ZoneID2.Count == 0 ? 0 : m_quest.ZoneID2[GoalIndex - 1]; }
@@ -2405,6 +2406,6 @@ namespace DOL.GS.Quests
 		public int YOffset2
 		{
 			get { return m_quest.YOffSet2.Count == 0 ? 0 : m_quest.YOffSet2[GoalIndex - 1]; }
-		}
+		}*/
 	}		
 }

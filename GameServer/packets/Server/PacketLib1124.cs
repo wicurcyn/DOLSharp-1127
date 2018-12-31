@@ -2831,16 +2831,20 @@ namespace DOL.GS.PacketHandler
         public virtual void SendQuestListUpdate()
 		{
 			if (GameClient == null || GameClient.Player == null)
+			{
 				return;
-
+			}
+			
 			SendTaskInfo();
 
 			int questIndex = 1;
 			lock (GameClient.Player.QuestList)
+			{
 				foreach (AbstractQuest quest in GameClient.Player.QuestList)
-					SendQuestPacket((quest.Step == -1) ? null : quest, questIndex++);
-			while (questIndex <= 25)
-				SendQuestPacket(null, questIndex++);
+				{
+					SendQuestPacket((quest.Step == 0 || quest == null) ? null : quest, questIndex++);
+				}
+			}				
 		}
         
 		public virtual void SendQuestOfferWindow(GameNPC questNPC, GamePlayer player, DataQuest quest)
@@ -3146,9 +3150,11 @@ namespace DOL.GS.PacketHandler
                         String goalDesc = String.Format("{0}\r", goal.Description);
                         pak.WriteShortLowEndian((ushort)goalDesc.Length);
                         pak.WriteStringBytes(goalDesc);
-                        pak.WriteShortLowEndian((ushort)goal.ZoneID2);
-                        pak.WriteShortLowEndian((ushort)goal.XOffset2);
-                        pak.WriteShortLowEndian((ushort)goal.YOffset2);
+						// TODO commented out until i find out what these are used for
+                        //pak.WriteShortLowEndian((ushort)goal.ZoneID2);
+                        //pak.WriteShortLowEndian((ushort)goal.XOffset2);
+                        //pak.WriteShortLowEndian((ushort)goal.YOffset2);
+						pak.Fill(0, 6);
                         pak.WriteShortLowEndian(0x00);  // unknown
                         pak.WriteShortLowEndian((ushort)goal.Type);
                         pak.WriteShortLowEndian(0x00);  // unknown
