@@ -2428,10 +2428,17 @@ namespace DOL.GS
 
             // Grav: this.Model/Size/Level accessors are triggering SendUpdate()
             // so i must use them, and not directly use private variables
-            ushort choosenModel = 1;
+            
             var splitModel = template.Model.SplitCSV(true);
-            ushort.TryParse(splitModel[Util.Random(0,splitModel.Count - 1)], out choosenModel);
-            Model = choosenModel;
+            try
+		    {
+		        ushort.TryParse(splitModel[Util.Random(0, splitModel.Count - 1)], out ushort choosenModel);
+		        this.Model = choosenModel;
+            }
+		    catch
+		    {
+                log.ErrorFormat("problem with template id : {0}", template.TemplateId);
+		    }            
 			
             int chosenGender = NPCGender.GetNPCGenderFromModel((int)Model);
             this.Gender = (eGender)chosenGender;
