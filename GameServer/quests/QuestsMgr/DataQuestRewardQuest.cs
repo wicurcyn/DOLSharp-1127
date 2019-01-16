@@ -47,8 +47,7 @@ namespace DOL.GS.Quests
 		protected GameObject m_startObject = null;
 		protected GameNPC m_startNPC = null;
 		protected IDQRewardQStep m_customQuestStep = null;
-		protected DQRQuestGoal newgoals = null;
-		public eGoalType Nextstep = eGoalType.Unknown;
+		protected DQRQuestGoal newgoals = null;		
 		protected string collectItem = "";
 		protected string m_lastErrorText = "";
 		protected int firstGoals = 0;
@@ -64,24 +63,8 @@ namespace DOL.GS.Quests
         {
             get { return m_lastErrorText; }
             set { m_lastErrorText = value; }
-        }        	
-		
-        /// <summary>
-		/// The type of each quest step
-		/// All quests with steps must end in a Finish step
-		/// </summary>
-		public enum eGoalType : byte
-		{
-			Kill = 0,				// Kill the target to advance the quest.  Can set chance to drop on StepItemTemplate.            
-			Deliver = 2,			// Deliver an item to the target to advance the quest			
-			Interact = 4,			// Interact with the target to advance the step
-			InteractFinish = 5,		// Interact with the target to finish the quest.  This is required to end a RewardQuest
-			InteractWhisper = 6,			// Whisper to the target to advance the quest
-            Search = 8,				// Search in a specified location. Can set chance to drop on StepItemTemplate.
-			Collect = 10,			// Player must give the target an item to advance the step	
-			Unknown = 255
-		}
-		
+        }
+        
         /// <summary>
         /// A static list of every search area for all data quests
         /// </summary>
@@ -125,9 +108,9 @@ namespace DOL.GS.Quests
 		protected List<int> m_yOffSet = new List<int>();
 		protected List<int> m_zoneID = new List<int>();
 		// currently unused, but sent in packet
-		protected List<int> m_xOffSet2 = new List<int>();
-		protected List<int> m_yOffSet2 = new List<int>();
-		protected List<int> m_zoneID2 = new List<int>();	
+		//protected List<int> m_xOffSet2 = new List<int>();
+		//protected List<int> m_yOffSet2 = new List<int>();
+		//protected List<int> m_zoneID2 = new List<int>();	
 		
 		protected List<string> m_finalQuestGoals = new List<string>(); // used to show an additional goal after a particular goal is achieved
 				
@@ -180,16 +163,14 @@ namespace DOL.GS.Quests
 			m_dqRewardQ = dqrewardq;
 			
             m_startObject = startingObject;
-            m_lastErrorText = "";
-            //ParseSearchAreas(); TODO
+            m_lastErrorText = "";            
 			ParseQuestData();			
 		}
 
 		/// <summary>
 		/// Dataquest that belongs to a player
 		/// </summary>		
-		public DQRewardQ(GamePlayer questingPlayer, DBDQRewardQ dqrewardq, CharacterXDQRewardQ charQuest)
-		//	: this(questingPlayer, null, dqrewardq, charQuest)
+		public DQRewardQ(GamePlayer questingPlayer, DBDQRewardQ dqrewardq, CharacterXDQRewardQ charQuest)		
 		{
             _questPlayer = questingPlayer;
 			m_step = 1;
@@ -208,8 +189,7 @@ namespace DOL.GS.Quests
 				}
 				newgoals = AddGoal(m_questGoals[i], m_goalType[i], m_goalRepeatNo[i], collectItem, m_goalTargetName[i]);				
 			}
-		}
-		
+		}		
 		
 		/// <summary>
 		/// This is a dataquest that belongs to a player
@@ -265,18 +245,7 @@ namespace DOL.GS.Quests
 			string lastParse = "";
 
 			try
-			{
-                /*
-				foreach (KeyValuePair<int, QuestSearchArea> entry in m_allQuestSearchAreas)
-                {
-                    if (entry.Key == ID)
-                    {
-                        m_numSearchAreas++;
-                    }
-                }
-
-                m_lastErrorText += " ::" + m_numSearchAreas + " search areas defined for data quest ID:" + ID;
-				*/
+			{                
 				string[] parse1;
 				// quest goals
 				lastParse = m_dqRewardQ.QuestGoals;				
@@ -505,100 +474,7 @@ namespace DOL.GS.Quests
 				log.Error(errorText, ex);
                 m_lastErrorText += " " + errorText + " " + ex.Message;
 			}
-		}
-		
-		/*
-        /// <summary> //TODO add search area support
-        /// Parse or re-parse all the search areas for this quest and add to the static list of all dataquest search areas
-        /// </summary>
-        protected void ParseSearchAreas()
-        {
-            if (m_dqRewardQ == null)
-                return;
-
-            string lastParse = "";
-
-            try
-            {
-                string[] parse1;
-
-                // If we have any search areas created we delete them first, then re-create if needed
-
-                List<KeyValuePair<int, QuestSearchArea>> areasToDelete = new List<KeyValuePair<int, QuestSearchArea>>();
-
-                foreach (KeyValuePair<int, QuestSearchArea> entry in m_allQuestSearchAreas)
-                {
-                    if (entry.Key == ID)
-                    {
-                        areasToDelete.Add(entry);
-                    }
-                }
-
-                foreach (KeyValuePair<int, QuestSearchArea> entry in areasToDelete)
-                {
-                    m_lastErrorText += " ::Removing QuestSearchArea for DataQuest ID:" + ID + ", Step " + entry.Value.Step;
-                    entry.Value.RemoveArea();
-                    m_allQuestSearchAreas.Remove(entry);
-                }
-
-                lastParse = m_dqRewardQ.SourceName;
-
-                if (!string.IsNullOrEmpty(lastParse))
-                {
-                    parse1 = lastParse.Split('|');
-                    foreach (string str in parse1)
-                    {
-                        if (str.ToUpper().StartsWith("SEARCH"))
-                        {
-                            CreateSearchArea(str);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error parsing quest data for " + m_dqRewardQ.Name + " (" + m_dqRewardQ.ID + "), last string to parse = '" + lastParse + "'.", ex);
-                m_lastErrorText += " " +lastParse + " " + ex.Message;
-            }
-        }*/
-		/* TODO add search areas
-        /// <summary>
-        /// Add a search area to the static list of all DataQuest search areas
-        /// </summary>
-        /// <param name="str"></param>
-        protected void CreateSearchArea(string areaStr)
-        {
-            try
-            {
-                string[] parse = areaStr.Split(';');
-
-                int requiredStep = 0;
-
-                if (parse[0] == "SEARCHSTART")
-                {
-                    requiredStep = 0;
-                    m_searchStartItemTemplate = parse[1];
-                }
-                else
-                {
-                    requiredStep = Convert.ToInt32(parse[1]);
-                }
-
-                // 0       1 2                        3  4    5     6   7
-                // COMMAND;3;Search for necklace here;12;8000;74665;500;20
-
-                QuestSearchArea questArea = new QuestSearchArea(this, requiredStep, parse[2], Convert.ToUInt16(parse[3]), Convert.ToInt32(parse[4]), Convert.ToInt32(parse[5]), Convert.ToInt32(parse[6]), Convert.ToInt32(parse[7]));
-                m_allQuestSearchAreas.Add(new KeyValuePair<int,QuestSearchArea>(ID, questArea));
-
-                m_lastErrorText += string.Format(" ::Created Search Area for quest {0}, step {1} in region {2} at X:{3}, Y:{4}, Radius:{5}, Text:{6}, Seconds:{7}.", Name, requiredStep, parse[3], parse[4], parse[5], parse[6], parse[2], parse[7]);
-            }
-            catch
-            {
-                string error = "Error creating search area for " + m_dqRewardQ.Name + " (" + m_dqRewardQ.ID + "), area str = '" + areaStr + "'";
-                log.Error(error);
-                m_lastErrorText += error;
-            }
-        }*/
+		}		
 		
 		/// <summary>
 		/// The current goal that is being checked for data
@@ -615,7 +491,6 @@ namespace DOL.GS.Quests
 			{
 				if (goal.Type == DQRQuestGoal.GoalType.InteractFinish)
 				{
-					Nextstep = eGoalType.InteractFinish;
 					return true;
 				}
 				if (!goal.IsAchieved)
@@ -676,10 +551,7 @@ namespace DOL.GS.Quests
                 _questPlayer.Out.SendQuestListUpdate();
                 _questPlayer.Out.SendMessage("To see the next step, open your Journal", eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
                 _questPlayer.Out.SendMessage("To see the next step, open your Journal", eChatType.CT_Important, eChatLoc.CL_SystemWindow);	
-				if (CurrentGoal.Type == DQRQuestGoal.GoalType.InteractFinish)
-				{
-					Nextstep = eGoalType.InteractFinish; // we set this here so it still comes up as a goal in journal, and we can complete it straight away
-				}
+				
 				if (m_startNPC != null)
 				{
 					UpdateQuestIndicator(m_startNPC, _questPlayer);
@@ -1317,7 +1189,7 @@ namespace DOL.GS.Quests
 		/// <summary>
 		/// Try to advance the quest step, doing any actions required to start the next step
 		/// </summary>		
-		protected virtual bool AdvanceQuestStep(eGoalType currentCheckType, GameObject obj = null)
+		protected virtual bool AdvanceQuestStep(GameObject obj = null)
 		{
 			try
 			{				
@@ -1335,20 +1207,14 @@ namespace DOL.GS.Quests
                     //_questPlayer.Out.SendQuestListUpdate(); //TODO check which is better, this call, or the one in the questgoal.advance
 
 
-                    if (GoalsCompleted() && Nextstep == eGoalType.InteractFinish)
-						{
-                        //foreach (GameNPC npc in _questPlayer.GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
-                        // {					         	
-                        if (obj as GameNPC != null && FinishName == obj.Name)// && (TargetRegion == 0 || TargetRegion == npc.CurrentRegionID))) //TODO checks?									
-					         	{
-                            //Nextstep = eGoalType.InteractFinish;
-                            //UpdateQuestIndicator(obj as GameNPC, _questPlayer);
+                    if (GoalsCompleted() && CurrentGoal.Type == DQRQuestGoal.GoalType.InteractFinish)
+					{                        					         	
+                        if (obj as GameNPC != null && FinishName == obj.Name)									
+				     	{                            
                             _questPlayer.Out.SendQuestRewardWindow(obj as GameNPC, _questPlayer, this);
 									return true;
-					         	}	        
-							
-						}
-
+						}							
+					}
 
                     // Then say any source text for the new step
                     /* TODO maybe put something here to support text after receiving a quest item or something
@@ -1386,9 +1252,9 @@ namespace DOL.GS.Quests
 		/// </summary>		
 		public virtual void OnPlayerWhisper(GamePlayer p, GameObject obj, string text)
 		{			
-			if (CurrentGoal != null && CurrentGoal.Type == DQRQuestGoal.GoalType.InteractWhisper && CurrentGoal.targetObject == obj.Name && CurrentGoal.ZoneID1 == obj.CurrentZone.ID && text == CurrentGoal.AdvanceText)
+			if (CurrentGoal != null && CurrentGoal.Type == DQRQuestGoal.GoalType.InteractWhisper && CurrentGoal.TargetObject == obj.Name && CurrentGoal.ZoneID1 == obj.CurrentZone.ID && text == CurrentGoal.AdvanceText)
 			{			
-				AdvanceQuestStep(eGoalType.InteractWhisper, obj);			
+				AdvanceQuestStep(obj);			
 			}			
 		}
 		
@@ -1447,8 +1313,18 @@ namespace DOL.GS.Quests
 					return;
 				}
 
-				// Player is trying to finish a Reward Quest
-				if (e == GamePlayerEvent.QuestRewardChosen)
+                // Player completes a /search command in quest area
+                //if (e == GamePlayerEvent.SearchArea)
+                //{
+                //    var a = args as AreaEventArgs;
+                //    var player = sender as GamePlayer;
+                //    OnAreaSearched(player, a.Area as Area.Search);
+
+                //    return;
+                //}
+
+                // Player is trying to finish a Reward Quest
+                if (e == GamePlayerEvent.QuestRewardChosen)
 				{
 					QuestRewardChosenEventArgs rewardArgs = args as QuestRewardChosenEventArgs;
 					if (rewardArgs == null)
@@ -1571,31 +1447,13 @@ namespace DOL.GS.Quests
 		/// <summary>
 		/// A player with this quest has interacted with an object.
 		/// See if this object is part of the quest and respond accordingly
-		/// </summary>
-		/// <param name="player"></param>
-		/// <param name="obj"></param>
+		/// </summary>		
 		protected virtual void OnPlayerInteract(GamePlayer player, GameObject obj)
 		{
 			try
 			{
-				if (CheckInteractPending(obj))// || CheckInteractFinish(obj))
-				{				
-					/*if (Nextstep == eGoalType.InteractFinish)					
-					{							
-						var finishNPC = obj as GameNPC;
-						if (finishNPC != null)
-						{
-							TryTurnTo(obj, player);
-		
-							// Custom step can modify rewards here.  Should return false if it sends the reward window
-							if (ExecuteCustomQuestStep(player, 0, eStepTypeCheck.Finish))
-							{
-								player.Out.SendQuestRewardWindow(finishNPC, player, this);
-								return;
-							}
-						}
-					}*/
-					
+				if (CheckInteractPending(obj))
+				{
 					if (CurrentGoal != null)
 					{						
 						TryTurnTo(obj, player);		
@@ -1605,17 +1463,23 @@ namespace DOL.GS.Quests
 						}
 						if (CurrentGoal.Type == DQRQuestGoal.GoalType.Interact)
 						{
-							AdvanceQuestStep(eGoalType.Interact, obj);
+							AdvanceQuestStep(obj);
                             if (obj as GameNPC != null)
                             {
                                 UpdateQuestIndicator(obj as GameNPC, _questPlayer);
                             }
-                            else _questPlayer.Out.SendEmoteAnimation(_questPlayer, eEmote.PlayerPickup);
+                            else
+                            {
+                                foreach (GamePlayer others in _questPlayer.GetPlayersInRadius(1000))
+                                {
+                                    others.Out.SendEmoteAnimation(_questPlayer, eEmote.PlayerPickup);
+                                }                                
+                            }
                             return;
 						}
 						if (CurrentGoal.Type == DQRQuestGoal.GoalType.InteractFinish)
 						{
-							AdvanceQuestStep(eGoalType.Interact, obj);
+							AdvanceQuestStep(obj);
                             //UpdateQuestIndicator(obj as GameNPC, _questPlayer);
                         }
                         return;
@@ -1636,32 +1500,6 @@ namespace DOL.GS.Quests
 		/// <summary>
 		/// Check if a target object shows indicator icon to player.
 		/// </summary>		
-		public bool CheckInteractFinish(GameObject target)
-		{
-			try
-			{
-				if (target == null)
-				{
-					return false;
-				}
-				//if (GoalsCompleted() && m_dqRewardQ.FinishName == target.Name) // goals are complete and we have a finish target set
-				if (Nextstep == eGoalType.InteractFinish && m_dqRewardQ.FinishName == target.Name)
-				{
-					//this.Nextstep = eGoalType.InteractFinish; // because we dont have an active goal, set the quest enum to finish
-					return true;
-				}
-				return false;
-			}
-			catch (Exception ex)
-			{
-				log.Error("error checking interact finish", ex);
-			}
-			return false;
-		}
-		
-		/// <summary>
-		/// Check if a target object shows indicator icon to player.
-		/// </summary>		
 		public bool CheckInteractPending(GameObject target)
 		{
 			try
@@ -1672,18 +1510,10 @@ namespace DOL.GS.Quests
 				}			
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.targetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
 					{
 						CurrentGoal = goal;
-						if (goal.Type == DQRQuestGoal.GoalType.Interact)
-						{
-							this.Nextstep = eGoalType.Interact;
-						}
-						if (goal.Type == DQRQuestGoal.GoalType.InteractFinish)
-						{
-							this.Nextstep = eGoalType.InteractFinish;
-						}
-						else this.Nextstep = eGoalType.InteractWhisper;
+						
 						return true;
 					}
 				}
@@ -1709,14 +1539,10 @@ namespace DOL.GS.Quests
 				}
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractWhisper) && goal.targetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractWhisper) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
 					{
 						CurrentGoal = goal;
-						if (goal.Type == DQRQuestGoal.GoalType.Interact)
-						{
-							this.Nextstep = eGoalType.Interact;
-						}						
-						else this.Nextstep = eGoalType.InteractWhisper;
+						
 						return true;
 					}
 				}
@@ -1740,14 +1566,10 @@ namespace DOL.GS.Quests
 				{
 					return false;
 				}
-				/*if (GoalsCompleted() && m_dqRewardQ.FinishName == target.Name) // goals are complete and we have a finish target set
-				{				
-					this.Nextstep = eGoalType.InteractFinish; // because we dont have an active goal, set the quest enum to finish
-					return true;
-				}*/
+				
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && goal.targetObject.Equals(target.Name, StringComparison.OrdinalIgnoreCase) && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && goal.TargetObject.Equals(target.Name, StringComparison.OrdinalIgnoreCase) && goal.ZoneID1 == target.CurrentZone.ID)
 					{
 						CurrentGoal = goal;
 						return true;
@@ -1766,26 +1588,29 @@ namespace DOL.GS.Quests
 		/// Enemy of a player with a dqrewardq is killed, check for quest advancement
 		/// </summary>		
 		protected virtual void OnEnemyKilled(GamePlayer player, GameLiving living)
-		{			
-			if (CheckTargetToGoalList(living as GameObject))
-			{				
-				if (CurrentGoal.Type == DQRQuestGoal.GoalType.Kill)
-				{
-					if (!string.IsNullOrEmpty(GoalTargetText))
-					{
-						if (living.Realm == eRealm.None)
-						{
-							// mobs and other non realm objects send chat text and not popup text.
-							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_Say, eChatLoc.CL_ChatWindow);
-						}
-						else
-						{
-							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
-						}
-					}
-					AdvanceQuestStep(eGoalType.Interact, living);
-				}
-			}
+		{
+            if (player != null)
+            {
+                if (CheckTargetToGoalList(living as GameObject))
+                {
+                    if (CurrentGoal.Type == DQRQuestGoal.GoalType.Kill)
+                    {
+                        if (!string.IsNullOrEmpty(GoalTargetText))
+                        {
+                            if (living.Realm == eRealm.None)
+                            {
+                                // mobs and other non realm objects send chat text and not popup text.
+                                SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_Say, eChatLoc.CL_ChatWindow);
+                            }
+                            else
+                            {
+                                SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+                            }
+                        }
+                        AdvanceQuestStep(living);
+                    }
+                }
+            }
 		}
 
         /// <summary>
@@ -1831,29 +1656,6 @@ namespace DOL.GS.Quests
 
             return false;
         }
-		/* TODO
-        /// <summary>
-        /// A quest command like /search is completed, so do something
-        /// </summary>        
-        protected override void QuestCommandCompleted(AbstractQuest.eQuestCommand command, GamePlayer player)
-        {
-            if (command == eQuestCommand.Search && QuestPlayer == player)
-            {
-                if (StepType == eGoalType.Search)
-                {
-                    if (!AdvanceQuestStep())
-                    {
-                        SendMessage(QuestPlayer, "You fail to find anything!", 0, eChatType.CT_System, eChatLoc.CL_SystemWindow);
-                    }
-                }                
-            }
-
-            if (command == eQuestCommand.SearchStart)
-            {
-                CheckOfferQuest(player, null);
-            }
-        }*/
-        	
 
 		/// <summary>
 		/// Finish the quest and update the player quest list
@@ -1945,7 +1747,8 @@ namespace DOL.GS.Quests
 
 			m_charQuest.Step = 0;
 			m_charQuest.Count++;
-			GameServer.Database.SaveObject(m_charQuest);
+            ClearDQCustomProperties();
+            GameServer.Database.SaveObject(m_charQuest);
 
             _questPlayer.Out.SendMessage("You have completed the quest: " + Name, eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
             _questPlayer.Out.SendMessage(String.Format(LanguageMgr.GetTranslation(_questPlayer.Client, "AbstractQuest.FinishQuest.Completed", Name)), eChatType.CT_Important, eChatLoc.CL_SystemWindow);
@@ -2071,10 +1874,8 @@ namespace DOL.GS.Quests
 			{
 				GameServer.Database.DeleteObject(charQuest);
 			}
-		}
+		}		
 		
-		#region Custom Properties
-
 		/// <summary>
 		/// This HybridDictionary holds all the custom properties of this quest
 		/// </summary>
@@ -2143,22 +1944,7 @@ namespace DOL.GS.Quests
 			}
 			m_charQuest.CustomPropertiesString = builder.ToString();
 			SaveIntoDatabase();
-		}
-		
-		/// <summary>
-		/// Removes a custom property from the database
-		/// </summary>		
-		public void RemoveDQCustomProperty(string key)
-		{
-			if(key==null)
-				throw new ArgumentNullException("key");
-
-			lock(m_DQcustomProperties)
-			{
-				m_DQcustomProperties.Remove(key);
-			}
-			SaveDQCustomProperties();
-		}
+		}		
 
 		/// <summary>
 		/// This method retrieves a custom property from the database
@@ -2170,80 +1956,55 @@ namespace DOL.GS.Quests
 
 			return (string)m_DQcustomProperties[key];
 		}
-		
-		/// <summary>
-		/// This method parses the custom properties string of the m_dbQuest
-		/// into the HybridDictionary for easier use and access patch 0010 patch 0011
-		/// </summary>
-		public void AddDQCustomProperties()
-		{
-			if(m_charQuest.CustomPropertiesString == null)
-				return;
+        /// <summary>
+        /// This method clears the custom property string to remove problems with repeatable quests
+        /// </summary>
+        protected void ClearDQCustomProperties()
+        {
+            if (m_charQuest.CustomPropertiesString == null)
+            {
+                return;
+            }
+            m_charQuest.CustomPropertiesString = "";
+            // TODO check this. Might need to be a value such as "Completed"
+        }
+    }
 
-			lock(m_DQcustomProperties)
-			{
-				m_DQcustomProperties.Clear();
-				string values = m_charQuest.CustomPropertiesString;
-					m_DQcustomProperties[0] = values;
-				
-			}
-		}
-		#endregion	
-	
-	}
 	/// <summary>
 	/// A single quest goal.
 	/// </summary>
 	public class DQRQuestGoal
 	{
-		private string m_id;
 		private DQRewardQ m_quest;
 		private string m_description;
-		private int m_index;
-		private int m_current, m_target;
-		//private int m_zoneID1 = 0, m_xOffset1 = 0, m_yOffset1 = 0;
-		//private int m_zoneID2 = 0, m_xOffset2 = 0, m_yOffset2 = 0;
-		//private GoalType m_goalType;
-		private string m_questItem = "";
-		private string m_targetObject = "";
-		ItemTemplate goalItem = null;
+        private int m_current, m_target;
+        ItemTemplate goalItem = null;
 
 		public enum GoalType : byte// { KillTask = 3, ScoutMission = 5 };	// These are just a hunch for now.
 		{
-							            
-			Deliver = 2,			// Kill the target to advance the quest.  Can set chance to drop on StepItemTemplate.
-			Kill = 3,				// Deliver an item to the target to advance the quest
+            // unsupported Deliver = 2,			// Kill the target to advance the quest.  Can set chance to drop on StepItemTemplate.
+            Search = 2,				// Search in a specified location
+            Kill = 3,				// Deliver an item to the target to advance the quest
 			Interact = 4,			// Interact with the target to advance the step
 			InteractFinish = 5,		// Interact with the target to finish the quest.  This is required to end a RewardQuest
-			InteractWhisper = 6,	// Whisper to the target to advance the quest
-            Search = 8,				// Search in a specified location. Can set chance to drop on StepItemTemplate.
-			Collect = 10,			// Player must give the target an item to advance the step	
+			InteractWhisper = 6,	// Whisper to the target to advance the quest            
+			// unsupported Collect = 10,			// Player must give the target an item to advance the step	
 			Unknown = 255
 		}
 		/// <summary>
 		/// Constructs a new QuestGoal.
 		/// </summary>		
 		public DQRQuestGoal(string id, DQRewardQ quest, string description, GoalType type, int index, int target, string questItem, string targetobject)
-		{
-			m_id = id;
+		{			
 			m_quest = quest;
 			m_description = description;
 			Type = type;
-			m_index = index;
+			GoalIndex = index;
 			m_current = 0;
 			m_target = 0;
-			Target = target;
-			m_questItem = questItem;
-			m_targetObject = targetobject;
-			goalItem = GameServer.Database.FindObjectByKey<ItemTemplate>(m_questItem);
-		}
-
-		/// <summary>
-		/// An id for this quest goal
-		/// </summary>
-		public string Id
-		{
-			get { return m_id; }
+			Target = target;			
+			TargetObject = targetobject;
+			goalItem = GameServer.Database.FindObjectByKey<ItemTemplate>(questItem);
 		}
 
 		/// <summary>
@@ -2257,19 +2018,13 @@ namespace DOL.GS.Quests
 		/// <summary>
 		/// The type of the goal, i.e. whether to scout or to kill things.
 		/// </summary>
-		public GoalType Type { get; private	set; }		
-		
-		public int GoalIndex
-		{
-			get { return m_index; }
-		}
-		/// <summary>
-		/// Target object for this goal.
-		/// </summary>
-		public string targetObject
-		{
-			get { return m_targetObject; }
-		}
+		public GoalType Type { get; private	set; }
+
+        public int GoalIndex { get; }
+        /// <summary>
+        /// Target object for this goal.
+        /// </summary>
+        public string TargetObject { get; } = "";
 
         /// <summary>
         /// Target object for this goal.
@@ -2297,7 +2052,7 @@ namespace DOL.GS.Quests
 			{
 				if (m_quest.QuestPlayer == null)
 					return m_current;
-				String propertyValue = m_quest.GetDQCustomProperty(String.Format("goal{0}Current", m_index));
+				String propertyValue = m_quest.GetDQCustomProperty(String.Format("goal{0}Current", GoalIndex));
 				if (propertyValue == null)
 				{
 					Current = 0;
@@ -2311,7 +2066,7 @@ namespace DOL.GS.Quests
 					m_current = value;
 				else
 				{
-					m_quest.SetDQCustomProperty(String.Format("goal{0}Current", m_index), value.ToString());
+					m_quest.SetDQCustomProperty(String.Format("goal{0}Current", GoalIndex), value.ToString());
 					m_quest.SaveIntoDatabase();
 				}
 			}
@@ -2326,7 +2081,7 @@ namespace DOL.GS.Quests
 			{
 				if (m_quest.QuestPlayer == null)
 					return m_current;
-				String propertyValue = m_quest.GetDQCustomProperty(String.Format("goal{0}Target", m_index));
+				String propertyValue = m_quest.GetDQCustomProperty(String.Format("goal{0}Target", GoalIndex));
 				if (propertyValue == null)
 				{
 					Target = 0;
@@ -2340,7 +2095,7 @@ namespace DOL.GS.Quests
 					m_target = value;
 				else
 				{
-					m_quest.SetDQCustomProperty(String.Format("goal{0}Target", m_index), value.ToString());
+					m_quest.SetDQCustomProperty(String.Format("goal{0}Target", GoalIndex), value.ToString());
 					m_quest.SaveIntoDatabase();
 				}
 			}
