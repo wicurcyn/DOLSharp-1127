@@ -720,7 +720,12 @@ namespace DOL.GS
                 {
                     return false;
                 }
-
+				//---------------------------------------------------------------
+				//Preload NPC genders
+                if (!InitComponent(NPCGender.Init(), "Preload NPC genders"))
+                {
+                    return false;
+                }
                 //---------------------------------------------------------------
                 // Load artifact manager
                 InitComponent(ArtifactMgr.Init(), "Artifact Manager");
@@ -858,11 +863,7 @@ namespace DOL.GS
                 {
 					return false;
 				}
-				//Preload NPC genders
-                if (!InitComponent(NPCGender.Init(), "Preload NPC genders"))
-                {
-                    return false;
-                }
+				
                 // Load the quest managers if enabled
                 if (Properties.LOAD_QUESTS)
                 {
