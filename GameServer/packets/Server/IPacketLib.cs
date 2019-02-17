@@ -396,6 +396,15 @@ namespace DOL.GS.PacketHandler
 		BindAlb = 0x49,
 		BindMid = 0x4a,
 		BindHib = 0x4b,
+		Howl = 0x4c,
+        Diabolical = 0x4d,        
+        Brandish = 0x4f,
+        Startled = 0x50,
+        Talk = 0x51,        
+        Monty = 0x54,
+        Loco = 0x55,  
+		//Cower = ??, unknown
+        SiegeWeaponEmote = 0xc9
 	};
 
 	public enum ePreActionType : byte
