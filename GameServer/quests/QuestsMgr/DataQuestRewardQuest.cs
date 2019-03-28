@@ -1461,7 +1461,7 @@ namespace DOL.GS.Quests
 						{
 							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
 						}
-						if (CurrentGoal.Type == DQRQuestGoal.GoalType.Interact)
+						if (CurrentGoal.Type == DQRQuestGoal.GoalType.Interact || CurrentGoal.Type == DQRQuestGoal.GoalType.InteractDeliver)
 						{
 							AdvanceQuestStep(obj);
                             if (obj as GameNPC != null)
@@ -1479,8 +1479,7 @@ namespace DOL.GS.Quests
 						}
 						if (CurrentGoal.Type == DQRQuestGoal.GoalType.InteractFinish)
 						{
-							AdvanceQuestStep(obj);
-                            //UpdateQuestIndicator(obj as GameNPC, _questPlayer);
+							AdvanceQuestStep(obj);                            
                         }
                         return;
 					}
@@ -1510,7 +1509,7 @@ namespace DOL.GS.Quests
 				}			
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || CurrentGoal.Type == DQRQuestGoal.GoalType.InteractDeliver || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
 					{
 						CurrentGoal = goal;
 						
@@ -1980,14 +1979,14 @@ namespace DOL.GS.Quests
         private int m_current, m_target;
         ItemTemplate goalItem = null;
 
-		public enum GoalType : byte// { KillTask = 3, ScoutMission = 5 };	// These are just a hunch for now.
-		{
-            // unsupported Deliver = 2,			// Kill the target to advance the quest.  Can set chance to drop on StepItemTemplate.
-            Search = 2,				// Search in a specified location
-            Kill = 3,				// Deliver an item to the target to advance the quest
-			Interact = 4,			// Interact with the target to advance the step
-			InteractFinish = 5,		// Interact with the target to finish the quest.  This is required to end a RewardQuest
-			InteractWhisper = 6,	// Whisper to the target to advance the quest            
+		public enum GoalType : byte
+		{            
+            Search = 2,				// Search in a specified location to advance the goal.
+            Kill = 3,				// Kill the target to advance the goal.
+			Interact = 4,			// Interact with the target to advance the goal.
+			InteractFinish = 5,		// Interact with the target to finish the quest.
+			InteractWhisper = 6,	// Whisper to the target to advance the goal. 
+			InteractDeliver = 7,	// Deliver a dummy item to the target to advance the goal.
 			// unsupported Collect = 10,			// Player must give the target an item to advance the step	
 			Unknown = 255
 		}
@@ -2039,7 +2038,7 @@ namespace DOL.GS.Quests
         /// </summary>
         public ItemTemplate QuestItem
 		{
-			get { return (Current > 0) ? goalItem : null; }
+			get { return ((Current > 0) || Type == GoalType.InteractDeliver || Type == GoalType.InteractFinish) ? goalItem : null; }
 			set { goalItem = value; }
 		}
 
