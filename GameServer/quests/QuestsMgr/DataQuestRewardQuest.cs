@@ -1979,7 +1979,7 @@ namespace DOL.GS.Quests
         private int m_current, m_target;
         ItemTemplate goalItem = null;
 
-		public enum GoalType : byte/
+		public enum GoalType : byte
 		{            
             Search = 2,				// Search in a specified location to advance the goal.
             Kill = 3,				// Kill the target to advance the goal.
