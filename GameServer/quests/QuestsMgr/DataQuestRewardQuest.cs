@@ -77,31 +77,24 @@ namespace DOL.GS.Quests
 
         /// <summary>
         /// An item given to a player when starting with a search.
-        /// </summary>
-        protected string m_searchStartItemTemplate = "";
+        /// </summary>        
         protected List<string> m_questGoals = new List<string>(); // initial list of quest goals upon starting the quest
-		protected List<DQRQuestGoal.GoalType> m_goalType = new List<DQRQuestGoal.GoalType>(); // the quest goal types kill, interact
+		protected List<DQRQuestGoal.GoalType> m_goalType = new List<DQRQuestGoal.GoalType>(); // the quest goal types kill, interact etc
 		protected List<int> m_goalRepeatNo = new List<int>(); // how many times does goal need to be met ie (0/3)
-		protected List<string> m_goalTargetName = new List<string>(); // the target name for the goal
-		protected List<ushort> m_goalTargetRegion = new List<ushort>(); // target region, some mobs exist in two regions/ different levels etc
+		protected List<string> m_goalTargetName = new List<string>(); // the target object/NPC name for the goal		
 		protected List<string> m_goalTargetText = new List<string>(); // target text, used for mob to say somethen when slain, or interact
-		protected List<int> m_goalStepPosition = new List<int>();
-		protected List<string> m_advanceTexts = new List<string>(); // whisper text needed to advance an interact goal
-		protected List<string> m_stepTexts = new List<string>();	
-		
-		protected List<string> m_collectItems = new List<string>();	
-		protected List<DQRQuestGoal> m_goals = new List<DQRQuestGoal>(); // testing
-		byte m_numOptionalRewardsChoice = 0;
-		protected List<ItemTemplate> m_optionalRewards = new List<ItemTemplate>();
-		protected List<ItemTemplate> m_optionalRewardChoice = new List<ItemTemplate>();
-		protected int[] m_rewardItemsChosen = null;
-		protected List<ItemTemplate> m_finalRewards = new List<ItemTemplate>(); // standard rewards for this quest
-		
-		protected List<string> m_questDependencies = new List<string>();
-		protected List<byte> m_allowedClasses = new List<byte>();
-		
-		string m_classType = "";
-		string m_additionalData = "";
+		protected List<int> m_goalStepPosition = new List<int>(); // at what step is this goal created
+		protected List<string> m_advanceTexts = new List<string>(); // whisper text needed to advance an interact goal				
+		protected List<string> m_collectItems = new List<string>();	// the dummy itemtemplate a player must collect/deliver. Used for its icon image in journal
+		protected List<DQRQuestGoal> m_goals = new List<DQRQuestGoal>(); // list of all the goals for this quest
+		byte m_numOptionalRewardsChoice = 0; // how many optional rewards a player can choose at end of quest
+		protected List<ItemTemplate> m_optionalRewards = new List<ItemTemplate>(); // itemtemplates of optional rewards
+		protected List<ItemTemplate> m_optionalRewardChoice = new List<ItemTemplate>(); // itemtemplates of the chosen optional rewards upon completion
+		protected int[] m_rewardItemsChosen = null; // position of reward item chosen, sent in packet
+		protected List<ItemTemplate> m_finalRewards = new List<ItemTemplate>(); // standard rewards for this quest		
+		protected List<string> m_questDependencies = new List<string>(); // quests that needed completion before this quest is offered
+		protected List<byte> m_allowedClasses = new List<byte>(); // allowed classes for this quest		
+		string m_classType = ""; // the optional classtype/script that can be called to implement custom actions during the quest.		
 		
 		// add support to put quest dot on map for location of goal target
 		protected List<int> m_xOffSet = new List<int>();
@@ -258,8 +251,7 @@ namespace DOL.GS.Quests
 						m_questGoals.Add(parse2[0]);
 						m_goalStepPosition.Add(Convert.ToUInt16(parse2[1]));						
 					}
-				}
-				
+				}				
 				// what type of goal this is? kill, interact
 				lastParse = m_dqRewardQ.GoalType;
 				if (!string.IsNullOrEmpty(lastParse))
@@ -299,18 +291,8 @@ namespace DOL.GS.Quests
 					{
 						m_goalTargetText.Add(str);
 					}
-				}				
-				
-				lastParse = m_dqRewardQ.StepText;
-				if (!string.IsNullOrEmpty(lastParse))
-				{
-					parse1 = lastParse.Split('|');
-					foreach (string str in parse1)
-					{
-						m_stepTexts.Add(str);
-					}
-				}				
-
+				}
+				// the text that must be whispered to the target to advance the quest
 				lastParse = m_dqRewardQ.AdvanceText;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
@@ -320,7 +302,7 @@ namespace DOL.GS.Quests
 						m_advanceTexts.Add(str);
 					}
 				}
-
+				// the dummy itemtemplates used to collect/deliver items in journal
 				lastParse = m_dqRewardQ.CollectItemTemplate;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
@@ -401,12 +383,9 @@ namespace DOL.GS.Quests
 				lastParse = m_dqRewardQ.ClassType;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
-					parse1 = lastParse.Split('|');
-					m_classType = parse1[0];
-					if (parse1.Length > 1)
-						m_additionalData = parse1[1];
+					m_classType = lastParse;					
 				}
-				// parse data for quest dot on map
+				// xloc for questgoal dot on map
 				lastParse = m_dqRewardQ.XOffSet;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
@@ -416,7 +395,7 @@ namespace DOL.GS.Quests
 						m_xOffSet.Add(Convert.ToInt32(str));
 					}
 				}
-				
+				// yloc for questgoal dot on map
 				lastParse = m_dqRewardQ.YOffSet;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
@@ -426,7 +405,7 @@ namespace DOL.GS.Quests
 						m_yOffSet.Add(Convert.ToInt32(str));
 					}
 				}
-				
+				// zoneid for questgoal dot on map
 				lastParse = m_dqRewardQ.ZoneID;
 				if (!string.IsNullOrEmpty(lastParse))
 				{

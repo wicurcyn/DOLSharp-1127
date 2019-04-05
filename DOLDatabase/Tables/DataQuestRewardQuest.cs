@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-using System;
+
 using DOL.Database.Attributes;
 
 namespace DOL.Database
@@ -39,9 +39,7 @@ namespace DOL.Database
 		private string m_goaltargetName;
 		private string m_goaltargetText;
 		private int m_stepCount;
-		private string m_finishName; // maybe dont need
-		private string m_sourceText; // maybe dont need
-		private string m_stepText;		
+		private string m_finishName; // maybe dont need		
 		private string m_goaladvanceText;		
 		private string m_collectItemTemplate;
 		private ushort m_maxCount;
@@ -201,28 +199,6 @@ namespace DOL.Database
 		{
 			get { return m_finishName; }
 			set { m_finishName = value; Dirty = true; }
-		}
-
-		/// <summary>
-		/// The text for each source
-		/// Format:  Step 1 Source text|Step 2 Source text
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
-		public string SourceText
-		{
-			get { return m_sourceText; }
-			set { m_sourceText = value; Dirty = true; }
-		}		
-
-		/// <summary>
-		/// Description text for each step
-		/// Format: Step 1 Text|Step 2 Text
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
-		public string StepText
-		{
-			get { return m_stepText; }
-			set { m_stepText = value; Dirty = true; }
 		}
 		
 		/// <summary>
