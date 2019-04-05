@@ -94,18 +94,11 @@ namespace DOL.GS.Quests
 		protected List<ItemTemplate> m_finalRewards = new List<ItemTemplate>(); // standard rewards for this quest		
 		protected List<string> m_questDependencies = new List<string>(); // quests that needed completion before this quest is offered
 		protected List<byte> m_allowedClasses = new List<byte>(); // allowed classes for this quest		
-		string m_classType = ""; // the optional classtype/script that can be called to implement custom actions during the quest.		
-		
-		// add support to put quest dot on map for location of goal target
+		string m_classType = ""; // the optional classtype/script that can be called to implement custom actions during the quest.
+		// location info of goal to put red dot on map
 		protected List<int> m_xOffSet = new List<int>();
 		protected List<int> m_yOffSet = new List<int>();
 		protected List<int> m_zoneID = new List<int>();
-		// currently unused, but sent in packet
-		//protected List<int> m_xOffSet2 = new List<int>();
-		//protected List<int> m_yOffSet2 = new List<int>();
-		//protected List<int> m_zoneID2 = new List<int>();	
-		
-		protected List<string> m_finalQuestGoals = new List<string>(); // used to show an additional goal after a particular goal is achieved
 				
 		/// <summary>
 		/// Add a goal for this quest. No unique indentifier
@@ -414,37 +407,7 @@ namespace DOL.GS.Quests
 					{
 						m_zoneID.Add(Convert.ToInt32(str));
 					}
-				}
-				/* TODO commented out until i find out what these are used for
-				lastParse = m_dqRewardQ.XOffSet2;
-				if (!string.IsNullOrEmpty(lastParse))
-				{
-					parse1 = lastParse.Split('|');
-					foreach (string str in parse1)
-					{
-						m_xOffSet2.Add(Convert.ToInt32(str));
-					}
-				}
-				
-				lastParse = m_dqRewardQ.YOffSet2;
-				if (!string.IsNullOrEmpty(lastParse))
-				{
-					parse1 = lastParse.Split('|');
-					foreach (string str in parse1)
-					{
-						m_yOffSet2.Add(Convert.ToInt32(str));
-					}
-				}
-				
-				lastParse = m_dqRewardQ.ZoneID2;
-				if (!string.IsNullOrEmpty(lastParse))
-				{
-					parse1 = lastParse.Split('|');
-					foreach (string str in parse1)
-					{
-						m_zoneID2.Add(Convert.ToInt32(str));
-					}
-				}*/
+				}				
             }			
 			
 			catch (Exception ex)
@@ -686,14 +649,6 @@ namespace DOL.GS.Quests
 		{
 			get { return m_dqRewardQ.MaxLevel; }
 		}
-
-		/// <summary>
-		/// Text of every step in this quest
-		/// </summary>
-		public virtual List<string> StepTexts
-		{
-			get { return m_stepTexts; }
-		}
 		
 		/// <summary>
 		/// The amount of times a player has completed this quest
@@ -798,14 +753,6 @@ namespace DOL.GS.Quests
 		public int StepCount
 		{
 			get { return m_dqRewardQ.StepCount; }			
-		}
-		
-		/// <summary>
-		/// Additional data following ClassType 
-		/// </summary>
-		public string AdditionalData
-		{
-			get { return m_additionalData; }
 		}
 		
 		/// <summary>
@@ -2110,7 +2057,7 @@ namespace DOL.GS.Quests
 				}					
 			}
 		}			
-
+		// goal location info to put red dot on map
 		public int ZoneID1
 		{
 			get { return m_quest.ZoneID.Count == 0 ? 0 : m_quest.ZoneID[GoalIndex - 1]; }
@@ -2124,21 +2071,6 @@ namespace DOL.GS.Quests
 		public int YOffset1
 		{
 			get { return m_quest.YOffSet.Count == 0 ? 0 : m_quest.YOffSet[GoalIndex - 1]; }
-		}
-		/* TODO commented out until i find out what these are used for
-		public int ZoneID2
-		{
-			get { return m_quest.ZoneID2.Count == 0 ? 0 : m_quest.ZoneID2[GoalIndex - 1]; }
-		}
-
-		public int XOffset2
-		{
-			get { return m_quest.XOffSet2.Count == 0 ? 0 : m_quest.XOffSet2[GoalIndex - 1]; }
-		}
-
-		public int YOffset2
-		{
-			get { return m_quest.YOffSet2.Count == 0 ? 0 : m_quest.YOffSet2[GoalIndex - 1]; }
-		}*/
+		}		
 	}		
 }
