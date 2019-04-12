@@ -379,7 +379,7 @@ namespace DOL.GS.Quests
 					m_classType = lastParse;					
 				}
 				// xloc for questgoal dot on map
-				lastParse = m_dqRewardQ.XOffSet;
+				lastParse = m_dqRewardQ.XOffset;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
 					parse1 = lastParse.Split('|');
@@ -389,7 +389,7 @@ namespace DOL.GS.Quests
 					}
 				}
 				// yloc for questgoal dot on map
-				lastParse = m_dqRewardQ.YOffSet;
+				lastParse = m_dqRewardQ.YOffset;
 				if (!string.IsNullOrEmpty(lastParse))
 				{
 					parse1 = lastParse.Split('|');
@@ -412,7 +412,7 @@ namespace DOL.GS.Quests
 			
 			catch (Exception ex)
 			{
-                string errorText = "Error parsing quest data for " + m_dqRewardQ.Name + " (" + m_dqRewardQ.ID + "), last string to parse = '" + lastParse + "'.";
+                string errorText = "Error parsing quest data for " + m_dqRewardQ.QuestName + " (" + m_dqRewardQ.ID + "), last string to parse = '" + lastParse + "'.";
 				log.Error(errorText, ex);
                 m_lastErrorText += " " + errorText + " " + ex.Message;
 			}
@@ -515,7 +515,7 @@ namespace DOL.GS.Quests
 		/// </summary>
 		public override string Name
 		{
-			get	{ return m_dqRewardQ.Name; }
+			get	{ return m_dqRewardQ.QuestName; }
 		}		
 		
 		/// <summary>
@@ -874,7 +874,7 @@ namespace DOL.GS.Quests
 			{
 				try
 				{
-					return m_dqRewardQ.FinishName;
+					return m_dqRewardQ.FinishNPC;
 				}
 				catch (Exception ex)
 				{

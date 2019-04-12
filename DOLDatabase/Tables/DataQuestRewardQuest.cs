@@ -28,8 +28,8 @@ namespace DOL.Database
 	public class DBDQRewardQ : DataObject
 	{
 		private int m_id;
-		private string m_name;		
-		private string m_startName;
+		private string m_questName;		
+		private string m_startNPC;
 		private ushort m_startRegionID;
 		private string m_storyText;
 		private string m_summary;
@@ -39,7 +39,7 @@ namespace DOL.Database
 		private string m_goaltargetName;
 		private string m_goaltargetText;
 		private int m_stepCount;
-		private string m_finishName; // maybe dont need		
+		private string m_finishNPC; // maybe dont need		
 		private string m_goaladvanceText;		
 		private string m_collectItemTemplate;
 		private ushort m_maxCount;
@@ -56,13 +56,9 @@ namespace DOL.Database
 		private string m_questDependency;
 		private string m_allowedClasses;
 		private string m_classType;
-		private string m_xOffSet;
-		private string m_yOffSet;
-		private string m_zoneID;
-		// TODO commented out until i find out what these are used for
-		//private string m_xOffSet2;
-		//private string m_yOffSet2;
-		//private string m_zoneID2;
+		private string m_xOffset;
+		private string m_yOffset;
+		private string m_zoneID;		
 		
 		public DBDQRewardQ()
 		{
@@ -79,20 +75,20 @@ namespace DOL.Database
 		/// The name of this quest
 		/// </summary>
 		[DataElement(Varchar = 255, AllowDbNull = false)]
-		public string Name
+		public string QuestName
 		{
-			get { return m_name; }
-			set { m_name = value; Dirty = true; }
+			get { return m_questName; }
+			set { m_questName = value; Dirty = true; }
 		}		
 
 		/// <summary>
 		/// The name of the object that starts this quest
 		/// </summary>
 		[DataElement(Varchar = 100, AllowDbNull = false)]
-		public string StartName
+		public string StartNPC
 		{
-			get { return m_startName; }
-			set { m_startName = value; Dirty = true; }
+			get { return m_startNPC; }
+			set { m_startNPC = value; Dirty = true; }
 		}
 
 		/// <summary>
@@ -195,10 +191,10 @@ namespace DOL.Database
 		/// Format: SourceName;RegionID|SourceName;RegionID
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
-		public string FinishName
+		public string FinishNPC
 		{
-			get { return m_finishName; }
-			set { m_finishName = value; Dirty = true; }
+			get { return m_finishNPC; }
+			set { m_finishNPC = value; Dirty = true; }
 		}
 		
 		/// <summary>
@@ -378,20 +374,20 @@ namespace DOL.Database
 		/// Can be null, currently not used
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
-		public string XOffSet
+		public string XOffset
 		{
-			get { return m_xOffSet; }
-			set { m_xOffSet = value; Dirty = true; }
+			get { return m_xOffset; }
+			set { m_xOffset = value; Dirty = true; }
 		}
 		/// <summary>
 		/// Code that can be used for various quest activities
 		/// Can be null, currently not used
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
-		public string YOffSet
+		public string YOffset
 		{
-			get { return m_yOffSet; }
-			set { m_yOffSet = value; Dirty = true; }
+			get { return m_yOffset; }
+			set { m_yOffset = value; Dirty = true; }
 		}
 		/// <summary>
 		/// Code that can be used for various quest activities
@@ -402,37 +398,6 @@ namespace DOL.Database
 		{
 			get { return m_zoneID; }
 			set { m_zoneID = value; Dirty = true; }
-		}
-		
-		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
-		/// </summary>
-		/*[DataElement(AllowDbNull = true)] //TODO commented out until i find out what these are used for
-		public string XOffSet2
-		{
-			get { return m_xOffSet2; }
-			set { m_xOffSet2 = value; Dirty = true; }
-		}
-		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
-		public string YOffSet2
-		{
-			get { return m_yOffSet2; }
-			set { m_yOffSet2 = value; Dirty = true; }
-		}
-		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
-		public string ZoneID2
-		{
-			get { return m_zoneID2; }
-			set { m_zoneID2 = value; Dirty = true; }
-		}*/
+		}		
 	}
 }

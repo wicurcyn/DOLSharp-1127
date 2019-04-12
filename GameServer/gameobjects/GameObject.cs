@@ -1258,7 +1258,7 @@ namespace DOL.GS
             {
                 foreach (DBDQRewardQ quest in m_dqRewardQCache[CurrentRegionID])
                 {
-                    if (quest.StartName == Name)
+                    if (quest.StartNPC == Name)
                     {
                         DQRewardQ dq = new DQRewardQ(quest, this);
                         AddDQRewardq(dq);
@@ -1279,7 +1279,7 @@ namespace DOL.GS
             {
                 foreach (DBDQRewardQ quest in m_dqRewardQCache[0])
                 {
-                    if (quest.StartName == Name)
+                    if (quest.StartNPC == Name)
                     {
                         DQRewardQ dq = new DQRewardQ(quest, this);
                         AddDQRewardq(dq);
