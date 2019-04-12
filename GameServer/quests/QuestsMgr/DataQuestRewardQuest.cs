@@ -96,8 +96,8 @@ namespace DOL.GS.Quests
 		protected List<byte> m_allowedClasses = new List<byte>(); // allowed classes for this quest		
 		string m_classType = ""; // the optional classtype/script that can be called to implement custom actions during the quest.
 		// location info of goal to put red dot on map
-		protected List<int> m_xOffSet = new List<int>();
-		protected List<int> m_yOffSet = new List<int>();
+		protected List<int> m_xOffset = new List<int>();
+		protected List<int> m_yOffset = new List<int>();
 		protected List<int> m_zoneID = new List<int>();
 				
 		/// <summary>
@@ -385,7 +385,7 @@ namespace DOL.GS.Quests
 					parse1 = lastParse.Split('|');
 					foreach (string str in parse1)
 					{
-						m_xOffSet.Add(Convert.ToInt32(str));
+						m_xOffset.Add(Convert.ToInt32(str));
 					}
 				}
 				// yloc for questgoal dot on map
@@ -395,7 +395,7 @@ namespace DOL.GS.Quests
 					parse1 = lastParse.Split('|');
 					foreach (string str in parse1)
 					{
-						m_yOffSet.Add(Convert.ToInt32(str));
+						m_yOffset.Add(Convert.ToInt32(str));
 					}
 				}
 				// zoneid for questgoal dot on map
@@ -693,16 +693,16 @@ namespace DOL.GS.Quests
 		/// <summary>
 		/// xoffset used for displaying quest dot on map
 		/// </summary>
-		public List<int> XOffSet
+		public List<int> XOffset
 		{
-			get	{ return m_xOffSet; }
+			get	{ return m_xOffset; }
 		}
 		/// <summary>
 		/// yoffset used for displaying quest dot on map
 		/// </summary>
-		public List<int> YOffSet
+		public List<int> YOffset
 		{
-			get	{ return m_yOffSet; }
+			get	{ return m_yOffset; }
 		}
 		// Havent found a quest that uses the 2nd set of values yet, but it gets send with packet so who knows
 		/// <summary>
@@ -2056,21 +2056,21 @@ namespace DOL.GS.Quests
 					//	m_quest.QuestPlayer.Out.SendNPCsQuestEffect(m_quest.QuestGiver, m_quest.QuestGiver.GetQuestIndicator(m_quest.QuestPlayer));
 				}					
 			}
-		}			
-		// goal location info to put red dot on map
-		public int ZoneID1
-		{
-			get { return m_quest.ZoneID.Count == 0 ? 0 : m_quest.ZoneID[GoalIndex - 1]; }
 		}
+        // goal location info to put red dot on map
+        public int ZoneID1
+        {
+            get { return m_quest.ZoneID.ElementAtOrDefault(GoalIndex - 1); }
+        }
 
-		public int XOffset1
-		{
-			get { return m_quest.XOffSet.Count == 0 ? 0 : m_quest.XOffSet[GoalIndex - 1]; }
-		}
+        public int XOffset1
+        {
+            get { return m_quest.XOffset.ElementAtOrDefault(GoalIndex - 1); }
+        }
 
-		public int YOffset1
-		{
-			get { return m_quest.YOffSet.Count == 0 ? 0 : m_quest.YOffSet[GoalIndex - 1]; }
-		}		
-	}		
+        public int YOffset1
+        {
+            get { return m_quest.YOffset.ElementAtOrDefault(GoalIndex - 1); }
+        }
+    }		
 }
