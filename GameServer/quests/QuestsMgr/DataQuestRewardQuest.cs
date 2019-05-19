@@ -543,7 +543,15 @@ namespace DOL.GS.Quests
 		{
 			get { return m_dqRewardQ.StoryText; }
 		}
-				
+		
+		/// <summary>
+        /// Additional text sent to the player upon accepting the quest
+        /// </summary>
+        public string AcceptText
+        {
+            get { return m_dqRewardQ.AcceptText; }
+        }
+		
 		/// <summary>
 		/// List of all goals for this quest
 		/// </summary>
@@ -1319,6 +1327,10 @@ namespace DOL.GS.Quests
 							}
 							player.Out.SendSoundEffect(7, 0, 0, 0, 0, 0);
 							player.Out.SendMessage("You have acquired the quest: " + dq.Name, eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
+							if (!string.IsNullOrWhiteSpace(dq.AcceptText))
+                            {
+                                player.Out.SendMessage(dq.AcceptText, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+                            }
 							break;
 						}
 					}
@@ -1423,7 +1435,7 @@ namespace DOL.GS.Quests
 		}		
 		
 		/// <summary>
-		/// Check if a target object shows indicator icon to player.
+		/// Check if a target object is the current goal target for interact/interactDeliver.
 		/// </summary>		
 		public bool CheckInteractPending(GameObject target)
 		{
@@ -1435,7 +1447,7 @@ namespace DOL.GS.Quests
 				}			
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || CurrentGoal.Type == DQRQuestGoal.GoalType.InteractDeliver || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractDeliver || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name)
 					{
 						CurrentGoal = goal;
 						
@@ -1464,7 +1476,7 @@ namespace DOL.GS.Quests
 				}
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractWhisper) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractDeliver || goal.Type == DQRQuestGoal.GoalType.InteractWhisper) && goal.TargetObject == target.Name)
 					{
 						CurrentGoal = goal;
 						
