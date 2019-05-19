@@ -1435,7 +1435,7 @@ namespace DOL.GS.Quests
 				}			
 				foreach (DQRQuestGoal goal in Goals)
 				{
-					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || CurrentGoal.Type == DQRQuestGoal.GoalType.InteractDeliver || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
+					if (!goal.IsAchieved && (goal.Type == DQRQuestGoal.GoalType.Interact || goal.Type == DQRQuestGoal.GoalType.InteractDeliver || goal.Type == DQRQuestGoal.GoalType.InteractWhisper|| goal.Type == DQRQuestGoal.GoalType.InteractFinish) && goal.TargetObject == target.Name && goal.ZoneID1 == target.CurrentZone.ID)
 					{
 						CurrentGoal = goal;
 						

@@ -15556,6 +15556,26 @@ break;
                     }
                 }
             }
+			
+			// Reward driven quests for this player 
+            var dqRewardQ = GameServer.Database.SelectObjects<CharacterXDQRewardQ>("Character_ID = @CharID", new QueryParameter("@CharID", QuestPlayerID));
+            foreach (CharacterXDQRewardQ quest in dqRewardQ)
+            {
+                DBDQRewardQ dbDQRQ = GameServer.Database.FindObjectByKey<DBDQRewardQ>(quest.DataQuestID);
+                if (dbDQRQ != null)
+                {
+                    DQRewardQ dqrq = new DQRewardQ(this, dbDQRQ, quest);
+
+                    if (quest.Step > 0)
+                    {
+                        m_questList.Add((AbstractQuest)dqrq);
+                    }
+                    else if (quest.Count > 0)
+                    {
+                        m_questListFinished.Add((AbstractQuest)dqrq);
+                    }
+                }
+            }
         }
 
         /// <summary>
