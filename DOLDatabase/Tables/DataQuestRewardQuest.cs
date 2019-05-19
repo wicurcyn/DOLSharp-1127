@@ -33,6 +33,7 @@ namespace DOL.Database
 		private ushort m_startRegionID;
 		private string m_storyText;
 		private string m_summary;
+        private string m_acceptText;
 		private string m_questGoals;
 		private string m_goalType;		
 		private string m_goalRepeatNo;
@@ -102,7 +103,7 @@ namespace DOL.Database
 		}
 
 		/// <summary>
-		/// The whisper text that will start this quest
+		/// The quest story shown to player upon being offered the quest
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string StoryText
@@ -112,7 +113,7 @@ namespace DOL.Database
 		}
 
 		/// <summary>
-		/// Description to show to start quest
+		/// Summary of the quest shown in journal
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string Summary
@@ -120,12 +121,22 @@ namespace DOL.Database
 			get { return m_summary; }
 			set { m_summary = value; Dirty = true; }
 		}
-		
-		/// <summary>
-		/// Type of each step (kill, give, collect, etc)
-		/// Format: Step1Type|Step2Type
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+
+        /// <summary>
+        /// Additional text displayed to the player upon accepting the quest
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
+        public string AcceptText
+        {
+            get { return m_acceptText; }
+            set { m_acceptText = value; Dirty = true; }
+        }
+
+        /// <summary>
+        /// Goal description and what step it is given. 
+        /// Format: kill two bandits;1
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public string QuestGoals
 		{
 			get { return m_questGoals; }
@@ -133,8 +144,7 @@ namespace DOL.Database
 		}
 		
 		/// <summary>
-		/// Type of each step (kill, give, collect, etc)
-		/// Format: Step1Type|Step2Type
+		/// Type of each step (kill, give, collect, etc)		
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string GoalType
@@ -144,8 +154,7 @@ namespace DOL.Database
 		}
 		
 		/// <summary>
-		/// Type of each step (kill, give, collect, etc)
-		/// Format: Step1Type|Step2Type
+		/// how many times goal must be repeated to be achieved
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string GoalRepeatNo
@@ -155,8 +164,7 @@ namespace DOL.Database
 		}
 		
 		/// <summary>
-		/// Name of the target for each step
-		/// Format: TargetName;RegionID|TargetName;RegionID
+		/// Name of the target for each step		
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string GoalTargetName
@@ -166,8 +174,7 @@ namespace DOL.Database
 		}
 
 		/// <summary>
-		/// Text for each target
-		/// Format:  Step 1 Target text|Step 2 Target text| ...
+		/// Text a target will say to player 		
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string GoalTargetText
@@ -187,8 +194,7 @@ namespace DOL.Database
 		}
 		
 		/// <summary>
-		/// Who to talk to for each step
-		/// Format: SourceName;RegionID|SourceName;RegionID
+		/// The NPC name who finishes the quest
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string FinishNPC
@@ -250,8 +256,7 @@ namespace DOL.Database
 		}
 
 		/// <summary>
-		/// Reward Money to give at each step, 0 for none
-		/// Format: 111|222|0|333
+		/// Reward Money to give at quest completion, 0 for none		
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public long RewardMoney
@@ -260,44 +265,40 @@ namespace DOL.Database
 			set { m_rewardMoney = value; Dirty = true; }
 		}
 
-		/// <summary>
-		/// Reward XP to give at each step, 0 for none
-		/// Format: 123456789|99876543|0|10000000
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+        /// <summary>
+        /// Reward XP to give at quest completion, 0 for none        
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public long RewardXP
 		{
 			get { return m_rewardXP; }
 			set { m_rewardXP = value; Dirty = true; }
 		}
-		
-		/// <summary>
-		/// Reward CLXP to give at each step, 0 for none
-		/// Format: 123456789|99876543|0|10000000
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+
+        /// <summary>
+        /// Reward CLXP to give at quest completion, 0 for none        
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public long RewardCLXP
 		{
 			get { return m_rewardCLXP; }
 			set { m_rewardCLXP = value; Dirty = true; }
 		}
-		
-		/// <summary>
-		/// Reward RP to give at each step, 0 for none
-		/// Format: 123456789|99876543|0|10000000
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+
+        /// <summary>
+        /// Reward RP to give at quest completion, 0 for none        
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public long RewardRP
 		{
 			get { return m_rewardRP; }
 			set { m_rewardRP = value; Dirty = true; }
 		}
-		
-		/// <summary>
-		/// Reward BP to give at each step, 0 for none
-		/// Format: 123456789|99876543|0|10000000
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+
+        /// <summary>
+        /// Reward BP to give at quest completion, 0 for none        
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public long RewardBP
 		{
 			get { return m_rewardBP; }
@@ -327,7 +328,7 @@ namespace DOL.Database
 		}
 
 		/// <summary>
-		/// Text to show the user once the quest is finished.  Can be null of no text.
+		/// Text to show the user once the quest is finished.
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string FinishText
@@ -358,8 +359,7 @@ namespace DOL.Database
 		}
 
 		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
+		/// Code that can be used for various quest activities		
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string ClassType
@@ -370,8 +370,10 @@ namespace DOL.Database
 		
 		//the following is used for adding the quest marker on the map // patch 0026
 		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
+		/// Xloc of a goal target. Used to display red dot on map
+		/// Value is from the /loc command
+        /// Format: value1|value2|value3
+        /// can be 0 for the interactFinish goal
 		/// </summary>
 		[DataElement(AllowDbNull = true)]
 		public string XOffset
@@ -379,21 +381,24 @@ namespace DOL.Database
 			get { return m_xOffset; }
 			set { m_xOffset = value; Dirty = true; }
 		}
-		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+        /// <summary>
+        /// Yloc of a goal target. Used to display red dot on map
+        /// Value is from the /loc command
+        /// Format: value1|value2|value3
+        /// can be 0 for the interactFinish goal
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public string YOffset
 		{
 			get { return m_yOffset; }
 			set { m_yOffset = value; Dirty = true; }
 		}
-		/// <summary>
-		/// Code that can be used for various quest activities
-		/// Can be null, currently not used
-		/// </summary>
-		[DataElement(AllowDbNull = true)]
+        /// <summary>
+        /// ZoneID (not RegionID!) of a goal target. Used to display red dot on map        
+        /// Format: value1|value2|value3
+        /// can be 0 for the interactFinish goal
+        /// </summary>
+        [DataElement(AllowDbNull = true)]
 		public string ZoneID
 		{
 			get { return m_zoneID; }
