@@ -59,6 +59,7 @@ namespace DOL.GS.Commands
                             case "safearea": area.ClassType = "DOL.GS.Area+SafeArea"; break;
                             case "bind":
                             case "bindarea": area.ClassType = "DOL.GS.Area+BindArea"; break;
+                            case "search": area.ClassType = "DOL.GS.Area+Search"; break;
                             default:
                                 {
                                     DisplaySyntax(client);
@@ -88,7 +89,7 @@ namespace DOL.GS.Commands
                         newArea.CanBroadcast = area.CanBroadcast;
                         WorldMgr.GetRegion(client.Player.CurrentRegionID).AddArea(newArea);
                         GameServer.Database.AddObject(area);
-                        DisplayMessage(client, LanguageMgr.GetTranslation(client.Account.Language, "GMCommands.Area.AreaCreated", area.Description, area.X, area.Z, area.Radius, area.CanBroadcast.ToString(), area.Sound));
+                        DisplayMessage(client, LanguageMgr.GetTranslation(client.Account.Language, "GMCommands.Area.AreaCreated", area.Description, area.X, area.Y, area.Z, area.Radius, area.CanBroadcast.ToString(), area.Sound));
                         break;
                     }
 

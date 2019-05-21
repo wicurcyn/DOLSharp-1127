@@ -1555,49 +1555,49 @@ namespace DOL.GS.Quests
         /// </summary>        
         public override bool Command(GamePlayer player, AbstractQuest.eQuestCommand command, AbstractArea area)
         {
-            if (player == null || command == eQuestCommand.None)
-                return false;
-
-            if (command == eQuestCommand.Search)
+            if (player == null || area == null)
             {
-                // every active quest in the players quest list is sent this command.  Respond if we have an active search
-
-                if (m_numSearchAreas > 0 && player == QuestPlayer)
-                {
-                    // see if the player is in our search area
-
-                    foreach (AbstractArea playerArea in player.CurrentAreas)
-                    {
-                        if (playerArea is QuestSearchArea && (playerArea as QuestSearchArea).DataQuest != null && (playerArea as QuestSearchArea).DataQuest.Id == ID)
-                        {
-                            if ((playerArea as QuestSearchArea).Step == Step)
-                            {
-                                StartQuestActionTimer(player, command, (playerArea as QuestSearchArea).SearchSeconds, "Searching ...");
-                                return true; // only allow one active search at a time
-                            }
-                        }
-                    }
-                }
+                return false;
             }
 
-            if (command == eQuestCommand.SearchStart && area != null)
+            foreach (DQRQuestGoal goal in Goals)
             {
-                // If player can start this quest then do search action
-
-                if (CheckQuestQualification(player))
+                if (!goal.IsAchieved && goal.Type == DQRQuestGoal.GoalType.Search)
                 {
-                    StartQuestActionTimer(player, command, (area as QuestSearchArea).SearchSeconds, "Searching ...");
-                    return true;
+                    if (goal.TargetObject.ToLower() == area.Description.ToLower()) // we have the correct area
+                    {                        
+                        StartQuestActionTimer(player, command, 3, "You begin searching the area ...");
+                        foreach (GamePlayer others in player.GetPlayersInRadius(1000))
+                        {
+                            others.Out.SendEmoteAnimation(player, eEmote.PlayerPickup);
+                        }                        
+                        CurrentGoal = goal;
+                        return true;
+                    }
                 }
             }
 
             return false;
         }
 
-		/// <summary>
-		/// Finish the quest and update the player quest list
-		/// </summary>
-		public virtual bool FinishQuest(GameObject obj)
+        /// <summary>
+        /// A quest command like /search is completed, so do something // patchsearch
+        /// </summary>        
+        protected override void QuestCommandCompleted(AbstractQuest.eQuestCommand command, GamePlayer player)
+        {
+            if (QuestPlayer == player)
+            {
+                if (!AdvanceQuestStep(null))
+                {
+                    SendMessage(QuestPlayer, "You fail to find anything!", 0, eChatType.CT_System, eChatLoc.CL_SystemWindow);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Finish the quest and update the player quest list
+        /// </summary>
+        public virtual bool FinishQuest(GameObject obj)
 		{
 			if (_questPlayer == null || m_charQuest == null || !m_charQuest.IsPersisted)
 				return false;
