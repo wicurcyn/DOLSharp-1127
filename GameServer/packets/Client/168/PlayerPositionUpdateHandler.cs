@@ -462,12 +462,14 @@ namespace DOL.GS.PacketHandler.Client.v168
                     log.Warn("error when attempting to calculate fall damage");
                 }
             }
-
+			
+			ushort steedSeatPosition = 0;
+			
             if (client.Player.Steed != null && client.Player.Steed.ObjectState == GameObject.eObjectState.Active)
             {
                 client.Player.Heading = client.Player.Steed.Heading;
-                newHeading = (ushort)client.Player.Steed.ObjectID; // test patch 0064
-                //playerState |= 0x1800;
+                newHeading = (ushort)client.Player.Steed.ObjectID;
+				steedSeatPosition = (ushort)client.Player.SteedSeatPosition;                
             }
             else if ((playerState >> 10) == 4) // patch 0062 fix bug on release preventing players from receiving res sickness
             {
@@ -511,7 +513,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             outpak.WriteShort(sessionID);
             outpak.WriteShort(currentZoneID);
             outpak.WriteShort(playerState);
-            outpak.WriteShort(0); // fall damage flag, dont need to send it
+            outpak.WriteShort(steedSeatPosition); // fall damage flag coming in, steed seat position going out
             outpak.WriteShort(newHeading);
             outpak.WriteByte(playerOutAction);
             outpak.WriteByte((byte)(client.Player.RPFlag ? 1 : 0));

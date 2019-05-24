@@ -16,10 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-using System;
-using System.Collections;
 using System.Reflection;
-using DOL.GS;
 using log4net;
 
 namespace DOL.GS.PacketHandler.Client.v168
@@ -56,17 +53,27 @@ namespace DOL.GS.PacketHandler.Client.v168
             client.Player.TargetInView = ((flags & 0x10) != 0);
             packet.Skip(1);
             byte ridingFlag = (byte)packet.ReadByte();
-
+			flags = 0; // reset flags, only some sent back out
             if (client.Player.IsWireframe)
             {
                 flags |= 0x01;
             }
-            //stealth is set here
+            
             if (client.Player.IsStealthed)
             {
                 flags |= 0x02;
             }            
-
+			if (client.Player.IsDiving)
+            {
+                flags |= 0x04;
+            }
+            if (client.Player.IsTorchLighted)
+            {
+                flags |= 0x80;
+            }
+			
+            byte steedSlot = (byte)client.Player.SteedSeatPosition;
+			
             GSUDPPacketOut outpak190 = new GSUDPPacketOut(client.Out.GetPacketCode(eServerPackets.PlayerHeading));
 
             foreach (GamePlayer player in client.Player.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
@@ -75,9 +82,10 @@ namespace DOL.GS.PacketHandler.Client.v168
                 {
                     outpak190.WriteShort((ushort)client.SessionID);
                     outpak190.WriteShort(client.Player.Heading);
-                    outpak190.WriteShort((ushort)flags);
+                    outpak190.WriteByte(steedSlot);
+                    //outpak190.WriteShort((ushort)flags);
+                    outpak190.WriteByte((byte)flags);
                     outpak190.WriteByte(0);
-                    //outpak190.WriteByte(0);
                     outpak190.WriteByte(ridingFlag);
                     outpak190.WriteByte(client.Player.HealthPercent);
                     outpak190.WriteByte(client.Player.ManaPercent);

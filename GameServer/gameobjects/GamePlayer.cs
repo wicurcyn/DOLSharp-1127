@@ -11019,6 +11019,11 @@ break;
             set { m_steed.Target = value; }
         }
 
+		/// <summary>
+        /// Holds the players seat position, later sent in various packets for rams / boats
+        /// </summary>
+        public int SteedSeatPosition { get; set; } = 0;
+		
         /// <summary>
         /// Delegate callback to be called when the player
         /// tries to mount a steed

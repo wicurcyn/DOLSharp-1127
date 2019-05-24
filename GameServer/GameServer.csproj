@@ -841,6 +841,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="gameobjects\Necromancer\NecromancerPet.cs" />
+	<Compile Include="gameobjects\SiegeWeapon\gamesiegepalintone.cs" />
     <Compile Include="gameobjects\SiegeWeapon\gamesiegeballista.cs">
       <SubType>Code</SubType>
     </Compile>
