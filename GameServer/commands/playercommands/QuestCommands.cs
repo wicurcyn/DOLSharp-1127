@@ -1,22 +1,23 @@
- /*
- * DAWN OF LIGHT - The first free open source DAoC server emulator
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- */
+/*
+* DAWN OF LIGHT - The first free open source DAoC server emulator
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*
+*/
 
+using DOL.GS.PacketHandler;
 using DOL.GS.Quests;
 
 namespace DOL.GS.Commands
@@ -45,6 +46,21 @@ namespace DOL.GS.Commands
 
             bool searched = false;
 
+            AbstractArea currentArea = null;
+            foreach (AbstractArea area in player.CurrentAreas)
+            {
+                if (area is QuestSearchArea || area is Area.Search)
+                {
+                    currentArea = area;
+                    break;
+                }
+                else
+                {
+                    player.Out.SendMessage("You see nothing special about this area.", eChatType.CT_Important, eChatLoc.CL_SystemWindow);
+                    return;
+                }
+            }
+            // checks dataquests and rewardquests for search areas
             foreach (AbstractQuest quest in player.QuestList)
             {
                 if (quest.Command(player, AbstractQuest.eQuestCommand.Search))
@@ -70,7 +86,7 @@ namespace DOL.GS.Commands
 
             if (searched == false)
             {
-                player.Out.SendMessage("You can't do that here!", DOL.GS.PacketHandler.eChatType.CT_Important, DOL.GS.PacketHandler.eChatLoc.CL_SystemWindow);
+                player.Out.SendMessage("You can't do that here!", eChatType.CT_Important, eChatLoc.CL_SystemWindow);
             }
         }
     }

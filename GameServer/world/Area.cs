@@ -500,5 +500,13 @@ namespace DOL.GS
                 IsSafeArea = true;
             }
         }
+        // search area used in reward dataquests
+        public class Search : Circle
+        {
+            public Search()
+                : base()
+            {
+            }
+        }
     }
 }
