@@ -17,10 +17,7 @@
  *
  */
 
-using System;
 using DOL.Database.Attributes;
-using DOL.Events;
-using DOL.GS;
 
 namespace DOL.Database
 {
