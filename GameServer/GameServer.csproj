@@ -215,6 +215,7 @@
     <Compile Include="commands\gmcommands\npc.cs" />
     <Compile Include="commands\gmcommands\object.cs" />
     <Compile Include="commands\gmcommands\path.cs" />
+	<Compile Include="commands\gmcommands\port.cs" />
     <Compile Include="commands\gmcommands\Player.cs" />
     <Compile Include="commands\gmcommands\Removehouse.cs" />
     <Compile Include="commands\gmcommands\resetability.cs" />

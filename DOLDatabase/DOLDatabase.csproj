@@ -123,6 +123,7 @@
 	<Compile Include="Tables\DataQuestRewardQuest.cs" />
 	<Compile Include="Tables\Gravestones.cs" />
     <Compile Include="Tables\HousingConsignmentMerchant.cs" />
+	<Compile Include="Tables\JumpPoint.cs" />
     <Compile Include="Tables\LanguageDoor.cs" />
     <Compile Include="Tables\LanguageGameObject.cs" />
     <Compile Include="Tables\LanguageItem.cs" />
