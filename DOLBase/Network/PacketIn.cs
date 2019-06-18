@@ -131,7 +131,7 @@ namespace DOL.Network
 		/// Reads in a pascal style string, with header count formatted as a Low Endian Short.
 		/// </summary>
 		/// <returns>A string from the stream</returns>
-		public virtual string ReadLowEndianShortPascalString()
+		public virtual string ReadShortPascalStringLowEndian()
 		{
 			return ReadString(ReadShortLowEndian());
 		}

@@ -76,10 +76,10 @@ namespace DOL.GS.PacketHandler.Client.v168
             packet.Skip(2);
 
             // Read Login
-            userName = packet.ReadLowEndianShortPascalString();
+            userName = packet.ReadShortPascalStringLowEndian();
 
             // Read Password
-            password = packet.ReadLowEndianShortPascalString();
+            password = packet.ReadShortPascalStringLowEndian();
             
 
             // check server status
