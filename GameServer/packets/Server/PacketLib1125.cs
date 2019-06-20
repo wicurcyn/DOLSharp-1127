@@ -202,6 +202,10 @@ namespace DOL.GS.PacketHandler
                             {                                
                                 locationDescription = region.GetTranslatedSpotDescription(GameClient, c.Xpos, c.Ypos, c.Zpos);
                             }
+							if (locationDescription.Length > 23) // location name over 23 chars has to be truncated eg. "The Great Pyramid of Stygia"
+                            {
+                                locationDescription = (locationDescription.Substring(0, 20)) + "...";
+                            }
                             pak.WritePascalStringLowEndian(locationDescription);
 
                             string classname = "";
