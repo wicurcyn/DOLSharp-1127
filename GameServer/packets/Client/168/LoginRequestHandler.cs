@@ -51,36 +51,56 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
 
             string ipAddress = client.TcpEndpointAddress;
-            
+
+            byte major;
+            byte minor;
+            byte build;
             string password;
             string userName;
 
-            /// <summary>
-            /// Packet Format Change above 1.115
-            /// </summary>
-                        
-            // 1.115c+
+            // 1.125+
+            if (client.Version > GameClient.eClientVersion.Version1124)
+            {                
+                // client type
+                packet.Skip(1);
 
-            // client type
-            packet.Skip(1);
+                //version
+                major = (byte)packet.ReadByte();
+                minor = (byte)packet.ReadByte();
+                build = (byte)packet.ReadByte();
 
-            // version
-            packet.ReadByte(); // major
-            packet.ReadByte(); // minor
-            packet.ReadByte(); // build
+                // revision
+                packet.Skip(1);
+                // build
+                packet.Skip(2);
 
-            // revision
-            packet.Skip(1);
+                // Read Login
+                userName = packet.ReadIntPascalStringLowEndian();
 
-            // build
-            packet.Skip(2);
+                // Read Password
+                password = packet.ReadIntPascalStringLowEndian();
+            }
+            else // 1.115c+ - 1.124
+            {
+                // client type
+                packet.Skip(1);
 
-            // Read Login
-            userName = packet.ReadShortPascalStringLowEndian();
+                //version
+                major = (byte)packet.ReadByte();
+                minor = (byte)packet.ReadByte();
+                build = (byte)packet.ReadByte();
 
-            // Read Password
-            password = packet.ReadShortPascalStringLowEndian();
-            
+                // revision
+                packet.Skip(1);
+                // build
+                packet.Skip(2);
+
+                // Read Login
+                userName = packet.ReadShortPascalStringLowEndian();
+
+                // Read Password
+                password = packet.ReadShortPascalStringLowEndian();
+            }
 
             // check server status
             if (GameServer.Instance.ServerStatus == eGameServerStatus.GSS_Closed)
