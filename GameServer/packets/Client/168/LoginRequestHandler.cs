@@ -38,7 +38,7 @@ namespace DOL.GS.PacketHandler.Client.v168
         /// <summary>
         /// Defines a logger for this class.
         /// </summary>
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private static DateTime _lastAccountCreateTime;
         private readonly Dictionary<string, LockCount> _locks = new Dictionary<string, LockCount>();
@@ -51,43 +51,63 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
 
             string ipAddress = client.TcpEndpointAddress;
-            
+
+            byte major;
+            byte minor;
+            byte build;
             string password;
             string userName;
 
-            /// <summary>
-            /// Packet Format Change above 1.115
-            /// </summary>
-                        
-            // 1.115c+
+            // 1.125+
+            if (client.Version > GameClient.eClientVersion.Version1124)
+            {                
+                // client type
+                packet.Skip(1);
 
-            // client type
-            packet.Skip(1);
+                //version
+                major = (byte)packet.ReadByte();
+                minor = (byte)packet.ReadByte();
+                build = (byte)packet.ReadByte();
 
-            // version
-            packet.ReadByte(); // major
-            packet.ReadByte(); // minor
-            packet.ReadByte(); // build
+                // revision
+                packet.Skip(1);
+                // build
+                packet.Skip(2);
 
-            // revision
-            packet.Skip(1);
+                // Read Login
+                userName = packet.ReadIntPascalStringLowEndian();
 
-            // build
-            packet.Skip(2);
+                // Read Password
+                password = packet.ReadIntPascalStringLowEndian();
+            }
+            else // 1.115c+ - 1.124
+            {
+                // client type
+                packet.Skip(1);
 
-            // Read Login
-            userName = packet.ReadShortPascalStringLowEndian();
+                //version
+                major = (byte)packet.ReadByte();
+                minor = (byte)packet.ReadByte();
+                build = (byte)packet.ReadByte();
 
-            // Read Password
-            password = packet.ReadShortPascalStringLowEndian();
-            
+                // revision
+                packet.Skip(1);
+                // build
+                packet.Skip(2);
+
+                // Read Login
+                userName = packet.ReadShortPascalStringLowEndian();
+
+                // Read Password
+                password = packet.ReadShortPascalStringLowEndian();
+            }
 
             // check server status
             if (GameServer.Instance.ServerStatus == eGameServerStatus.GSS_Closed)
             {
                 client.IsConnected = false;
                 client.Out.SendLoginDenied(eLoginError.GameCurrentlyClosed);
-                Log.Info(ipAddress + " disconnected because game is closed!");
+                log.Info(ipAddress + " disconnected because game is closed!");
                 GameServer.Instance.Disconnect(client);
 
                 return;
@@ -98,9 +118,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             {
                 if (!GameServer.ServerRules.IsAllowedToConnect(client, userName))
                 {
-                    if (Log.IsInfoEnabled)
+                    if (log.IsInfoEnabled)
                     {
-                        Log.Info($"{ipAddress} disconnected because IsAllowedToConnect returned false!");
+                        log.Info($"{ipAddress} disconnected because IsAllowedToConnect returned false!");
                     }
 
                     GameServer.Instance.Disconnect(client);
@@ -110,9 +130,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
             catch (Exception e)
             {
-                if (Log.IsErrorEnabled)
+                if (log.IsErrorEnabled)
                 {
-                    Log.Error("Error shutting down Client after IsAllowedToConnect failed!", e);
+                    log.Error("Error shutting down Client after IsAllowedToConnect failed!", e);
                 }
             }
 
@@ -127,13 +147,13 @@ namespace DOL.GS.PacketHandler.Client.v168
                     GameClient.eClientState state = client.ClientState;
                     if (state != GameClient.eClientState.NotConnected)
                     {
-                        Log.Debug($"wrong client state on connect {userName} {state}");
+                        log.Debug($"wrong client state on connect {userName} {state}");
                         return;
                     }
 
-                    if (Log.IsInfoEnabled)
+                    if (log.IsInfoEnabled)
                     {
-                        Log.Info($"({ipAddress})User {userName} logging on! ({client.Version} type:{client.ClientType} add:{client.ClientAddons:G})");
+                        log.Info($"({ipAddress})User {userName} logging on! ({client.Version} type:{client.ClientType} add:{client.ClientAddons:G})");
                     }
 
                     // check client already connected
@@ -144,9 +164,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         if (findclient.ClientState == GameClient.eClientState.Connecting)
                         {
-                            if (Log.IsInfoEnabled)
+                            if (log.IsInfoEnabled)
                             {
-                                Log.Info("User is already connecting, ignored.");
+                                log.Info("User is already connecting, ignored.");
                             }
 
                             client.Out.SendLoginDenied(eLoginError.AccountAlreadyLoggedIn);
@@ -156,18 +176,18 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         if (findclient.ClientState == GameClient.eClientState.Linkdead)
                         {
-                            if (Log.IsInfoEnabled)
+                            if (log.IsInfoEnabled)
                             {
-                                Log.Info("User is still being logged out from linkdeath!");
+                                log.Info("User is still being logged out from linkdeath!");
                             }
 
                             client.Out.SendLoginDenied(eLoginError.AccountIsInLogoutProcedure);
                         }
                         else
                         {
-                            if (Log.IsInfoEnabled)
+                            if (log.IsInfoEnabled)
                             {
-                                Log.Info("User already logged in!");
+                                log.Info("User already logged in!");
                             }
 
                             client.Out.SendLoginDenied(eLoginError.AccountAlreadyLoggedIn);
@@ -182,9 +202,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                     Account playerAccount;
                     if (!goodName.IsMatch(userName) || string.IsNullOrWhiteSpace(userName))
                     {
-                        if (Log.IsInfoEnabled)
+                        if (log.IsInfoEnabled)
                         {
-                            Log.Info($"Invalid symbols in account name \"{userName}\" found!");
+                            log.Info($"Invalid symbols in account name \"{userName}\" found!");
                         }
 
                         client.IsConnected = false;
@@ -194,7 +214,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                         }
                         else
                         {
-                            Log.Warn("Client or Client.Out null on invalid name failure.  Disconnecting.");
+                            log.Warn("Client or Client.Out null on invalid name failure.  Disconnecting.");
                         }
 
                         GameServer.Instance.Disconnect(client);
@@ -219,9 +239,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     client.Out.SendLoginDenied(eLoginError.AccountInvalid);
                                     GameServer.Instance.Disconnect(client);
 
-                                    if (Log.IsInfoEnabled)
+                                    if (log.IsInfoEnabled)
                                     {
-                                        Log.Info($"Account creation failed, no password set for Account: {userName}");
+                                        log.Info($"Account creation failed, no password set for Account: {userName}");
                                     }
 
                                     return;
@@ -236,7 +256,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     ts = DateTime.Now - ac.CreationDate;
                                     if (ts.TotalMinutes < Properties.TIME_BETWEEN_ACCOUNT_CREATION_SAMEIP && totalacc > 1)
                                     {
-                                        Log.Warn($"Account creation: too many from same IP within set minutes - {userName} : {ipAddress}");
+                                        log.Warn($"Account creation: too many from same IP within set minutes - {userName} : {ipAddress}");
 
                                         client.IsConnected = false;
                                         client.Out.SendLoginDenied(eLoginError.PersonalAccountIsOutOfTime);
@@ -250,7 +270,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                                 if (totalacc >= Properties.TOTAL_ACCOUNTS_ALLOWED_SAMEIP)
                                 {
-                                    Log.Warn($"Account creation: too many accounts created from same ip - {userName} : {ipAddress}");
+                                    log.Warn($"Account creation: too many accounts created from same ip - {userName} : {ipAddress}");
 
                                     client.IsConnected = false;
                                     client.Out.SendLoginDenied(eLoginError.AccountNoAccessThisGame);
@@ -265,7 +285,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     ts = DateTime.Now - _lastAccountCreateTime;
                                     if (ts.TotalMinutes < Properties.TIME_BETWEEN_ACCOUNT_CREATION)
                                     {
-                                        Log.Warn($"Account creation: time between account creation too small - {userName} : {ipAddress}");
+                                        log.Warn($"Account creation: time between account creation too small - {userName} : {ipAddress}");
 
                                         client.IsConnected = false;
                                         client.Out.SendLoginDenied(eLoginError.PersonalAccountIsOutOfTime);
@@ -290,9 +310,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                                     PrivLevel = 1
                                 };
 
-                                if (Log.IsInfoEnabled)
+                                if (log.IsInfoEnabled)
                                 {
-                                    Log.Info($"New account created: {userName}");
+                                    log.Info($"New account created: {userName}");
                                 }
 
                                 GameServer.Database.AddObject(playerAccount);
@@ -302,9 +322,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             }
                             else
                             {
-                                if (Log.IsInfoEnabled)
+                                if (log.IsInfoEnabled)
                                 {
-                                    Log.Info("No such account found and autocreation deactivated!");
+                                    log.Info("No such account found and autocreation deactivated!");
                                 }
 
                                 client.IsConnected = false;
@@ -324,9 +344,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                             if (!CryptPassword(password).Equals(playerAccount.Password))
                             {
-                                if (Log.IsInfoEnabled)
+                                if (log.IsInfoEnabled)
                                 {
-                                    Log.Info($"({client.TcpEndpoint}) Wrong password!");
+                                    log.Info($"({client.TcpEndpoint}) Wrong password!");
                                 }
 
                                 client.IsConnected = false;
@@ -359,9 +379,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                     // create session ID here to disable double login bug
                     if (WorldMgr.CreateSessionID(client) < 0)
                     {
-                        if (Log.IsInfoEnabled)
+                        if (log.IsInfoEnabled)
                         {
-                            Log.InfoFormat("Too many clients connected, denied login to {0}", playerAccount.Name);
+                            log.InfoFormat("Too many clients connected, denied login to {0}", playerAccount.Name);
                         }
 
                         client.IsConnected = false;
@@ -380,9 +400,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
             catch (DatabaseException e)
             {
-                if (Log.IsErrorEnabled)
+                if (log.IsErrorEnabled)
                 {
-                    Log.Error("LoginRequestHandler", e);
+                    log.Error("LoginRequestHandler", e);
                 }
 
                 client.IsConnected = false;
@@ -391,9 +411,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
             catch (Exception e)
             {
-                if (Log.IsErrorEnabled)
+                if (log.IsErrorEnabled)
                 {
-                    Log.Error("LoginRequestHandler", e);
+                    log.Error("LoginRequestHandler", e);
                 }
 
                 client.Out.SendLoginDenied(eLoginError.CannotAccessUserAccount);
@@ -440,7 +460,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             if (accountName == null)
             {
                 accountName = string.Empty;
-                Log.Warn("(Enter) No account name");
+                log.Warn("(Enter) No account name");
             }
 
             LockCount lockObj;
@@ -455,7 +475,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (lockObj == null)
                 {
-                    Log.Error($"(Enter) No lock object for account: \'{accountName}\'");
+                    log.Error($"(Enter) No lock object for account: \'{accountName}\'");
                 }
                 else
                 {
@@ -480,7 +500,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             if (accountName == null)
             {
                 accountName = string.Empty;
-                Log.Warn("(Exit) No account name");
+                log.Warn("(Exit) No account name");
             }
 
             LockCount lockObj;
@@ -489,7 +509,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                 // Get lock object
                 if (!_locks.TryGetValue(accountName, out lockObj))
                 {
-                    Log.Error($"(Exit) No lock object for account: \'{accountName}\'");
+                    log.Error($"(Exit) No lock object for account: \'{accountName}\'");
                 }
 
                 // Remove lock object if no more locks on it

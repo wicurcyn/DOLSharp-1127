@@ -414,6 +414,11 @@ namespace DOL.GS
         }
 
         /// <summary>
+        /// the minor 'letter' revision of the game.dll // 1125d support as well as other uses
+        /// </summary>
+        public string MinorRev { get; set; } = "";
+                
+        /// <summary>
         /// Gets/sets installed client addons (housing/new frontiers)
         /// </summary>
         public eClientAddons ClientAddons

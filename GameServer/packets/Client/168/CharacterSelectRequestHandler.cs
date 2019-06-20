@@ -16,7 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-
 using DOL.Events;
 
 namespace DOL.GS.PacketHandler.Client.v168
@@ -26,6 +25,13 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
+            if (client.Version >= GameClient.eClientVersion.Version1125 && client.MinorRev == "d") // 1125d support TODO this needs to be changed when a version greater than 1125d comes out
+            {
+                var charSelectRequest = new CharacterSelectRequestHandler1125d();
+                charSelectRequest.HandlePacket(client, packet);
+                return;
+            }
+
             packet.Skip(4); // Skip the first 4 bytes
             packet.Skip(1);
 
@@ -70,6 +76,63 @@ namespace DOL.GS.PacketHandler.Client.v168
                     }
                 }
 
+                client.Out.SendSessionID();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 1125d + support
+    /// </summary>
+    public class CharacterSelectRequestHandler1125d : IPacketHandler // 1125d support TODO duplicate code from above, can be reused
+    {        
+        public void HandlePacket(GameClient client, GSPacketIn packet)
+        {
+            
+            byte type = (byte)packet.ReadByte(); // changed from ushort low end
+                        
+            packet.Skip(1); // unknown
+
+            string charName = packet.ReadString(24); // down from 28, both need checking
+                        
+            //TODO Character handling 
+            if (charName.Equals("noname"))
+            {                
+                client.Out.SendLoginGranted();
+                client.Out.SendSessionID();
+            }
+            else
+            {
+                // SH: Also load the player if client player is NOT null but their charnames differ!!!
+                // only load player when on charscreen and player is not loaded yet
+                // packet is sent on every region change (and twice after "play" was pressed)
+                if (((client.Player == null && client.Account.Characters != null) || (client.Player != null && client.Player.Name.ToLower() != charName.ToLower())) 
+                    && client.ClientState == GameClient.eClientState.CharScreen)
+                {
+                    bool charFound = false;
+                    for (int i = 0; i < client.Account.Characters.Length; i++)
+                    {
+                        if (client.Account.Characters[i] != null && client.Account.Characters[i].Name == charName)
+                        {
+                            charFound = true;
+                            client.LoadPlayer(i);
+                            break;
+                        }
+                    }
+                    if (!charFound)
+                    {
+                        client.Player = null;
+                        client.ActiveCharIndex = -1;
+                    }
+                    else
+                    {
+                        // Log character play
+                        AuditMgr.AddAuditEntry(client, AuditType.Character, AuditSubtype.CharacterLogin, "", charName);
+                    }
+                }
+                
+                // live actually sends the login granted packet, which sets the button activity states
+                client.Out.SendLoginGranted();
                 client.Out.SendSessionID();
             }
         }

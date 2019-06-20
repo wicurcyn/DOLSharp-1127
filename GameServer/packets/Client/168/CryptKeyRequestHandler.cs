@@ -24,28 +24,31 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
-                // we don't handle Encryption for 1.115c
-                // the rc4 secret can't be unencrypted from RSA.
+            // we don't handle Encryption for 1.115c
+            // the rc4 secret can't be unencrypted from RSA.
 
-                // register client type
-                byte clientType = (byte)packet.ReadByte();
-                client.ClientType = (GameClient.eClientType)(clientType & 0x0F);
-                client.ClientAddons = (GameClient.eClientAddons)(clientType & 0xF0);
+            // register client type
+            byte clientType = (byte)packet.ReadByte();
+            client.ClientType = (GameClient.eClientType)(clientType & 0x0F);
+            client.ClientAddons = (GameClient.eClientAddons)(clientType & 0xF0);
+            // the next 4 bytes are the game.dll version but not in string form
+            // ie: 01 01 19 61 = 1.125a
+            // this version is handled elsewhere before being sent here.
+            packet.Skip(3); // skip the numbers in the version
+            client.MinorRev = packet.ReadString(1); // get the minor revision letter // 1125d support
+            // if the DataSize is above 7 then the RC4 key is bundled
+            // this is stored in case we find a way to handle encryption someday !
+            if (packet.DataSize > 7)
+            {
+                packet.Skip(2); // skip 2 only as we now read the above 4 bytes
+                ushort length = packet.ReadShortLowEndian();
+                packet.Read(client.PacketProcessor.Encoding.SBox, 0, length);
 
-                // if the DataSize is above 7 then the RC4 key is bundled
-                // this is stored in case we find a way to handle encryption someday !
-                if (packet.DataSize > 7)
-                {
-                    packet.Skip(6);
-                    ushort length = packet.ReadShortLowEndian();
-                    packet.Read(client.PacketProcessor.Encoding.SBox, 0, length);
+                // ((PacketEncoding168)client.PacketProcessor.Encoding).EncryptionState=PacketEncoding168.eEncryptionState.PseudoRC4Encrypted;
+            }
 
-                    // ((PacketEncoding168)client.PacketProcessor.Encoding).EncryptionState=PacketEncoding168.eEncryptionState.PseudoRC4Encrypted;
-                }
-
-                // Send the crypt key to the client
-                client.Out.SendVersionAndCryptKey();
-            
+            // Send the crypt key to the client
+            client.Out.SendVersionAndCryptKey();            
         }
     }
 }

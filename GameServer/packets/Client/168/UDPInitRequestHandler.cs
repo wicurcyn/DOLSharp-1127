@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
+using System;
 
 namespace DOL.GS.PacketHandler.Client.v168
 {
@@ -24,8 +25,19 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
-            string localIp = packet.ReadString(22);
-            packet.ReadShort(); // localPort
+            string localIp = "";
+            
+
+            if (client.Version > GameClient.eClientVersion.Version1124) // patch 0177
+            {
+                localIp = packet.ReadString(20);
+                packet.ReadShort();
+                client.LocalIP = localIp;
+                client.Out.SendUDPInitReply();
+                return;
+            }
+            localIp = packet.ReadString(22);
+            packet.ReadShort();
             client.LocalIP = localIp;
             client.Out.SendUDPInitReply();
         }

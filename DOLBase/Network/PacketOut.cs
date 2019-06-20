@@ -205,11 +205,28 @@ namespace DOL.Network
 			Write(bytes, 0, bytes.Length);
 		}
 
-		/// <summary>
-		/// Writes a C-style string to the stream
-		/// </summary>
-		/// <param name="str">String to write</param>
-		public virtual void WriteString(string str)
+        /// <summary>
+        /// Writes a pascal style string to the stream // 1125 support
+        /// </summary>
+        public virtual void WritePascalStringLowEndian(string str)
+        {
+            if (str == null || str.Length <= 0)
+            {
+                WriteByte(0);
+                return;
+            }
+
+            byte[] bytes = Constants.DefaultEncoding.GetBytes(str);
+            WriteIntLowEndian((uint)bytes.Length + 1);
+            Write(bytes, 0, bytes.Length);
+            WriteByte(0);
+        }
+
+        /// <summary>
+        /// Writes a C-style string to the stream
+        /// </summary>
+        /// <param name="str">String to write</param>
+        public virtual void WriteString(string str)
 		{
 			WriteStringBytes(str);
 			WriteByte(0x0);
