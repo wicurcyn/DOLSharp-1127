@@ -92,8 +92,7 @@ namespace DOL.GS.Spells
 
             ((TurretBrain) m_pet.Brain).IsMainPet = false;
 
-            ((IOldAggressiveBrain) m_pet.Brain)?.AddToAggroList(target, 1);
-            (m_pet.Brain as TurretBrain).Think();
+            ((IOldAggressiveBrain) m_pet.Brain)?.AddToAggroList(target, 1);            
 
             // [Ganrod] Nidel: Set only one spell.
             ((TurretPet) m_pet).TurretSpell = m_pet.Spells[0] as Spell;
