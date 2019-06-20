@@ -38,7 +38,7 @@ namespace DOL.GS.PacketHandler.Client.v168
         /// <summary>
         /// Defines a logger for this class.
         /// </summary>
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// Max Points to allow on player creation
@@ -125,9 +125,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
             string accountName = packet.ReadString(24);
 
-            if (Log.IsDebugEnabled)
+            if (log.IsDebugEnabled)
             {
-                Log.Debug($"CharacterCreateRequestHandler for account {accountName} using version {client.Version}");
+                log.Debug($"CharacterCreateRequestHandler for account {accountName} using version {client.Version}");
             }
 
             if (!accountName.StartsWith(client.Account.Name)) // TODO more correctly check, client send accountName as account-S, -N, -H (if it not fit in 20, then only account)
@@ -427,9 +427,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                 ch.MoodType = (byte)pdata.MoodType;
                 ch.CustomisationStep = 2; // disable config button
 
-                if (Log.IsDebugEnabled)
+                if (log.IsDebugEnabled)
                 {
-                    Log.Debug("Disable Config Button");
+                    log.Debug("Disable Config Button");
                 }
             }
 
@@ -467,9 +467,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             ch.Concentration = 100;
             ch.MaxSpeed = GamePlayer.PLAYER_BASE_SPEED;
 
-            if (Log.IsDebugEnabled)
+            if (log.IsDebugEnabled)
             {
-                Log.Debug($"Creation {client.Version} character, class:{ch.Class}, realm:{ch.Realm}");
+                log.Debug($"Creation {client.Version} character, class:{ch.Class}, realm:{ch.Realm}");
             }
 
             // Is class disabled ?
@@ -482,9 +482,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
             if (occurences > 0 && (ePrivLevel)client.Account.PrivLevel == ePrivLevel.Player)
             {
-                if (Log.IsDebugEnabled)
+                if (log.IsDebugEnabled)
                 {
-                    Log.Debug($"Client {client.Account.Name} tried to create a disabled classe: {(eCharacterClass)ch.Class}");
+                    log.Debug($"Client {client.Account.Name} tried to create a disabled classe: {(eCharacterClass)ch.Class}");
                 }
 
                 return true;
@@ -500,9 +500,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
             if (occurences > 0 && (ePrivLevel)client.Account.PrivLevel == ePrivLevel.Player)
             {
-                if (Log.IsDebugEnabled)
+                if (log.IsDebugEnabled)
                 {
-                    Log.Debug($"Client {client.Account.Name} tried to create a disabled race: {(eRace)ch.Race}");
+                    log.Debug($"Client {client.Account.Name} tried to create a disabled race: {(eRace)ch.Race}");
                 }
 
                 return true;
@@ -511,9 +511,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             // If sending invalid Class ID
             if (!Enum.IsDefined(typeof(eCharacterClass), (eCharacterClass)ch.Class))
             {
-                if (Log.IsErrorEnabled)
+                if (log.IsErrorEnabled)
                 {
-                    Log.Error($"{client.Account.Name} tried to create a character with wrong class ID: {ch.Class}, realm:{ch.Realm}");
+                    log.Error($"{client.Account.Name} tried to create a character with wrong class ID: {ch.Class}, realm:{ch.Realm}");
                 }
 
                 if (Properties.BAN_HACKERS)
@@ -529,9 +529,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             // check if client tried to create invalid char
             if (!IsCharacterValid(ch))
             {
-                if (Log.IsWarnEnabled)
+                if (log.IsWarnEnabled)
                 {
-                    Log.Warn($"{ch.AccountName} tried to create invalid character:\nchar name={ch.Name}, gender={ch.Gender}, race={ch.Race}, realm={ch.Realm}, class={ch.Class}, region={ch.Region}\nstr={ch.Strength}, con={ch.Constitution}, dex={ch.Dexterity}, qui={ch.Quickness}, int={ch.Intelligence}, pie={ch.Piety}, emp={ch.Empathy}, chr={ch.Charisma}");
+                    log.Warn($"{ch.AccountName} tried to create invalid character:\nchar name={ch.Name}, gender={ch.Gender}, race={ch.Race}, realm={ch.Realm}, class={ch.Class}, region={ch.Region}\nstr={ch.Strength}, con={ch.Constitution}, dex={ch.Dexterity}, qui={ch.Quickness}, int={ch.Intelligence}, pie={ch.Piety}, emp={ch.Empathy}, chr={ch.Charisma}");
                 }
 
                 return true;
@@ -552,9 +552,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
             client.Account.Characters = null;
 
-            if (Log.IsInfoEnabled)
+            if (log.IsInfoEnabled)
             {
-                Log.Info($"Character {pdata.CharName} created on Account {account}!");
+                log.Info($"Character {pdata.CharName} created on Account {account}!");
             }
 
             // Reload Account Relations
@@ -653,9 +653,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                                 character.Empathy = stats[eStat.EMP];
                                 character.Charisma = stats[eStat.CHR];
 
-                                if (Log.IsInfoEnabled)
+                                if (log.IsInfoEnabled)
                                 {
-                                    Log.Info($"Character {character.Name} Stats updated in cache!");
+                                    log.Info($"Character {character.Name} Stats updated in cache!");
                                 }
 
                                 if (client.Player != null)
@@ -665,16 +665,16 @@ namespace DOL.GS.PacketHandler.Client.v168
                                         client.Player.ChangeBaseStat(stat, (short)(stats[stat] - client.Player.GetBaseStat(stat)));
                                     }
 
-                                    if (Log.IsInfoEnabled)
+                                    if (log.IsInfoEnabled)
                                     {
-                                        Log.Info($"Character {character.Name} Player Stats updated in cache!");
+                                        log.Info($"Character {character.Name} Player Stats updated in cache!");
                                     }
                                 }
                             }
                         }
-                        else if (Log.IsErrorEnabled)
+                        else if (log.IsErrorEnabled)
                         {
-                            Log.Error($"No CharacterClass with ID {character.Class} found");
+                            log.Error($"No CharacterClass with ID {character.Class} found");
                         }
                     }
                 }
@@ -702,9 +702,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             character.CurrentModel = newModel;
                         }
 
-                        if (Log.IsInfoEnabled)
+                        if (log.IsInfoEnabled)
                         {
-                            Log.Info($"Character {character.Name} face properties configured by account {client.Account.Name}!");
+                            log.Info($"Character {character.Name} face properties configured by account {client.Account.Name}!");
                         }
                     }
                 }
@@ -907,9 +907,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                 {
                     if (character.AccountSlot == charSlot && client.ClientState == GameClient.eClientState.CharScreen)
                     {
-                        if (Log.IsWarnEnabled)
+                        if (log.IsWarnEnabled)
                         {
-                            Log.Warn($"DB Character Delete:  Account {accountName}, Character: {character.Name}, slot position: {character.AccountSlot}, client slot {slot}");
+                            log.Warn($"DB Character Delete:  Account {accountName}, Character: {character.Name}, slot position: {character.AccountSlot}, client slot {slot}");
                         }
 
                         if (allChars.Length < client.ActiveCharIndex && client.ActiveCharIndex > -1 && allChars[client.ActiveCharIndex] == character)
@@ -925,9 +925,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             backupCharacter.CustomParams.ForEach(param => GameServer.Database.AddObject(param));
                             GameServer.Database.AddObject(backupCharacter);
 
-                            if (Log.IsWarnEnabled)
+                            if (log.IsWarnEnabled)
                             {
-                                Log.Warn($"DB Character {character.ObjectId} backed up to DOLCharactersBackup and no associated content deleted.");
+                                log.Warn($"DB Character {character.ObjectId} backed up to DOLCharactersBackup and no associated content deleted.");
                             }
                         }
                         else
@@ -940,9 +940,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             }
                             catch (Exception e)
                             {
-                                if (Log.IsErrorEnabled)
+                                if (log.IsErrorEnabled)
                                 {
-                                    Log.Error($"Error deleting char items, char OID={character.ObjectId}, Exception:{e}");
+                                    log.Error($"Error deleting char items, char OID={character.ObjectId}, Exception:{e}");
                                 }
                             }
 
@@ -954,9 +954,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             }
                             catch (Exception e)
                             {
-                                if (Log.IsErrorEnabled)
+                                if (log.IsErrorEnabled)
                                 {
-                                    Log.Error($"Error deleting char quests, char OID={character.ObjectId}, Exception:{e}");
+                                    log.Error($"Error deleting char quests, char OID={character.ObjectId}, Exception:{e}");
                                 }
                             }
 
@@ -968,9 +968,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             }
                             catch (Exception e)
                             {
-                                if (Log.IsErrorEnabled)
+                                if (log.IsErrorEnabled)
                                 {
-                                    Log.Error($"Error deleting char ml steps, char OID={character.ObjectId}, Exception:{e}");
+                                    log.Error($"Error deleting char ml steps, char OID={character.ObjectId}, Exception:{e}");
                                 }
                             }
 
@@ -982,9 +982,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                             }
                             catch (Exception e)
                             {
-                                if (Log.IsErrorEnabled)
+                                if (log.IsErrorEnabled)
                                 {
-                                    Log.ErrorFormat("No gravestone found for deleted character, char OID={0}, Exception:{1}", character.ObjectId, e);
+                                    log.ErrorFormat("No gravestone found for deleted character, char OID={0}, Exception:{1}", character.ObjectId, e);
                                 }
                             }
                         }
@@ -998,9 +998,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                         if (client.Account.Characters == null || client.Account.Characters.Length == 0)
                         {
-                            if (Log.IsInfoEnabled)
+                            if (log.IsInfoEnabled)
                             {
-                                Log.Info($"Account {client.Account.Name} has no more chars. Realm reset!");
+                                log.Info($"Account {client.Account.Name} has no more chars. Realm reset!");
                             }
 
                             // Client has no more characters, so the client can choose the realm again!
@@ -1092,9 +1092,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             {
                 if ((eRealm)ch.Realm < eRealm._FirstPlayerRealm || (eRealm)ch.Realm > eRealm._LastPlayerRealm)
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Wrong realm: {ch.Realm} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Wrong realm: {ch.Realm} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1102,9 +1102,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (ch.Level != 1)
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Wrong level: {ch.Level} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Wrong level: {ch.Level} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1112,9 +1112,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (!GlobalConstants.STARTING_CLASSES_DICT.ContainsKey((eRealm)ch.Realm) || !GlobalConstants.STARTING_CLASSES_DICT[(eRealm)ch.Realm].Contains((eCharacterClass)ch.Class))
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Wrong class: {ch.Class}, realm:{ch.Realm} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Wrong class: {ch.Class}, realm:{ch.Realm} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1122,9 +1122,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (!GlobalConstants.RACES_CLASSES_DICT.ContainsKey((eRace)ch.Race) || !GlobalConstants.RACES_CLASSES_DICT[(eRace)ch.Race].Contains((eCharacterClass)ch.Class))
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Wrong race: {ch.Race}, class:{ch.Class} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Wrong race: {ch.Race}, class:{ch.Class} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1137,9 +1137,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (pointsUsed != MaxStartingBonusPoints)
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Points used: {pointsUsed} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Points used: {pointsUsed} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1149,9 +1149,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (GlobalConstants.RACE_GENDER_CONSTRAINTS_DICT.ContainsKey((eRace)ch.Race) && GlobalConstants.RACE_GENDER_CONSTRAINTS_DICT[(eRace)ch.Race] != gender)
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Wrong Race gender: {ch.Gender}, race: {ch.Race} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Wrong Race gender: {ch.Gender}, race: {ch.Race} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1159,9 +1159,9 @@ namespace DOL.GS.PacketHandler.Client.v168
 
                 if (GlobalConstants.CLASS_GENDER_CONSTRAINTS_DICT.ContainsKey((eCharacterClass)ch.Class) && GlobalConstants.CLASS_GENDER_CONSTRAINTS_DICT[(eCharacterClass)ch.Class] != gender)
                 {
-                    if (Log.IsWarnEnabled)
+                    if (log.IsWarnEnabled)
                     {
-                        Log.Warn($"Wrong class gender: {ch.Gender}, class:{ch.Class} on character creation from Account: {ch.AccountName}");
+                        log.Warn($"Wrong class gender: {ch.Gender}, class:{ch.Class} on character creation from Account: {ch.AccountName}");
                     }
 
                     valid = false;
@@ -1169,9 +1169,9 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
             catch (Exception e)
             {
-                if (Log.IsErrorEnabled)
+                if (log.IsErrorEnabled)
                 {
-                    Log.Error($"CharacterCreation error on account {ch.AccountName}, slot {ch.AccountSlot}. Exception:{e}");
+                    log.Error($"CharacterCreation error on account {ch.AccountName}, slot {ch.AccountSlot}. Exception:{e}");
                 }
 
                 valid = false;

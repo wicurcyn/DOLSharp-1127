@@ -27,7 +27,7 @@ namespace DOL.GS.PacketHandler.Client.v168
         /// <summary>
         /// Defines a logger for this class.
         /// </summary>
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
@@ -117,9 +117,9 @@ namespace DOL.GS.PacketHandler.Client.v168
                     }
                     else
                     {
-                        if (Log.IsErrorEnabled)
+                        if (log.IsErrorEnabled)
                         {
-                            Log.Error($"User has chosen unknown realm: {accountName}; account={client.Account.Name}");
+                            log.Error($"User has chosen unknown realm: {accountName}; account={client.Account.Name}");
                         }
 
                         client.Out.SendRealm(eRealm.None);
@@ -143,7 +143,8 @@ namespace DOL.GS.PacketHandler.Client.v168
             }
         }
     }
-    public class CharacterOverviewRequest1125Handler : IPacketHandler // 0177
+
+    public class CharacterOverviewRequest1125Handler : IPacketHandler
     {
         /// <summary>
 		/// Defines a logger for this class.
