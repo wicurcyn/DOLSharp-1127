@@ -16,8 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-using System;
-using System.Collections.Generic;
 using DOL.Events;
 
 namespace DOL.GS.PacketHandler.Client.v168
@@ -87,9 +85,7 @@ namespace DOL.GS.PacketHandler.Client.v168
     /// 1125d + support
     /// </summary>
     public class CharacterSelectRequestHandler1125d : IPacketHandler // 1125d support TODO duplicate code from above, can be reused
-    {
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
+    {        
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
             
