@@ -22,21 +22,24 @@ namespace DOL.GS.Commands
     [Cmd(
         "&gloc", // command to handle
         ePrivLevel.Player, // minimum privelege level
-        "Show the current coordinates", // command description
+        "Show the current local zone and global region coordinates", // command description
         "/gloc")] // command usage
     public class GlocCommandHandler : AbstractCommandHandler, ICommandHandler
-    {
-        public void OnCommand(GameClient client, string[] args)
-        {
-            if (IsSpammingCommand(client.Player, "gloc"))
+	{
+		public void OnCommand(GameClient client, string[] args)
+		{
+			if (IsSpammingCommand(client.Player, "gloc"))
             {
                 return;
             }
 
-            DisplayMessage(client, string.Format(
-                "You are at X:{0} Y:{1} Z:{2} Heading:{3} Region:{4} {5}",
-                client.Player.X, client.Player.Y, client.Player.Z, client.Player.Heading, client.Player.CurrentRegionID,
-                client.Player.CurrentRegion is BaseInstance ? string.Format("Skin:{0}", client.Player.CurrentRegion.Skin) : string.Empty));
-        }
-    }
+            double degHeading = (client.Player.Heading + 2048) / 11.38;
+            // same data sent by client built in /loc command
+            DisplayMessage(client, string.Format("{0}: loc={1},{2},{3} dir={4}",
+                client.Player.CurrentZone.Description, client.Player.X - client.Player.CurrentZone.XOffset, client.Player.Y - client.Player.CurrentZone.YOffset, client.Player.Z, (int)degHeading > 359 ? (int)degHeading - 360 : (int)degHeading));
+            // global location in a region
+            DisplayMessage(client, string.Format("Global Location is X:{0} Y:{1} Z:{2} Heading:{3} Region:{4} Zone:{5}",
+				client.Player.X, client.Player.Y, client.Player.Z, client.Player.Heading, client.Player.CurrentRegionID, client.Player.CurrentZone.ID));
+		}
+	}
 }
