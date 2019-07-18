@@ -417,7 +417,12 @@ namespace DOL.GS
         /// the minor 'letter' revision of the game.dll // 1125d support as well as other uses
         /// </summary>
         public string MinorRev { get; set; } = "";
-                
+
+        /// <summary>
+        /// Client using RC4 , UDP packets can be accepted
+        /// </summary>
+        public bool UsingRC4 { get; set; } = false;
+
         /// <summary>
         /// Gets/sets installed client addons (housing/new frontiers)
         /// </summary>
