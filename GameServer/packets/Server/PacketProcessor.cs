@@ -591,8 +591,7 @@ namespace DOL.GS.PacketHandler
         public void SendUDP(byte[] buf, bool isForced)
         {
             // No udp available, send via TCP instead!
-            // bool flagLostUDP = false;
-            if (_client.UdpEndPoint == null || !(isForced || _client.UdpConfirm))
+            if (!_client.UsingRC4 || _client.UdpEndPoint == null || _client.UdpConfirm)
             {
                 var newbuf = new byte[buf.Length - 2];
                 newbuf[0] = buf[0];
@@ -602,12 +601,12 @@ namespace DOL.GS.PacketHandler
                 SendTCP(newbuf);
                 return;
             }
-
+            // Everything below here should only be run if client and server are using RC4
+            // Client wont accept UDP packets if RC4 disabled
             if (_client.ClientState == GameClient.eClientState.Playing)
             {
                 if ((DateTime.Now.Ticks - _client.UdpPingTime) > 500000000L) // really 24s, not 50s
-                {
-                    // flagLostUDP = true;
+                {                    
                     _client.UdpConfirm = false;
                 }
             }
@@ -625,7 +624,6 @@ namespace DOL.GS.PacketHandler
             buf[2] = (byte)(_udpCounter >> 8);
             buf[3] = (byte)_udpCounter;
 
-            // buf = m_encoding.EncryptPacket(buf, true);
             Statistics.BytesOut += buf.Length;
             Statistics.PacketsOut++;
 

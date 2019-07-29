@@ -4396,21 +4396,29 @@ namespace DOL.GS.PacketHandler
 			using (var pak = new GSUDPPacketOut(GetPacketCode(eServerPackets.UDPInitReply)))
 			{
 				Region playerRegion = null;
-				if (!GameClient.Socket.Connected)
-					return;
-				if (GameClient.Player != null && GameClient.Player.CurrentRegion != null)
-					playerRegion = GameClient.Player.CurrentRegion;
-				if (playerRegion == null)
-					pak.Fill(0x0, 0x18);
-				else
-				{
-					//Try to fix the region ip so UDP is enabled!
-					string ip = playerRegion.ServerIP;
-					if (ip == "any" || ip == "0.0.0.0" || ip == "127.0.0.1" || ip.StartsWith("10.13.") || ip.StartsWith("192.168."))
-						ip = ((IPEndPoint) GameClient.Socket.LocalEndPoint).Address.ToString();
-					pak.FillString(ip, 22);
-					pak.WriteShort(playerRegion.ServerPort);
-				}
+                if (!GameClient.Socket.Connected || !GameClient.UsingRC4) // not using RC4, wont accept UDP packets anyway.)
+                {
+                    return;
+                }
+                if (GameClient.Player != null && GameClient.Player.CurrentRegion != null)
+                {
+                    playerRegion = GameClient.Player.CurrentRegion;
+                }
+                if (playerRegion == null)
+                {
+                    pak.Fill(0x0, 0x18);
+                }
+                else
+                {
+                    //Try to fix the region ip so UDP is enabled!
+                    string ip = playerRegion.ServerIP;
+                    if (ip == "any" || ip == "0.0.0.0" || ip == "127.0.0.1" || ip.StartsWith("10.13.") || ip.StartsWith("192.168."))
+                    {
+                        ip = ((IPEndPoint)GameClient.Socket.LocalEndPoint).Address.ToString();
+                    }
+                    pak.FillString(ip, 22);
+                    pak.WriteShort(playerRegion.ServerPort);
+                }
 				SendUDP(pak, true);
 			}
 		}

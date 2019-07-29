@@ -390,7 +390,7 @@ namespace DOL.GS.PacketHandler
             using (var pak = new GSUDPPacketOut(GetPacketCode(eServerPackets.UDPInitReply)))
             {
 
-                if (!GameClient.Socket.Connected)
+                if (!GameClient.Socket.Connected || !GameClient.UsingRC4) // not using RC4, wont accept UDP packets anyway.
                 {
                     return;
                 }
