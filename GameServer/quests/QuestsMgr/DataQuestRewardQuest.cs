@@ -517,25 +517,7 @@ namespace DOL.GS.Quests
 		{
 			get	{ return m_dqRewardQ.QuestName; }
 		}		
-		
-		/// <summary>
-		/// The NPC giving the quest.
-		/// </summary>
-		public GameNPC QuestGiver
-		{
-			get { return m_startNPC; }
-			set { m_startNPC = value; }
-		}
-		
-		/// <summary>
-		/// What object started this quest
-		/// </summary>
-		public virtual GameObject StartObject
-		{
-			get { return m_startObject; }
-			set { m_startObject = value; }
-		}
-		
+						
 		/// <summary>
 		/// Get the quest 'story' formatted with personalized messaging in the packet
 		/// </summary>
@@ -584,24 +566,8 @@ namespace DOL.GS.Quests
 		{
 			get { return m_optionalRewards; }
 			set { m_optionalRewards = value; }
-		}
-
-		/// <summary>
-		/// List of all the items the player has chosen
-		/// </summary>
-		public virtual List<ItemTemplate> OptionalRewardsChoice
-		{
-			get { return m_optionalRewardChoice; }
-		}
-
-		/// <summary>
-		/// Array of each optional reward item choice (0-7)
-		/// </summary>
-		public virtual int[] RewardItemsChosen
-		{
-			get { return m_rewardItemsChosen; }
-		}
-
+		}        		
+		
 		/// <summary>
 		/// Final text to display to player when quest is finished
 		/// </summary>
@@ -609,15 +575,7 @@ namespace DOL.GS.Quests
 		{
 			get { return BehaviourUtils.GetPersonalizedMessage(m_dqRewardQ.FinishText, _questPlayer); }
 		}
-
-		/// <summary>
-		/// The DBDataQuest for this quest
-		/// </summary>
-		public virtual DBDQRewardQ DBDQRewardQ
-		{
-			get { return m_dqRewardQ; }
-		}
-
+		
 		/// <summary>
 		/// The CharacterXDataQuest entry for the player doing this quest
 		/// </summary>
@@ -649,15 +607,7 @@ namespace DOL.GS.Quests
 		{
 			get	{ return m_dqRewardQ.MinLevel; }
 		}
-
-		/// <summary>
-		/// Max level that this quest can be done
-		/// </summary>
-		public virtual int MaxLevel
-		{
-			get { return m_dqRewardQ.MaxLevel; }
-		}
-		
+				
 		/// <summary>
 		/// The amount of times a player has completed this quest
 		/// </summary>
@@ -712,29 +662,7 @@ namespace DOL.GS.Quests
 		{
 			get	{ return m_yOffset; }
 		}
-		// Havent found a quest that uses the 2nd set of values yet, but it gets send with packet so who knows
-		/// <summary>
-		/// ZoneID2 used for displaying quest dot on map
-		/// </summary>
-		/*public List<int> ZoneID2 // TODO commented out until i find out what these are used for
-		{
-			get { return m_zoneID2; }
-		}
-		/// <summary>
-		/// xoffset2 used for displaying quest dot on map
-		/// </summary>
-		public List<int> XOffSet2
-		{
-			get { return m_xOffSet2; }
-		}
-		/// <summary>
-		/// yoffset2 used for displaying quest dot on map
-		/// </summary>
-		public List<int> YOffSet2
-		{
-			get	{ return m_yOffSet2; }
-		}*/
-		
+				
 		/// <summary>
 		/// Current step of this quest. Only used to determine if quest is completed or active. 0 = complete, 1 = active
 		/// </summary>
@@ -788,7 +716,7 @@ namespace DOL.GS.Quests
 		/// <returns></returns>
 		public override bool CheckQuestQualification(GamePlayer player)
 		{
-			if (player.Level < DBDQRewardQ.MinLevel || player.Level > DBDQRewardQ.MaxLevel)
+			if (player.Level < m_dqRewardQ.MinLevel || player.Level > m_dqRewardQ.MaxLevel)
 			{
 				return false;
 			}
@@ -954,30 +882,6 @@ namespace DOL.GS.Quests
 				return "Error retrieving target text for step " + Step;
 			}
 		}		
-
-		/// <summary>
-		/// The item template player needs to turn in to advance this quest.
-		/// </summary>
-		protected string CollectItemTemplate
-		{
-			get
-			{
-				try
-				{
-					if (m_collectItems.Count > 0)
-					{
-						return m_collectItems[Step - 1];
-					}
-				}
-				catch (Exception ex)
-				{
-					log.Error("DataQuest [" + ID + "] CollectItemTemplate error for Step " + Step, ex);
-                    if (QuestPlayer != null) ChatUtil.SendDebugMessage(QuestPlayer, "DataQuest [" + ID + "] CollectItemTemplate error for Step " + Step);
-                }
-
-				return "";
-			}
-		}
 		
 		/// <summary>
 		/// Text needed to advance the step or end the quest for the current step
@@ -1329,7 +1233,10 @@ namespace DOL.GS.Quests
 							player.Out.SendMessage("You have acquired the quest: " + dq.Name, eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
 							if (!string.IsNullOrWhiteSpace(dq.AcceptText))
                             {
-                                player.Out.SendMessage(dq.AcceptText, eChatType.CT_System, eChatLoc.CL_PopupWindow);
+                                var formatMsg = dq.AcceptText.Replace(@"\n", "\n");
+                                var finalMsg = formatMsg.SplitCSV(true);
+
+                                player.Out.SendCustomTextWindow(giver.Name + " says", finalMsg);
                             }
 							break;
 						}
@@ -1395,7 +1302,7 @@ namespace DOL.GS.Quests
 					if (CurrentGoal != null)
 					{						
 						TryTurnTo(obj, player);		
-						if (!string.IsNullOrEmpty(GoalTargetText))
+						if (!string.IsNullOrEmpty(GoalTargetText)) // TODO this might need to be changed to send a custommessage to allow for \n \r formatting
 						{
 							SendMessage(_questPlayer, GoalTargetText, 0, eChatType.CT_System, eChatLoc.CL_PopupWindow);
 						}
@@ -1904,7 +1811,7 @@ namespace DOL.GS.Quests
             }
             m_charQuest.CustomPropertiesString = "";
             // TODO check this. Might need to be a value such as "Completed"
-        }
+        }        
     }
 
 	/// <summary>
