@@ -1764,7 +1764,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should the server start characters as Base Class?
         /// </summary>
-        [ServerProperty("classes", "allow_old_archery", "Should we allow archers to be able to use arrows from their quiver?", false)]
+        [ServerProperty("classes", "allow_old_archery", "Set archery to pre-magic skill line. Uses arrows from quiver and different damage calc. Requires additions to the database.", false)]
         public static bool ALLOW_OLD_ARCHERY { get; set; }
 
         /// <summary>

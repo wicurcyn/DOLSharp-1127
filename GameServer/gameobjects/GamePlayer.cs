@@ -6422,7 +6422,7 @@ namespace DOL.GS
 
             if (ActiveWeaponSlot == eActiveWeaponSlot.Distance)
             {
-                if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == false)
+                if (!Properties.ALLOW_OLD_ARCHERY)
                 {
                     if ((eCharacterClass)CharacterClass.ID == eCharacterClass.Scout || (eCharacterClass)CharacterClass.ID == eCharacterClass.Hunter || (eCharacterClass)CharacterClass.ID == eCharacterClass.Ranger)
                     {
@@ -8132,11 +8132,11 @@ break;
 
                 if (weapon.Item_Type == Slot.RANGED && (weapon.Object_Type == (int)eObjectType.Longbow || weapon.Object_Type == (int)eObjectType.RecurvedBow || weapon.Object_Type == (int)eObjectType.CompositeBow))
                 {
-                    if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == true)
+                    if (Properties.ALLOW_OLD_ARCHERY)
                     {
                         result += GetModified(eProperty.RangedDamage) * 0.01;
                     }
-                    else if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == false)
+                    else
                     {
                         result += GetModified(eProperty.SpellDamage) * 0.01;
                         result += GetModified(eProperty.RangedDamage) * 0.01;
@@ -8377,7 +8377,7 @@ break;
 
             if (bowWeapon)
             {
-                if (ServerProperties.Properties.ALLOW_OLD_ARCHERY)
+                if (Properties.ALLOW_OLD_ARCHERY)
                 {
                     // Draw Time formulas, there are very many ...
                     // Formula 2: y = iBowDelay * ((100 - ((iQuickness - 50) / 5 + iMasteryofArcheryLevel * 3)) / 100)

@@ -1117,19 +1117,7 @@ namespace DOL.GS
             m_objectTypeToSpec.Add(eObjectType.PolearmWeapon, Specs.Polearms);
             m_objectTypeToSpec.Add(eObjectType.Flexible, Specs.Flexible);
             m_objectTypeToSpec.Add(eObjectType.Crossbow, Specs.Crossbow);
-
-            // RDSandersJR: Check to see if we are using old archery if so, use RangedDamge
-            if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == true)
-            {
-                m_objectTypeToSpec.Add(eObjectType.Longbow, Specs.Longbow);
-            }
-
-            // RDSandersJR: If we are NOT using old archery it should be SpellDamage
-            else if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == false)
-            {
-                m_objectTypeToSpec.Add(eObjectType.Longbow, Specs.Archery);
-            }
-
+                        
             // TODO: case 5: abilityCheck = Abilities.Weapon_Thrown); break);
 
             // mid
@@ -1140,19 +1128,7 @@ namespace DOL.GS
             m_objectTypeToSpec.Add(eObjectType.HandToHand, Specs.HandToHand);
             m_objectTypeToSpec.Add(eObjectType.Spear, Specs.Spear);
             m_objectTypeToSpec.Add(eObjectType.Thrown, Specs.Thrown_Weapons);
-
-            // RDSandersJR: Check to see if we are using old archery if so, use RangedDamge
-            if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == true)
-            {
-                m_objectTypeToSpec.Add(eObjectType.CompositeBow, Specs.CompositeBow);
-            }
-
-            // RDSandersJR: If we are NOT using old archery it should be SpellDamage
-            else if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == false)
-            {
-                m_objectTypeToSpec.Add(eObjectType.CompositeBow, Specs.Archery);
-            }
-
+                        
             // hib
             m_objectTypeToSpec.Add(eObjectType.Blunt, Specs.Blunt);
             m_objectTypeToSpec.Add(eObjectType.Blades, Specs.Blades);
@@ -1163,16 +1139,20 @@ namespace DOL.GS
             m_objectTypeToSpec.Add(eObjectType.Shield, Specs.Shields);
             m_objectTypeToSpec.Add(eObjectType.Poison, Specs.Envenom);
 
-            // RDSandersJR: Check to see if we are using old archery if so, use RangedDamge
-            if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == true)
+            // bow skills            
+            if (ServerProperties.Properties.ALLOW_OLD_ARCHERY)
             {
+                // old archery lines
+                m_objectTypeToSpec.Add(eObjectType.Longbow, Specs.Longbow);
+                m_objectTypeToSpec.Add(eObjectType.CompositeBow, Specs.CompositeBow);
                 m_objectTypeToSpec.Add(eObjectType.RecurvedBow, Specs.RecurveBow);
-            }
-
-            // RDSandersJR: If we are NOT using old archery it should be SpellDamage
-            else if (ServerProperties.Properties.ALLOW_OLD_ARCHERY == false)
+            }            
+            else
             {
-                m_objectTypeToSpec.Add(eObjectType.RecurvedBow, Specs.Archery);
+                // new singular archery line
+                m_objectTypeToSpec.Add(eObjectType.Longbow, Specs.Archery);
+                m_objectTypeToSpec.Add(eObjectType.CompositeBow, Specs.Archery);
+                m_objectTypeToSpec.Add(eObjectType.RecurvedBow, Specs.Archery);                
             }
         }
 
