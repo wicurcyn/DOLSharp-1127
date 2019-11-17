@@ -382,6 +382,39 @@ namespace DOL.GS.PacketHandler
             }
         }
 
+		
+		/// <summary>
+        /// updated group window packet for 1125
+        /// </summary>
+        public override void SendGroupWindowUpdate()
+        {
+            if (GameClient.Player == null) return;
+
+            using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.VariousUpdate)))
+            {
+                pak.WriteByte(0x06); // subcode - player group window
+				// a 06 00 packet is sent when logging in.
+                Group group = GameClient.Player.Group;
+                if (group == null)
+                {
+                    pak.WriteByte(0x00); // a 06 00 packet is sent when logging in.						
+                }
+                else
+                {
+                    pak.WriteByte((byte)group.MemberCount);
+					foreach (GameLiving living in group.GetMembersInTheGroup())
+                    {                        
+                        pak.WritePascalString(living.Name);
+                        pak.WritePascalString(living is GamePlayer ? ((GamePlayer)living).CharacterClass.Name : "NPC");
+                        pak.WriteShort((ushort)living.ObjectID); //or session id?
+                        pak.WriteByte(living.Level);
+                    }   
+                }
+                
+                SendTCP(pak);
+            }
+        }
+				
         /// <summary>
         /// 1125 UDPinit reply
         /// </summary>
