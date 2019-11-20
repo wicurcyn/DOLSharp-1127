@@ -415,8 +415,7 @@ namespace DOL.GS.PacketHandler
                 
                 SendTCP(pak);
             }
-        }
-			
+        }			
 
 		protected override void WriteGroupMemberUpdate(GSTCPPacketOut pak, bool updateIcons, GameLiving living)
         {
@@ -511,8 +510,8 @@ namespace DOL.GS.PacketHandler
                     pak.WriteByte(0);
                 }
             }
-        }
-		
+        }		
+
         /// <summary>
         /// 1125 UDPinit reply
         /// </summary>
