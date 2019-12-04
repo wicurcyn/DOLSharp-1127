@@ -92,7 +92,8 @@ namespace DOL.GS
             _FirstVersion = 1124,            
             Version1124 = 1124,
             Version1125 = 1125,
-            _LastVersion = 1125
+            Version1126 = 1126,
+            _LastVersion = 1126
         }
 
         /// <summary>
