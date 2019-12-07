@@ -70,7 +70,7 @@ namespace DOL.GS.PacketHandler
                 pak.WritePascalString(GameServer.Instance.Configuration.ServerNameShort); //server name
                 pak.WriteByte(0x05); //Server ID, seems irrelevant
                 pak.WriteByte(color); // 00 normal type?, 01 mordred type, 03 gaheris type, 07 ywain type
-                pak.WriteByte(0x01); // always sent as 0x01 , unsure of significance
+                pak.WriteByte(0x00); // Trial switch 0x00 - subbed, 0x01 - trial acc
                 SendTCP(pak);
             }
         }
