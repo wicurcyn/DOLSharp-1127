@@ -199,19 +199,7 @@ namespace DOL.GS
                                                   }))
             {
                 return false;
-            }
-
-            UpdateGroupWindow();
-
-            // update icons of joined player to everyone in the group
-            // also update their map location
-            UpdateMember(living, true, false, true);
-
-            // update all icons for just joined player
-            if (living is GamePlayer player)
-            {
-                player.Out.SendGroupMembersUpdate(true);
-            }
+            }            
 
             SendMessageToGroupMembers(string.Format("{0} has joined the group.", living.Name), eChatType.CT_System, eChatLoc.CL_SystemWindow);
             GameEventMgr.Notify(GroupEvent.MemberJoined, this, new MemberJoinedEventArgs(living));
@@ -401,6 +389,11 @@ namespace DOL.GS
 
             foreach (var player in GetPlayersInTheGroup())
             {
+                if (player == living)
+                {
+                    continue;
+                }
+
                 if (updateOtherRegions || player.CurrentRegion == living.CurrentRegion)
                 {
                     player.Out.SendGroupMemberUpdate(updateIcons, updateMap, living);
@@ -440,6 +433,15 @@ namespace DOL.GS
             {
                 player.Out.SendGroupWindowUpdate();
             }
+        }
+
+        /// <summary>
+        /// create players map location reference and send out 
+        /// </summary>        
+        public void SendGroupUpdates(GamePlayer player)
+        {
+            player.GroupMapOldLoc = new Point2D(player.X, player.Y);
+            player.Out.SendGroupMembersUpdate(true);
         }
 
         /// <summary>
@@ -561,12 +563,18 @@ namespace DOL.GS
         }
 
         /// <summary>
-        /// does a member location need an update? 
-        /// this will be changed to a better method than checking player is moving
+        /// does a member location need an update?
         /// </summary>        
-        private bool CheckMemberNeedsUpdate(GamePlayer player)
-        {
-            return player.CurrentSpeed != 0;
+        public bool CheckMemberNeedsUpdate(GamePlayer player)
+        {            
+            var playerLoc = new Point2D(player.X, player.Y);
+            if (playerLoc.GetDistance(player.GroupMapOldLoc) > 1000) // no real basis for this 1000 value, can be changed to suit 
+            {
+                player.GroupMapOldLoc = playerLoc;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

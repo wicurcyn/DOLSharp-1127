@@ -4940,8 +4940,8 @@ namespace DOL.GS.PacketHandler
 		protected virtual void WriteGroupMemberMapUpdate(GSTCPPacketOut pak, bool updateMap, GameLiving living)
 		{
 			bool sameRegion = living.CurrentRegion == GameClient.Player.CurrentRegion;
-			if (sameRegion && living.CurrentSpeed != 0 || updateMap)//todo : find a better way to detect when player change coord
-			{
+            if (updateMap || sameRegion && living.Group.CheckMemberNeedsUpdate((GamePlayer)living))
+            {
 				Zone zone = living.CurrentZone;
 				if (zone == null)
 					return;
