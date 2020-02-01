@@ -1458,6 +1458,19 @@ namespace DOL.GS.Commands
                 info.Add(" + Inventory: " + targetMob.Inventory.AllItems.Count + " items");
             }
 
+            if (targetMob is GameMerchant targetM)
+            {
+                info.Add(" + Is Merchant ");
+                if (targetM.TradeItems != null)
+                {
+                    info.Add(" + Sell List: " + targetM.TradeItems.ItemsListID);
+                }
+                else
+                {
+                    info.Add(" + Sell List:  Not Present !\n");
+                }
+            }
+
             info.Add(" + Quests to give:  " + targetMob.QuestListToGive.Count);
 
             if (targetMob.PathID != null && targetMob.PathID.Length > 0)
