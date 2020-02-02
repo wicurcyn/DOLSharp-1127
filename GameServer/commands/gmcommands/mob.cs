@@ -228,14 +228,11 @@ namespace DOL.GS.Commands
                         case "equipinfo": equipinfo(client, targetMob, args); break;
                         case "equiptemplate": equiptemplate(client, targetMob, args); break;
                         case "visibleslot": visibleslot(client, targetMob, args); break;
-                        case "dropcount": dropcount<MobXLootTemplate>(client, targetMob, args); break;
-                        case "dropcount2": dropcount<MobDropTemplate>(client, targetMob, args); break;
-                        case "addloot": addloot<MobXLootTemplate, LootTemplate>(client, targetMob, args); break;
-                        case "addloot2": addloot<MobDropTemplate, DropTemplateXItemTemplate>(client, targetMob, args); break;
+                        case "dropcount": dropcount<MobXLootTemplate>(client, targetMob, args); break;                        
+                        case "addloot": addloot<MobXLootTemplate, LootTemplate>(client, targetMob, args); break;                        
                         case "addotd": addotd(client, targetMob, args); break;
                         case "viewloot": viewloot(client, targetMob, args); break;
-                        case "removeloot": removeloot<LootTemplate>(client, targetMob, args); break;
-                        case "removeloot2": removeloot<DropTemplateXItemTemplate>(client, targetMob, args); break;
+                        case "removeloot": removeloot<LootTemplate>(client, targetMob, args); break;                        
                         case "removeotd": removeotd(client, targetMob, args); break;
                         case "refreshloot": refreshloot(client, targetMob, args); break;
                         case "copy": copy(client, targetMob, args); break;
@@ -2311,11 +2308,6 @@ namespace DOL.GS.Commands
                 text.Add("LootGeneratorTemplate:");
                 text.Add(string.Empty);
                 DisplayLoots<MobXLootTemplate, LootTemplate>(text, targetMob);
-
-                text.Add(string.Empty);
-                text.Add("LootGeneratorMobTemplate:");
-                text.Add(string.Empty);
-                DisplayLoots<MobDropTemplate, DropTemplateXItemTemplate>(text, targetMob);
 
                 client.Out.SendCustomTextWindow(targetMob.Name + "'s Loot Table", text);
             }
