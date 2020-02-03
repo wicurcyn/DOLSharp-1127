@@ -119,11 +119,11 @@
     <Compile Include="SQLObjectDatabase.cs" />
     <Compile Include="Tables\CharacterXDataQuest.cs" />
     <Compile Include="Tables\ClassXSpecialization.cs" />
-	<Compile Include="Tables\CharacterXDQRewardQ.cs" />
-	<Compile Include="Tables\DataQuestRewardQuest.cs" />
-	<Compile Include="Tables\Gravestones.cs" />
+    <Compile Include="Tables\CharacterXDQRewardQ.cs" />
+    <Compile Include="Tables\DataQuestRewardQuest.cs" />
+    <Compile Include="Tables\Gravestones.cs" />
     <Compile Include="Tables\HousingConsignmentMerchant.cs" />
-	<Compile Include="Tables\JumpPoint.cs" />
+    <Compile Include="Tables\JumpPoint.cs" />
     <Compile Include="Tables\LanguageDoor.cs" />
     <Compile Include="Tables\LanguageGameObject.cs" />
     <Compile Include="Tables\LanguageItem.cs" />
@@ -131,10 +131,8 @@
     <Compile Include="Tables\LanguageSystem.cs" />
     <Compile Include="Tables\Regions.cs" />
     <Compile Include="Tables\SalvageYield.cs" />
-    <Compile Include="Tables\DropTemplateXItemTemplate.cs" />
     <Compile Include="Tables\LanguageArea.cs" />
     <Compile Include="Tables\LanguageZone.cs" />
-    <Compile Include="Tables\MobDropTemplate.cs" />
     <Compile Include="Tables\DataQuest.cs" />
     <Compile Include="Tables\Zones.cs" />
     <Compile Include="Tables\DOLCharactersBackup.cs" />

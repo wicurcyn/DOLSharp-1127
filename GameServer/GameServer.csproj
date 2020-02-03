@@ -215,7 +215,7 @@
     <Compile Include="commands\gmcommands\npc.cs" />
     <Compile Include="commands\gmcommands\object.cs" />
     <Compile Include="commands\gmcommands\path.cs" />
-	<Compile Include="commands\gmcommands\port.cs" />
+    <Compile Include="commands\gmcommands\port.cs" />
     <Compile Include="commands\gmcommands\Player.cs" />
     <Compile Include="commands\gmcommands\Removehouse.cs" />
     <Compile Include="commands\gmcommands\resetability.cs" />
@@ -389,7 +389,7 @@
     <Compile Include="gameutils\MarketSearch.cs" />
     <Compile Include="gameutils\InventoryLogging.cs" />
     <Compile Include="gameutils\MarketCache.cs" />
-	<Compile Include="gameutils\NPCGender.cs" />
+    <Compile Include="gameutils\NPCGender.cs" />
     <Compile Include="gameutils\Params\CustomParamsExtensions.cs" />
     <Compile Include="gameutils\Params\ICustomParamsValuable.cs" />
     <Compile Include="gameutils\ReaderWriterCollections\ReaderWriterDictionary.cs" />
@@ -842,7 +842,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="gameobjects\Necromancer\NecromancerPet.cs" />
-	<Compile Include="gameobjects\SiegeWeapon\gamesiegepalintone.cs" />
+    <Compile Include="gameobjects\SiegeWeapon\gamesiegepalintone.cs" />
     <Compile Include="gameobjects\SiegeWeapon\gamesiegeballista.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -888,7 +888,6 @@
     <Compile Include="gameutils\ChatUtil.cs" />
     <Compile Include="gameobjects\IGameInventoryItem.cs" />
     <Compile Include="gameobjects\GameInventoryItem.cs" />
-    <Compile Include="gameutils\LootGeneratorMobTemplate.cs" />
     <Compile Include="gameutils\GameNPCInventory.cs" />
     <Compile Include="gameutils\GuildBanner.cs" />
     <Compile Include="gameutils\GuildEvents.cs" />
