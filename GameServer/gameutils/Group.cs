@@ -389,11 +389,6 @@ namespace DOL.GS
 
             foreach (var player in GetPlayersInTheGroup())
             {
-                if (player == living)
-                {
-                    continue;
-                }
-
                 if (updateOtherRegions || player.CurrentRegion == living.CurrentRegion)
                 {
                     player.Out.SendGroupMemberUpdate(updateIcons, updateMap, living);
