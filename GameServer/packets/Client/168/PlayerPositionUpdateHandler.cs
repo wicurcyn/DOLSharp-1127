@@ -16,18 +16,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-//#define OUTPUT_DEBUG_INFO
+
 using System;
-using System.Collections;
-using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Linq;
 using DOL.Database;
-using DOL.Events;
 using DOL.Language;
-using DOL.GS;
-using DOL.GS.PacketHandler;
 using log4net;
 
 namespace DOL.GS.PacketHandler.Client.v168
@@ -49,10 +43,8 @@ namespace DOL.GS.PacketHandler.Client.v168
 		/// If this value reaches 10 or more, a logfile entry is written.
 		/// </summary>
 		public const string SPEEDHACKCOUNTER = "SPEEDHACKCOUNTER";
-		public const string SHSPEEDCOUNTER = "MYSPEEDHACKCOUNTER";
+		public const string SHSPEEDCOUNTER = "MYSPEEDHACKCOUNTER";			
 		
-		
-		//static int lastZ=int.MinValue;
 		public void HandlePacket(GameClient client, GSPacketIn packet)
 		{
 			//Tiv: in very rare cases client send 0xA9 packet before sending S<=C 0xE8 player world initialize
@@ -62,7 +54,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 
 			int environmentTick = Environment.TickCount;
 			int oldSpeed = client.Player.CurrentSpeed;
-			
+            
 			int newPlayerX = (int)packet.ReadFloatLowEndian();
 			int newPlayerY = (int)packet.ReadFloatLowEndian();
 			int newPlayerZ = (int)packet.ReadFloatLowEndian();
@@ -76,48 +68,39 @@ namespace DOL.GS.PacketHandler.Client.v168
 			byte playerAction = (byte)packet.ReadByte();
 			packet.Skip(2); // unknown bytes x2
 			byte playerHealth = (byte)packet.ReadByte();
-			// two trailing bytes, no data
-			
-			//int speed = (newPlayerSpeed & 0x1FF);
-			//Flags1 = (eFlags1)playerState;
-			//Flags2 = (eFlags2)playerAction;                        
+			// two trailing bytes, no data			                       
 
             if (client.Player.IsMezzed || client.Player.IsStunned)
-			{
-				// Nidel: updating client.Player.CurrentSpeed instead of speed
+			{				
 				client.Player.CurrentSpeed = 0;
 			}
 			else
 			{
 				client.Player.CurrentSpeed = (short)newPlayerSpeed;
 			}
-            /*
-			client.Player.IsStrafing = Flags1 == eFlags1.STRAFELEFT || Flags1 == eFlags1.STRAFERIGHT;
-			client.Player.IsDiving = Flags2 == eFlags2.DIVING ? true : false;
-			client.Player.IsSwimming = Flags1 == eFlags1.SWIMMING ? true : false;
-			if (client.Player.IsRiding)
-				Flags1 = eFlags1.RIDING;
-			client.Player.IsClimbing = Flags1 == eFlags1.CLIMBING ? true : false;
-			if (!client.Player.IsAlive)
-				Flags1 = eFlags1.DEAD;*/
-            
+                        
             client.Player.IsJumping = ((playerAction & 0x40) != 0);
             client.Player.IsStrafing = ((playerState & 0xe000) != 0);            
            
             Zone newZone = WorldMgr.GetZone(currentZoneID);
 			if (newZone == null)
 			{
-				if(client.Player==null) return;
-				if(!client.Player.TempProperties.getProperty("isbeingbanned",false))
+                if (client.Player == null)
+                {
+                    return;
+                }
+				if (!client.Player.TempProperties.getProperty("isbeingbanned", false))
 				{
-					if (log.IsErrorEnabled)
-						log.Error(client.Player.Name + "'s position in unknown zone! => " + currentZoneID);
-					GamePlayer player=client.Player;
+                    if (log.IsErrorEnabled)
+                    {
+                        log.Error(client.Player.Name + "'s position in unknown zone! => " + currentZoneID);
+                    }
+					GamePlayer player = client.Player;
 					player.TempProperties.setProperty("isbeingbanned", true);
 					player.MoveToBind();
 				}
 
-				return; // TODO: what should we do? player lost in space
+				return;
 			}
 
 			// move to bind if player fell through the floor
@@ -132,10 +115,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 				);
 				return;
 			}
-
-			//int realX = newPlayerX;
-			//int realY = newPlayerY;
-			//int realZ = newPlayerZ;
+			
 			bool zoneChange = newZone != client.Player.LastPositionUpdateZone;
 			if (zoneChange)
 			{
@@ -157,14 +137,16 @@ namespace DOL.GS.PacketHandler.Client.v168
                 string description = newZone.Description;
                 string screenDescription = description;
 
-                var translation = client.GetTranslation(newZone) as DBLanguageZone;
-                if (translation != null)
+                if (client.GetTranslation(newZone) is DBLanguageZone translation)
                 {
                     if (!Util.IsEmpty(translation.Description))
+                    {
                         description = translation.Description;
-
+                    }
                     if (!Util.IsEmpty(translation.ScreenDescription))
+                    {
                         screenDescription = translation.ScreenDescription;
+                    }
                 }
 
                 client.Out.SendMessage(LanguageMgr.GetTranslation(client.Account.Language, "PlayerPositionUpdateHandler.Entered", description),
@@ -298,22 +280,16 @@ namespace DOL.GS.PacketHandler.Client.v168
 
 				client.Player.TempProperties.setProperty(LASTCPSTICK, environmentTick);
 			}			
-			//client.Player.Heading = (ushort)(newHeading & 0xFFF); //patch 0024 expermental
 
 			if (client.Player.X != newPlayerX || client.Player.Y != newPlayerY)
 			{
 				client.Player.TempProperties.setProperty(LASTMOVEMENTTICK, client.Player.CurrentRegion.Time);
-			}
-            //patch 0024 expermental
-            //client.Player.X = realX;
-            //client.Player.Y = realY;
-            //client.Player.Z = realZ;
+			}            
 
-            client.Player.SetCoords(newPlayerX, newPlayerY, newPlayerZ, (ushort)(newHeading & 0xFFF)); //patch 0024 expermental
+            client.Player.SetCoords(newPlayerX, newPlayerY, newPlayerZ, (ushort)(newHeading & 0xFFF));
             
 			// used to predict current position, should be before
-			// any calculation (like fall damage)
-			//client.Player.MovementStartTick = Environment.TickCount; experimental 0024
+			// any calculation (like fall damage)			
 
 			// Begin ---------- New Area System -----------
 			if (client.Player.CurrentRegion.Time > client.Player.AreaUpdateTick) // check if update is needed
@@ -349,24 +325,18 @@ namespace DOL.GS.PacketHandler.Client.v168
 				client.Player.AreaUpdateTick = client.Player.CurrentRegion.Time + 2000; // update every 2 seconds
 			}
             // End ---------- New Area System -----------
-
-
-            //client.Player.TargetInView = ((flags & 0x10) != 0);
-            //client.Player.IsDiving = ((playerAction & 0x02) != 0);
+                                   
             client.Player.TargetInView = ((playerAction & 0x30) != 0);
             client.Player.GroundTargetInView = ((playerAction & 0x08) != 0);            
-            client.Player.IsTorchLighted = ((playerAction & 0x80) != 0);
-            // patch 0069 player diving is 0x02, but will broadcast to other players as 0x04
+            client.Player.IsTorchLighted = ((playerAction & 0x80) != 0);            
             // if player has a pet summoned, player action is sent by client as 0x04, but sending to other players this is skipped
             client.Player.IsDiving = ((playerAction & 0x02) != 0);
 
             int state = ((playerState >> 10) & 7);
             client.Player.IsClimbing = (state == 7);
-            client.Player.IsSwimming = (state == 1);
-            
-            //int status = (data & 0x1FF ^ data) >> 8;
-            //int fly = (flyingflag & 0x1FF ^ flyingflag) >> 8;
-            if (state == 3 && client.Player.TempProperties.getProperty<bool>(GamePlayer.DEBUG_MODE_PROPERTY, false) == false && !client.Player.IsAllowedToFly) //debugFly on, but player not do /debug on (hack)
+            client.Player.IsSwimming = (state == 1);            
+                        
+            if (state == 3 && !client.Player.TempProperties.getProperty(GamePlayer.DEBUG_MODE_PROPERTY, false) && !client.Player.IsAllowedToFly) //debugFly on, but player not do /debug on (hack)
             {
                 StringBuilder builder = new StringBuilder();
                 builder.Append("HACK_FLY");
@@ -471,17 +441,14 @@ namespace DOL.GS.PacketHandler.Client.v168
                 newHeading = (ushort)client.Player.Steed.ObjectID;
 				steedSeatPosition = (ushort)client.Player.SteedSeatPosition;                
             }
-            else if ((playerState >> 10) == 4) // patch 0062 fix bug on release preventing players from receiving res sickness
+            else if ((playerState >> 10) == 4)
             {
                 client.Player.IsSitting = true;
             }
-            /*else if ((playerState & 0x1000) != 0) //player sitting when releasing on death, dead = 0x1400
-            {
-                client.Player.IsSitting = true;
-            }*/
-            GSUDPPacketOut outpak = new GSUDPPacketOut(client.Out.GetPacketCode(eServerPackets.PlayerPosition));                      
             
-            //patch 0069 test to fix player swim out byte flag
+            // Build Server to Client packet
+            GSUDPPacketOut outpak = new GSUDPPacketOut(client.Out.GetPacketCode(eServerPackets.PlayerPosition));                      
+                        
             byte playerOutAction = 0x00;
             if (client.Player.IsDiving)
             {
@@ -498,8 +465,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             if (client.Player.IsTorchLighted)
             {
                 playerOutAction |= 0x80;
-            }
-            //stealth is set here
+            }            
             if (client.Player.IsStealthed)
 			{
 				playerOutAction |= 0x02;
@@ -520,15 +486,15 @@ namespace DOL.GS.PacketHandler.Client.v168
             outpak.WriteByte(0);
             outpak.WriteByte((byte)(client.Player.HealthPercent + (client.Player.AttackState ? 0x80 : 0)));            
             outpak.WriteByte(client.Player.ManaPercent);
-            outpak.WriteByte(client.Player.EndurancePercent);
-            //Now copy the whole content of the packet
-            //outpak1119.Write(pak1119, 0, 36);
+            outpak.WriteByte(client.Player.EndurancePercent);            
             outpak.WritePacketLength();
 
 			foreach (GamePlayer player in client.Player.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
 			{
-				if (player == null)
-					continue;
+                if (player == null)
+                {
+                    continue;
+                }
 				//No position updates for ourselves
 				if (player == client.Player)
 				{
@@ -536,10 +502,12 @@ namespace DOL.GS.PacketHandler.Client.v168
 					player.Client.GameObjectUpdateArray[new Tuple<ushort, ushort>(client.Player.CurrentRegionID, (ushort)client.Player.ObjectID)] = GameTimer.GetTickCount();
 					continue;
 				}
-				//no position updates in different houses
-				if ((client.Player.InHouse || player.InHouse) && player.CurrentHouse != client.Player.CurrentHouse)
-					continue;
-                /* patch 0068 no minotaur logic
+                //no position updates in different houses
+                if ((client.Player.InHouse || player.InHouse) && player.CurrentHouse != client.Player.CurrentHouse)
+                {
+                    continue;
+                }
+                /* no minotaur logic
 				if (client.Player.MinotaurRelic != null)
 				{
 					MinotaurRelic relic = client.Player.MinotaurRelic;
@@ -550,15 +518,16 @@ namespace DOL.GS.PacketHandler.Client.v168
 					}
 				}*/
 
-				if (!client.Player.IsStealthed || player.CanDetect(client.Player))
-				{
-					// Update Player Cache // test patch remove players in cache 0065
-					//player.Client.GameObjectUpdateArray[new Tuple<ushort, ushort>(client.Player.CurrentRegionID, (ushort)client.Player.ObjectID)] = GameTimer.GetTickCount();
-									
-					player.Out.SendUDPRaw(outpak);					
-				}
-				else
-					player.Out.SendObjectDelete(client.Player); //remove the stealthed player from view
+                if (!client.Player.IsStealthed || player.CanDetect(client.Player))
+                {
+                    // Update Player Cache // not entirely sure why I originally commented this line out...
+                    //player.Client.GameObjectUpdateArray[new Tuple<ushort, ushort>(client.Player.CurrentRegionID, (ushort)client.Player.ObjectID)] = GameTimer.GetTickCount();
+                    player.Out.SendUDPRaw(outpak);
+                }
+                else
+                {
+                    player.Out.SendObjectDelete(client.Player); //remove the stealthed player from view
+                }
 			}		
 
 			//handle closing of windows
@@ -567,8 +536,10 @@ namespace DOL.GS.PacketHandler.Client.v168
 			{
 				if (client.Player.TradeWindow.Partner != null)
 				{
-					if (!client.Player.IsWithinRadius(client.Player.TradeWindow.Partner, WorldMgr.GIVE_ITEM_DISTANCE))
-						client.Player.TradeWindow.CloseTrade();
+                    if (!client.Player.IsWithinRadius(client.Player.TradeWindow.Partner, WorldMgr.GIVE_ITEM_DISTANCE))
+                    {
+                        client.Player.TradeWindow.CloseTrade();
+                    }
 				}
 			}
 		}
