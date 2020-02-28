@@ -405,7 +405,7 @@ namespace DOL.GS.PacketHandler
         Talk = 0x51,        
         Monty = 0x54,
         Loco = 0x55,  
-		//Cower = ??, unknown
+		Cower = 0x5B,
         SiegeWeaponEmote = 0xc9
 	};
 
