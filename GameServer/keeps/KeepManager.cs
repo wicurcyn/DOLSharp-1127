@@ -140,23 +140,9 @@ namespace DOL.GS.Keeps
                         }
                     }
                 }
-
-                if (ServerProperties.Properties.USE_NEW_KEEPS == 2)
-                {
-                    log.ErrorFormat("ServerProperty USE_NEW_KEEPS is actually set to 2 but it is no longer used. Loading as if he were 0 but please set to 0 or 1 !");
-                }
-
-                var keepcomponents = default(IList<DBKeepComponent>);
-
-                if (ServerProperties.Properties.USE_NEW_KEEPS == 0 || ServerProperties.Properties.USE_NEW_KEEPS == 2)
-                {
-                    keepcomponents = GameServer.Database.SelectObjects<DBKeepComponent>("`Skin` < @Skin", new QueryParameter("@Skin", 20));
-                }
-                else if (ServerProperties.Properties.USE_NEW_KEEPS == 1)
-                {
-                    keepcomponents = GameServer.Database.SelectObjects<DBKeepComponent>("`Skin` > @Skin", new QueryParameter("@Skin", 20));
-                }
-
+                                
+                var keepcomponents = GameServer.Database.SelectObjects<DBKeepComponent>("`Skin` > @Skin", new QueryParameter("@Skin", 20));
+                                
                 keepcomponents
                     ?.GroupBy(x => x.KeepID)
                     .AsParallel()
