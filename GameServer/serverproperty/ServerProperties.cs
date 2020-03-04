@@ -568,7 +568,7 @@ namespace DOL.GS.ServerProperties
         [ServerProperty("world", "world_day_increment", "Day Increment (0 to 512, default is 24).  Larger increments make shorter days.", (uint)24)]
         public static uint WORLD_DAY_INCREMENT { get; set; }
 
-        [ServerProperty("world", "world_npc_update_interval", "How often (milliseconds) will npc's broadcast updates to the clients. Minimum allowed = 1000 (1 second). 0 will disable this update.", (uint)10000)]
+        [ServerProperty("world", "world_npc_update_interval", "How often (milliseconds) will npc's broadcast updates to the clients. Minimum allowed = 1000 (1 second). 0 will disable this update.", (uint)8000)]
         public static uint WORLD_NPC_UPDATE_INTERVAL { get; set; }
 
         [ServerProperty("world", "world_object_update_interval", "How often (milliseconds) will objects (static, housing, doors, broadcast updates to the clients. Minimum allowed = 10000 (10 seconds). 0 will disable this update.", (uint)30000)]
@@ -1419,13 +1419,7 @@ namespace DOL.GS.ServerProperties
         /// </summary>
         [ServerProperty("keeps", "tower_guard_level_multiplier", "Multiplier used to determine tower guard levels.  This is applied to the bonus level (usually 4) and added after balance adjustments.", 1.0)]
         public static double TOWER_GUARD_LEVEL_MULTIPLIER { get; set; }
-
-        /// <summary>
-        /// Keeps to load. 0 for Old Keeps, 1 for new keeps, 2 for both.
-        /// </summary>
-        [ServerProperty("keeps", "use_new_keeps", "Appearance Keeps Components to load. 0 for Old Appearance Keeps Components, 1 for New Appearance Keeps Components. 2 is no longer used but load 0 for compatibility.", 0)]
-        public static int USE_NEW_KEEPS { get; set; }
-
+                
         /// <summary>
         /// Should guards loaded from db be equipped by Keepsystem? (false=load equipment from db)
         /// </summary>
