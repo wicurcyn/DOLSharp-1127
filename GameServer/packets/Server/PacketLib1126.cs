@@ -336,6 +336,31 @@ namespace DOL.GS.PacketHandler
         }
 
         /// <summary>
+        /// Gutted this packet to get 1126 connections to work. Definitely needs more research
+        /// </summary>
+        public override void SendRegions()
+        {            
+            if (!GameClient.Socket.Connected)
+            {
+                return;
+            }
+
+            using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.StartArena)))
+            {                
+                string ip = ip = ((IPEndPoint)GameClient.Socket.LocalEndPoint).Address.ToString();
+                
+                pak.WritePascalStringLowEndian(ip);
+                pak.WriteShort(10400); // from port?
+                pak.WriteByte(0); // ??
+                pak.WriteByte(0);  // ??
+                pak.WriteShort(10400);  // ?? to port?
+                pak.WriteByte(0);  // ??
+                pak.WriteByte(0);  // ??
+                SendTCP(pak);
+            }           
+        }
+
+        /// <summary>
         /// This packet may have been updated anywhere from 1125b-1126a - not sure
         /// </summary>
         public override void SendUpdateWeaponAndArmorStats()
