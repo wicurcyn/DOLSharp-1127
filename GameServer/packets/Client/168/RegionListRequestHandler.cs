@@ -24,6 +24,7 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
+            client.RegionsRequested = true; // 1126 support work around for now
             client.Out.SendRegions();
         }
     }

@@ -174,6 +174,15 @@ namespace DOL.GS
         protected long m_udpPingTime = DateTime.Now.Ticks;
 
         /// <summary>
+        /// 1126 support work around for now
+        /// </summary>
+        public bool CharSelectRequest { get; set; } = false;
+        /// <summary>
+        /// 1126 support work around for now
+        /// </summary>
+        public bool RegionsRequested { get; set; } = false;
+
+        /// <summary>
         /// Custom Account Params
         /// </summary>
         protected Dictionary<string, List<string>> m_customParams = new Dictionary<string, List<string>>();
