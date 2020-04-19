@@ -158,7 +158,7 @@ namespace DOL.GS.PacketHandler
                             {
                                 locationDescription = region.GetTranslatedSpotDescription(GameClient, c.Xpos, c.Ypos, c.Zpos);
                             }
-                            if (locationDescription.Length > 23)
+                            if (locationDescription.Length > 23) // zone names above 23 characters need to be truncated 
                             {
                                 locationDescription = (locationDescription.Substring(0, 20)) + "...";
                             }
