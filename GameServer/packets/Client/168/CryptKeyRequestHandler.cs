@@ -24,6 +24,13 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
+            if (client.Version >= GameClient.eClientVersion.Version1126 && packet.DataSize > 7)
+            {
+                // 1126 only sends the RC4 key in the second F4 packet
+                // put your RC4 code in here
+                return;
+            }
+
             // register client type
             byte clientType = (byte)packet.ReadByte();
             client.ClientType = (GameClient.eClientType)(clientType & 0x0F);
@@ -39,7 +46,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             {
                 // put your RC4 code in here
 
-                client.UsingRC4 = true;
+                //client.UsingRC4 = true; // use this if you are using RC4 
                 return;
             }
 

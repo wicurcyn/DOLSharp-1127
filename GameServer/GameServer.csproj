@@ -1026,6 +1026,7 @@
     <Compile Include="packets\Server\AbstractPacketLib.cs" />
     <Compile Include="packets\Server\PacketLib1124.cs" />
     <Compile Include="packets\Server\PacketLib1125.cs" />
+	<Compile Include="packets\Server\PacketLib1126.cs" />
     <Compile Include="packets\Server\CryptLib168.cs" />
     <Compile Include="packets\Server\GSTCPPacketOut.cs" />
     <Compile Include="packets\Server\GSUDPPacketOut.cs" />

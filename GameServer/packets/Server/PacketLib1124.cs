@@ -3273,12 +3273,12 @@ namespace DOL.GS.PacketHandler
 				Region region = WorldMgr.GetRegion((ushort)GameClient.Player.CurrentRegionID);
 				if (region == null)
 					return;
-				using (GSTCPPacketOut pak = new GSTCPPacketOut(0xB1))
+				using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.StartArena)))
 				{
 					//				pak.WriteByte((byte)((region.Expansion + 1) << 4)); // Must be expansion
 					pak.WriteByte(0); // but this packet sended when client in old region. but this field must show expanstion for jump destanation region
-					//Dinberg - trying to get instances to work.
-	                pak.WriteByte((byte)region.Skin); // This was pak.WriteByte((byte)region.ID);
+									  //Dinberg - trying to get instances to work.
+					pak.WriteByte((byte)region.Skin); // This was pak.WriteByte((byte)region.ID);
 					pak.Fill(0, 20);
 					pak.FillString(region.ServerPort.ToString(), 5);
 					pak.FillString(region.ServerPort.ToString(), 5);

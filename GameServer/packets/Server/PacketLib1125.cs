@@ -538,7 +538,7 @@ namespace DOL.GS.PacketHandler
         /// </summary>        
         public override void SendMarketExplorerWindow(IList<InventoryItem> items, byte page, byte maxpage)
         {
-            if (GameClient.MinorRev != "d") // 1125a - c is unchanged
+            if (GameClient.MinorRev != "d" && GameClient.Version == GameClient.eClientVersion.Version1125) // 1125a - c is unchanged, 1125d - 1126 uses the code below
             {
                 base.SendMarketExplorerWindow(items, page, maxpage);
                 return;
@@ -668,7 +668,7 @@ namespace DOL.GS.PacketHandler
         /// </summary>  
         public override void SendMerchantWindow(MerchantTradeItems tradeItemsList, eMerchantWindowType windowType)
         {
-            if (GameClient.MinorRev != "d") // 1125a - c is unchanged
+            if (GameClient.MinorRev != "d" && GameClient.Version == GameClient.eClientVersion.Version1125) // 1125a - c is unchanged, 1125d - 1126 uses the code below
             {
                 base.SendMerchantWindow(tradeItemsList, windowType);
                 return;

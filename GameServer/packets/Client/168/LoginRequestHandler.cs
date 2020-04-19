@@ -58,9 +58,19 @@ namespace DOL.GS.PacketHandler.Client.v168
             string password;
             string userName;
 
-            // 1.125+
-            if (client.Version > GameClient.eClientVersion.Version1124)
-            {                
+            if (client.Version >= GameClient.eClientVersion.Version1126)
+            {
+                // Read Login
+                userName = packet.ReadIntPascalStringLowEndian();
+
+                // Read Password
+                password = packet.ReadIntPascalStringLowEndian();
+
+            }            
+            else if (client.Version == GameClient.eClientVersion.Version1125)
+            {
+                // 1.125
+
                 // client type
                 packet.Skip(1);
 
@@ -80,8 +90,10 @@ namespace DOL.GS.PacketHandler.Client.v168
                 // Read Password
                 password = packet.ReadIntPascalStringLowEndian();
             }
-            else // 1.115c+ - 1.124
+            else
             {
+                // 1.115c - 1.124
+
                 // client type
                 packet.Skip(1);
 

@@ -158,7 +158,7 @@ namespace DOL.GS.PacketHandler
                             {
                                 locationDescription = region.GetTranslatedSpotDescription(GameClient, c.Xpos, c.Ypos, c.Zpos);
                             }
-                            if (locationDescription.Length > 23)
+                            if (locationDescription.Length > 23) // zone names above 23 characters need to be truncated 
                             {
                                 locationDescription = (locationDescription.Substring(0, 20)) + "...";
                             }
@@ -333,6 +333,31 @@ namespace DOL.GS.PacketHandler
 
                 SendTCP(pak);
             }
+        }
+
+        /// <summary>
+        /// Gutted this packet to get 1126 connections to work. Definitely needs more research
+        /// </summary>
+        public override void SendRegions()
+        {            
+            if (!GameClient.Socket.Connected)
+            {
+                return;
+            }
+
+            using (GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.StartArena)))
+            {                
+                string ip = ip = ((IPEndPoint)GameClient.Socket.LocalEndPoint).Address.ToString();
+                
+                pak.WritePascalStringLowEndian(ip);
+                pak.WriteShort(10400); // from port?
+                pak.WriteByte(0); // ??
+                pak.WriteByte(0);  // ??
+                pak.WriteShort(10400);  // ?? to port?
+                pak.WriteByte(0);  // ??
+                pak.WriteByte(0);  // ??
+                SendTCP(pak);
+            }           
         }
 
         /// <summary>
