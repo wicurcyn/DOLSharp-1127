@@ -25,7 +25,16 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
-            ushort id = packet.ReadShort();
+            ushort id;
+
+            if (client.Version >= GameClient.eClientVersion.Version1126)
+            {
+                id = packet.ReadShortLowEndian();
+            }
+            else
+            {
+                id = packet.ReadShort();
+            }
 
             Region region = client.Player?.CurrentRegion;
 
