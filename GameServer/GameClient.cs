@@ -429,6 +429,12 @@ namespace DOL.GS
         public string MinorRev { get; set; } = "";
 
         /// <summary>
+        /// a short sent by the client in the first packet exchanged, then relayed back by the server
+        /// no idea of the significance
+        /// </summary>
+        public ushort ClientId { get; set; }
+
+        /// <summary>
         /// Client using RC4 , UDP packets can be accepted
         /// </summary>
         public bool UsingRC4 { get; set; } = false;

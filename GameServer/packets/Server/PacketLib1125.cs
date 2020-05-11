@@ -45,17 +45,15 @@ namespace DOL.GS.PacketHandler
         }
 
         /// <summary>
-        /// 1125 cryptkey
+        /// 1125 cryptkey response
         /// </summary>
         public override void SendVersionAndCryptKey()
         {
             //Construct the new packet
             using (var pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.CryptKey)))
             {
-                pak.WritePascalStringLowEndian((((int)GameClient.Version) / 1000) + "." + (((int)GameClient.Version) - 1000) + GameClient.MinorRev);
-                //// Same as the trailing two bytes sent in first client to server packet
-                pak.WriteByte(0x00); // last seen : 0x2A 0x07
-                pak.WriteByte(0x00);
+                pak.WritePascalStringIntLowEndian((((int)GameClient.Version) / 1000) + "." + (((int)GameClient.Version) - 1000) + GameClient.MinorRev);                
+                pak.WriteShort(GameClient.ClientId);
                 SendTCP(pak);
             }
         }
@@ -184,7 +182,7 @@ namespace DOL.GS.PacketHandler
                             }
 
                             pak.WriteByte((byte)c.Level); // moved
-                            pak.WritePascalStringLowEndian(c.Name);
+                            pak.WritePascalStringIntLowEndian(c.Name);
                             pak.WriteByte(0x18); // no idea
                             pak.WriteInt(1); // no idea
                             pak.WriteByte((byte)c.EyeSize);
@@ -209,18 +207,18 @@ namespace DOL.GS.PacketHandler
                             {
                                 locationDescription = (locationDescription.Substring(0, 20)) + "...";
                             }
-                            pak.WritePascalStringLowEndian(locationDescription);
+                            pak.WritePascalStringIntLowEndian(locationDescription);
 
                             string classname = "";
                             if (c.Class != 0)
                             {
                                 classname = ((eCharacterClass)c.Class).ToString();
                             }
-                            pak.WritePascalStringLowEndian(classname);
+                            pak.WritePascalStringIntLowEndian(classname);
 
                             string racename = GameClient.RaceToTranslatedName(c.Race, c.Gender);
 
-                            pak.WritePascalStringLowEndian(racename);
+                            pak.WritePascalStringIntLowEndian(racename);
                             pak.WriteShortLowEndian((ushort)c.CurrentModel); // moved
                             // something here
                             pak.WriteByte((byte)c.Region);
@@ -631,30 +629,30 @@ namespace DOL.GS.PacketHandler
 
                         if (item.Count > 1)
                         {
-                            pak.WritePascalStringLowEndian(item.Count + " " + item.Name);
+                            pak.WritePascalStringIntLowEndian(item.Count + " " + item.Name);
                         }
                         else if (item.PackSize > 1)
                         {
-                            pak.WritePascalStringLowEndian(item.PackSize + " " + item.Name + bpPrice);
+                            pak.WritePascalStringIntLowEndian(item.PackSize + " " + item.Name + bpPrice);
                         }
                         else
                         {
-                            pak.WritePascalStringLowEndian(item.Name + bpPrice);
+                            pak.WritePascalStringIntLowEndian(item.Name + bpPrice);
                         }
                     }
                     else
                     {
                         if (item.Count > 1)
                         {
-                            pak.WritePascalStringLowEndian(item.Count + " " + item.Name);
+                            pak.WritePascalStringIntLowEndian(item.Count + " " + item.Name);
                         }
                         else if (item.PackSize > 1)
                         {
-                            pak.WritePascalStringLowEndian(item.PackSize + " " + item.Name);
+                            pak.WritePascalStringIntLowEndian(item.PackSize + " " + item.Name);
                         }
                         else
                         {
-                            pak.WritePascalStringLowEndian(item.Name);
+                            pak.WritePascalStringIntLowEndian(item.Name);
                         }
                     }
                 }
@@ -766,7 +764,7 @@ namespace DOL.GS.PacketHandler
                                 pak.WriteShortLowEndian((ushort)value2);                                
                                 pak.WriteIntLowEndian((uint)item.Price);
                                 pak.WriteShortLowEndian((ushort)item.Model);
-                                pak.WritePascalStringLowEndian(item.Name);
+                                pak.WritePascalStringIntLowEndian(item.Name);
                             }
                             else
                             {
