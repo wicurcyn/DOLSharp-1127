@@ -4447,20 +4447,8 @@ namespace DOL.GS.PacketHandler
 			//Construct the new packet
 			using (var pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.CryptKey)))
 			{
-				pak.WriteByte((byte)GameClient.ClientType);
-				
-				//Disable encryption (1110+ always encrypt)
-				pak.WriteByte(0x00);
-
-				// Reply with current version
-				pak.WriteString((((int)GameClient.Version) / 1000) + "." + (((int)GameClient.Version) - 1000), 5);
-				
-				// revision, last seen (c) 0x63
-				pak.WriteByte(0x00);
-				
-				// Build number
-				pak.WriteByte(0x00); // last seen : 0x44 0x05
-				pak.WriteByte(0x00);
+				pak.WritePascalStringShortLowEndian((((int)GameClient.Version) / 1000) + "." + (((int)GameClient.Version) - 1000) + GameClient.MinorRev);
+				pak.WriteShort(GameClient.ClientId);
 				SendTCP(pak);
 			}
 		}

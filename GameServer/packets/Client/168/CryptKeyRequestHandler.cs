@@ -49,8 +49,8 @@ namespace DOL.GS.PacketHandler.Client.v168
                 //client.UsingRC4 = true; // use this if you are using RC4 
                 return;
             }
-
-            // Send the crypt key to the client
+            client.ClientId = packet.ReadShort();
+            // Send the crypt key response to the client
             client.Out.SendVersionAndCryptKey();            
         }
     }

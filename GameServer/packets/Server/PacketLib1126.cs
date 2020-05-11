@@ -136,7 +136,7 @@ namespace DOL.GS.PacketHandler
                             }
 
                             pak.WriteByte((byte)c.Level);
-                            pak.WritePascalStringLowEndian(c.Name);
+                            pak.WritePascalStringIntLowEndian(c.Name);
                             pak.WriteIntLowEndian(0x18); // no idea
                             pak.WriteByte(0x01); // no idea
                             pak.WriteByte((byte)c.EyeSize);
@@ -162,18 +162,18 @@ namespace DOL.GS.PacketHandler
                             {
                                 locationDescription = (locationDescription.Substring(0, 20)) + "...";
                             }
-                            pak.WritePascalStringLowEndian(locationDescription);
+                            pak.WritePascalStringIntLowEndian(locationDescription);
 
                             string classname = "";
                             if (c.Class != 0)
                             {
                                 classname = ((eCharacterClass)c.Class).ToString();
                             }
-                            pak.WritePascalStringLowEndian(classname);
+                            pak.WritePascalStringIntLowEndian(classname);
 
                             string racename = GameClient.RaceToTranslatedName(c.Race, c.Gender);
 
-                            pak.WritePascalStringLowEndian(racename);
+                            pak.WritePascalStringIntLowEndian(racename);
                             pak.WriteShortLowEndian((ushort)c.CurrentModel);
                             pak.WriteByte((byte)c.Region);
 
@@ -349,7 +349,7 @@ namespace DOL.GS.PacketHandler
             {                
                 string ip = ip = ((IPEndPoint)GameClient.Socket.LocalEndPoint).Address.ToString();
                 
-                pak.WritePascalStringLowEndian(ip);
+                pak.WritePascalStringIntLowEndian(ip);
                 pak.WriteShort(10400); // from port?
                 pak.WriteByte(0); // ??
                 pak.WriteByte(0);  // ??
