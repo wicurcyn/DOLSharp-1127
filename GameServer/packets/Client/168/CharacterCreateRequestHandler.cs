@@ -287,7 +287,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             /// <param name="client"></param>
             public CreationCharacterData(GSPacketIn packet, GameClient client)
             {
-                if (client.Version > GameClient.eClientVersion.Version1124) // 1125 support
+                if (client.Version > GameClient.eClientVersion.Version1124) // 1125+ support
                 {
                     CharacterSlot = packet.ReadByte();
                     CharName = packet.ReadIntPascalStringLowEndian();
@@ -309,27 +309,35 @@ namespace DOL.GS.PacketHandler.Client.v168
                     packet.Skip(5); //Location string
                     packet.Skip(5); //Skip class name
                     packet.Skip(5); //Skip race name
-                    packet.Skip(1); // not sure what this is? previous pak says level, but its unused anyway
-                    Class = packet.ReadByte();
-                    Realm = packet.ReadByte();
+
+                    if (client.Version >= GameClient.eClientVersion.Version1126)
+                    {
+                        Class = packet.ReadByte();
+                        Realm = packet.ReadByte();
+                    }
+                    else // 1125
+                    {
+                        packet.Skip(1); // level
+                        Class = packet.ReadByte();
+                        Realm = packet.ReadByte();
+                    }
                     if (Realm > 0) // put inside this, as when a char is deleted, there is no realm sent TODO redo how account slot is stored in DB perhaps
                     {
                         CharacterSlot -= (Realm - 1) * 10; // calc to get character slot into same format used in database.
                     }
-                    //The following byte contains
-                    //1bit=start location ... in ShroudedIsles you can choose ...
-                    //1bit=first race bit
-                    //1bit=unknown
-                    //1bit=gender (0=male, 1=female)
-                    //4bit=race
+                    
                     byte startRaceGender1 = (byte)packet.ReadByte();                    
                     Race = startRaceGender1 & 0x1F;
                     Gender = ((startRaceGender1 >> 7) & 0x01);
                     //SIStartLocation = ((startRaceGender1 >> 7) != 0);
                     CreationModel = packet.ReadShortLowEndian();
-                    Region = packet.ReadByte();
-                    packet.Skip(1); //TODO second byte of region unused currently
-                    packet.Skip(4); //TODO Unknown Int / last used?
+
+                    if (client.Version == GameClient.eClientVersion.Version1125)
+                    {
+                        Region = packet.ReadByte();
+                        packet.Skip(5);                       
+                    }
+
                     Strength = packet.ReadByte();
                     Dexterity = packet.ReadByte();
                     Constitution = packet.ReadByte();
@@ -338,10 +346,10 @@ namespace DOL.GS.PacketHandler.Client.v168
                     Piety = packet.ReadByte();
                     Empathy = packet.ReadByte();
                     Charisma = packet.ReadByte();
-                    packet.Skip(40); //TODO equipment                    
-                    packet.Skip(3); // explained above
-                    // New constitution must be read before skipping 4 bytes
-                    NewConstitution = packet.ReadByte(); // 0x9F
+
+                    packet.Skip(43);
+                    
+                    NewConstitution = packet.ReadByte();
                     // trailing 0x00
                     return;
                 }
