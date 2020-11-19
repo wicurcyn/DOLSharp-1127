@@ -2638,6 +2638,9 @@ namespace DOL.GS.ServerRules
                 case eMerchantWindowType.HousingVaultHookpoint:
                     player.Out.SendMerchantWindow(HouseTemplateMgr.IndoorVaultShopItems, eMerchantWindowType.HousingVaultHookpoint);
                     break;
+                case eMerchantWindowType.HousingDeedMenu:
+                    player.Out.SendMerchantWindow(HouseTemplateMgr.CustomLotMarkerItems, eMerchantWindowType.HousingDeedMenu);
+                    break;
                 default:
                     player.Out.SendMessage("Unknown merchant type!", eChatType.CT_Staff, eChatLoc.CL_SystemWindow);
                     Log.Error($"Unknown merchant type {merchantType}");
