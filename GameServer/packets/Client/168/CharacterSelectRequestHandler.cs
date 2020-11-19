@@ -31,7 +31,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                 charSelectRequest.HandlePacket(client, packet);
                 return;
             }
-            else if (client.Version == GameClient.eClientVersion.Version1126)
+            else if (client.Version >= GameClient.eClientVersion.Version1126)
             {
                 var charSelectRequest = new CharacterSelectRequestHandler1126();
                 charSelectRequest.HandlePacket(client, packet);

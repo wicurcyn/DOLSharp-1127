@@ -54,23 +54,60 @@ namespace DOL.GS.PacketHandler.Client.v168
 
 			int environmentTick = Environment.TickCount;
 			int oldSpeed = client.Player.CurrentSpeed;
-            
-			int newPlayerX = (int)packet.ReadFloatLowEndian();
-			int newPlayerY = (int)packet.ReadFloatLowEndian();
-			int newPlayerZ = (int)packet.ReadFloatLowEndian();
-			int newPlayerSpeed = (int)packet.ReadFloatLowEndian();
-			int newPlayerZSpeed = (int)packet.ReadFloatLowEndian();
-			ushort sessionID = packet.ReadShort();
-			ushort currentZoneID = packet.ReadShort();
-			ushort playerState = packet.ReadShort();
-            ushort fallingDMG = packet.ReadShort();            
-			ushort newHeading = packet.ReadShort();
-			byte playerAction = (byte)packet.ReadByte();
-			packet.Skip(2); // unknown bytes x2
-			byte playerHealth = (byte)packet.ReadByte();
-			// two trailing bytes, no data			                       
+						
+			// Getting ugly in this file - supporting multiple clients
+			int newPlayerX;
+			int newPlayerY;
+			int newPlayerZ;
+			int newPlayerSpeed;
+			int newPlayerZSpeed;
+			ushort sessionID;			
+			ushort currentZoneID;
+			ushort playerState;
+			ushort fallingDMG;
+			ushort newHeading;
+			byte playerAction;			
+			byte playerHealth;			
+			ushort ObjectId1127 = 0;
 
-            if (client.Player.IsMezzed || client.Player.IsStunned)
+			if (client.Version >= GameClient.eClientVersion.Version1127)
+			{
+				newPlayerX = (int)packet.ReadFloatLowEndian();
+				newPlayerY = (int)packet.ReadFloatLowEndian();
+				newPlayerZ = (int)packet.ReadFloatLowEndian();
+				newPlayerSpeed = (int)packet.ReadFloatLowEndian();
+				newPlayerZSpeed = (int)packet.ReadFloatLowEndian();
+				sessionID = packet.ReadShort();
+				ObjectId1127 = packet.ReadShort(); // new
+				currentZoneID = packet.ReadShort();
+				playerState = packet.ReadShort();
+				fallingDMG = packet.ReadShort();
+				newHeading = packet.ReadShort();
+				playerAction = (byte)packet.ReadByte();
+				packet.Skip(2);
+				playerHealth = (byte)packet.ReadByte();
+				// four trailing bytes, no data
+				packet.Skip(4); // extra 2 bytes
+			}
+			else
+			{
+				newPlayerX = (int)packet.ReadFloatLowEndian();
+				newPlayerY = (int)packet.ReadFloatLowEndian();
+				newPlayerZ = (int)packet.ReadFloatLowEndian();
+				newPlayerSpeed = (int)packet.ReadFloatLowEndian();
+				newPlayerZSpeed = (int)packet.ReadFloatLowEndian();
+				sessionID = packet.ReadShort();
+				currentZoneID = packet.ReadShort();
+				playerState = packet.ReadShort();
+				fallingDMG = packet.ReadShort();
+				newHeading = packet.ReadShort();
+				playerAction = (byte)packet.ReadByte();
+				packet.Skip(2);
+				playerHealth = (byte)packet.ReadByte();
+				// two trailing bytes, no data
+			}
+
+			if (client.Player.IsMezzed || client.Player.IsStunned)
 			{				
 				client.Player.CurrentSpeed = 0;
 			}
@@ -490,6 +527,28 @@ namespace DOL.GS.PacketHandler.Client.v168
             outpak.WriteByte(client.Player.EndurancePercent);            
             outpak.WritePacketLength();
 
+			// more ugliness to support multiple clients at once...
+			GSUDPPacketOut outpak1127 = new GSUDPPacketOut(client.Out.GetPacketCode(eServerPackets.PlayerPosition));
+			outpak1127.WriteFloatLowEndian(newPlayerX);
+			outpak1127.WriteFloatLowEndian(newPlayerY);
+			outpak1127.WriteFloatLowEndian(newPlayerZ);
+			outpak1127.WriteFloatLowEndian(newPlayerSpeed);
+			outpak1127.WriteFloatLowEndian(newPlayerZSpeed);
+			outpak1127.WriteShort(sessionID);
+			outpak1127.WriteShort(ObjectId1127); // new
+			outpak1127.WriteShort(currentZoneID);
+			outpak1127.WriteShort(playerState);
+			outpak1127.WriteShort(steedSeatPosition);
+			outpak1127.WriteShort(newHeading);
+			outpak1127.WriteByte(playerOutAction);
+			outpak1127.WriteByte((byte)(client.Player.RPFlag ? 1 : 0));
+			outpak1127.WriteByte(0);
+			outpak1127.WriteByte((byte)(client.Player.HealthPercent + (client.Player.AttackState ? 0x80 : 0)));
+			outpak1127.WriteByte(client.Player.ManaPercent);
+			outpak1127.WriteByte(client.Player.EndurancePercent);
+			outpak1127.WriteShort(0); // new
+			outpak.WritePacketLength();
+
 			foreach (GamePlayer player in client.Player.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
 			{
                 if (player == null)
@@ -520,10 +579,15 @@ namespace DOL.GS.PacketHandler.Client.v168
 				}*/
 
                 if (!client.Player.IsStealthed || player.CanDetect(client.Player))
-                {
-                    // Update Player Cache // not entirely sure why I originally commented this line out...
-                    //player.Client.GameObjectUpdateArray[new Tuple<ushort, ushort>(client.Player.CurrentRegionID, (ushort)client.Player.ObjectID)] = GameTimer.GetTickCount();
-                    player.Out.SendUDPRaw(outpak);
+                {                    
+                    if (player.Client.Version == GameClient.eClientVersion.Version1127)
+                    {
+						player.Out.SendUDPRaw(outpak1127);
+                    }
+                    else
+                    {
+						player.Out.SendUDPRaw(outpak);
+					}					
                 }
                 else
                 {

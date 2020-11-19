@@ -42,102 +42,200 @@ namespace DOL.GS.PacketHandler.Client.v168
 
             client.Player.CurrentHouse = house;
 
-            switch (menuid)
-            {
-                case 0: // Exterior decoration (Garden)
-                    {
-                        if (!house.CanChangeGarden(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+			if (client.Version >= GameClient.eClientVersion.Version1127)
+			{
+				switch (menuid)
+				{
+					case 0: // Exterior decoration (Garden)
+						{
+							if (!house.CanChangeGarden(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                        HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingOutsideShop);
-                        break;
-                    }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingOutsideShop);
+							break;
+						}
+					case 1: // Interior decoration
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                case 1: // Interior decoration
-                    {
-                        if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingInsideShop);
+							break;
+						}
+					case 2: // deeds porch consignment merchant
+						{						
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                        HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingInsideShop);
-                        break;
-                    }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingDeedMenu);
+							break;
+						}
+					case 3: // Exterior menu
+						{							
+							if (!house.CanChangeGarden(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                case 2: // Exterior menu
-                    {
-                        if (!house.CanChangeGarden(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+							client.Player.Out.SendMerchantWindow(HouseTemplateMgr.OutdoorMenuItems, eMerchantWindowType.HousingOutsideMenu);
+							break;
+						}
 
-                        client.Player.Out.SendMerchantWindow(HouseTemplateMgr.OutdoorMenuItems, eMerchantWindowType.HousingOutsideMenu);
-                        break;
-                    }
+					case 4: // indoor NPC
+						{							
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                case 3: // interior npc
-                    {
-                        if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingNPCHookpoint);
+							break;
+						}
+					case 5: // Vault menu
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                        HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingNPCHookpoint);
-                        break;
-                    }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingVaultHookpoint);
+							break;
+						}
+					case 6: // Craft menu
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                case 4: // vault shop
-                    {
-                        if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingCraftingHookpoint);
+							break;
+						}
+					case 7: // bindstone menu
+						if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+						{
+							return;
+						}
 
-                        HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingVaultHookpoint);
-                        break;
-                    }
+						HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingBindstoneHookpoint);
+						break;
 
-                case 5: // craft shop
-                    {
-                        if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+					case 8: // Interior menu (flag = 0x00 - roof, 0xFF - floor or wall)
+						if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+						{
+							return;
+						}
 
-                        HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingCraftingHookpoint);
-                        break;
-                    }
+						client.Player.Out.SendMerchantWindow(HouseTemplateMgr.IndoorMenuItems, eMerchantWindowType.HousingInsideMenu);
+						break;
+					case 9: // new house info
+						house.SendHouseInfo(client.Player);
+						break;
+					default:
+						client.Out.SendMessage("Invalid menu id " + menuid + " (hookpoint?).", eChatType.CT_System, eChatLoc.CL_SystemWindow);
+						break;
+				}
 
-                case 6: // bindstone shop
-                    {
-                        if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
-                        {
-                            return;
-                        }
+			}
+			else
+			{
+				switch (menuid)
+				{
+					case 0: // Exterior decoration (Garden)
+						{
+							if (!house.CanChangeGarden(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                        HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingBindstoneHookpoint);
-                        break;
-                    }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingOutsideShop);
+							break;
+						}
+					case 1: // Interior decoration
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                case 7:
-                    house.SendHouseInfo(client.Player);
-                    break;
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingInsideShop);
+							break;
+						}
+					case 2: // Exterior menu
+						{
+							if (!house.CanChangeGarden(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                case 8: // Interior menu (flag = 0x00 - roof, 0xFF - floor or wall)
-                    if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
-                    {
-                        return;
-                    }
+							client.Player.Out.SendMerchantWindow(HouseTemplateMgr.OutdoorMenuItems, eMerchantWindowType.HousingOutsideMenu);
+							break;
+						}
+					case 3: // interior npc
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                    client.Player.Out.SendMerchantWindow(HouseTemplateMgr.IndoorMenuItems, eMerchantWindowType.HousingInsideMenu);
-                    break;
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingNPCHookpoint);
+							break;
+						}
+					case 4: // vault shop
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
 
-                default:
-                    client.Out.SendMessage($"Invalid menu id {menuid} (hookpoint?).", eChatType.CT_System, eChatLoc.CL_SystemWindow);
-                    break;
-            }
-        }
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingVaultHookpoint);
+							break;
+						}
+					case 5: // craft shop
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
+
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingCraftingHookpoint);
+							break;
+						}
+					case 6: // bindstone shop
+						{
+							if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+							{
+								return;
+							}
+
+							HouseMgr.SendHousingMerchantWindow(client.Player, eMerchantWindowType.HousingBindstoneHookpoint);
+							break;
+						}
+					case 7:
+						house.SendHouseInfo(client.Player);
+						break;
+
+					case 8: // Interior menu (flag = 0x00 - roof, 0xFF - floor or wall)
+						if (!house.CanChangeInterior(client.Player, DecorationPermissions.Add))
+						{
+							return;
+						}
+
+						client.Player.Out.SendMerchantWindow(HouseTemplateMgr.IndoorMenuItems, eMerchantWindowType.HousingInsideMenu);
+						break;
+
+					default:
+						client.Out.SendMessage("Invalid menu id " + menuid + " (hookpoint?).", eChatType.CT_System, eChatLoc.CL_SystemWindow);
+						break;
+				}
+
+			}
+		}
     }
 }
