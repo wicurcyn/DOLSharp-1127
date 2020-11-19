@@ -170,6 +170,7 @@ namespace DOL.GS.PacketHandler.Client.v168
             if (client.Player == null && client.Account.Characters != null && client.ClientState == GameClient.eClientState.CharScreen)
             {                
                 bool charFound = false;
+                string selectedChar = "";
                 int realmOffset = charIndex - (client.Account.Realm * 10 - 10);
                 int charSlot = (client.Account.Realm * 100) + realmOffset;
                 for (int i = 0; i < client.Account.Characters.Length; i++)
@@ -177,6 +178,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                     if (client.Account.Characters[i] != null && client.Account.Characters[i].AccountSlot == charSlot)
                     {
                         charFound = true;
+                        selectedChar = client.Account.Characters[i].Name;
                         client.LoadPlayer(i);
                         break;
                     }
@@ -190,7 +192,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                 else
                 {
                     // Log character play
-                    AuditMgr.AddAuditEntry(client, AuditType.Character, AuditSubtype.CharacterLogin, "", client.Account.Characters[charIndex].Name);
+                    AuditMgr.AddAuditEntry(client, AuditType.Character, AuditSubtype.CharacterLogin, "", selectedChar);
                 }
             }
 
