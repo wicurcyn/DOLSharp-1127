@@ -37,12 +37,18 @@ namespace DOL.GS.PacketHandler.Client.v168
             if (client.Player.ObjectState != GameObject.eObjectState.Active) return;
 
             ushort sessionId = packet.ReadShort();
+            ushort currentTarget = 0;
             if (client.SessionID != sessionId)
             {
                 // GameServer.BanAccount(client, 120, "Hack sessionId", string.Format("Wrong sessionId:0x{0} in 0xBA packet (SessionID:{1})", sessionId, client.SessionID));
                 return; // client hack
             }
-            
+
+            if (client.Version >= GameClient.eClientVersion.Version1127)
+            {
+                currentTarget = packet.ReadShort();
+            }
+
             client.Player.Heading = packet.ReadShort();
             packet.Skip(1); // unknown
             int flags = packet.ReadByte();
@@ -85,11 +91,35 @@ namespace DOL.GS.PacketHandler.Client.v168
             outpak.WriteByte(0); // null term?
             outpak.WritePacketLength();
 
+            // i'm sure there is a better way to do this
+            GSUDPPacketOut outpak1127 = new GSUDPPacketOut(client.Out.GetPacketCode(eServerPackets.PlayerHeading));
+
+            outpak1127.WriteShort((ushort)client.SessionID);
+            outpak1127.WriteShort(currentTarget); // 1127 
+            outpak1127.WriteShort(client.Player.Heading);
+            outpak1127.WriteByte(steedSlot);
+            outpak1127.WriteByte((byte)flags);
+            outpak1127.WriteByte(0);
+            outpak1127.WriteByte(ridingFlag);
+            outpak1127.WriteByte(client.Player.HealthPercent);
+            outpak1127.WriteByte(client.Player.ManaPercent);
+            outpak1127.WriteByte(client.Player.EndurancePercent);
+            outpak1127.WriteByte(0);
+            outpak1127.WritePacketLength();
+
+
             foreach (GamePlayer player in client.Player.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
             {
                 if (player != null && player != client.Player)
                 {                   
-                    player.Out.SendUDPRaw(outpak);
+                    if (player.Client.Version == GameClient.eClientVersion.Version1127)
+                    {
+                        player.Out.SendUDPRaw(outpak1127);
+                    }
+                    else
+                    {
+                        player.Out.SendUDPRaw(outpak);
+                    }                    
                 }
             }
         }
