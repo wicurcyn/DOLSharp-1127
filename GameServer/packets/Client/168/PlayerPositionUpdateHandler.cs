@@ -547,7 +547,7 @@ namespace DOL.GS.PacketHandler.Client.v168
 			outpak1127.WriteByte(client.Player.ManaPercent);
 			outpak1127.WriteByte(client.Player.EndurancePercent);
 			outpak1127.WriteShort(0); // new
-			outpak.WritePacketLength();
+			outpak1127.WritePacketLength();
 
 			foreach (GamePlayer player in client.Player.GetPlayersInRadius(WorldMgr.VISIBILITY_DISTANCE))
 			{

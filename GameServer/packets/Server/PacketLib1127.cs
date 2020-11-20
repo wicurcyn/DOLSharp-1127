@@ -19,7 +19,7 @@ namespace DOL.GS.PacketHandler
                 return;
             }
 
-            GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.PlayerHeading));
+            GSTCPPacketOut pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.Message));
             {                
                 pak.WriteByte((byte)type);                
 
