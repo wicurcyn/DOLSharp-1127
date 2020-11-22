@@ -26,7 +26,8 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
-            string name = packet.ReadString(30);
+            string name;
+            name = client.Version >= GameClient.eClientVersion.Version1126 ? packet.ReadString(24) : packet.ReadString(30);
             byte result = 0x00;
             var character = GameServer.Database.SelectObjects<DOLCharacters>("`Name` = @Name", new QueryParameter("@Name", name)).FirstOrDefault();
 
