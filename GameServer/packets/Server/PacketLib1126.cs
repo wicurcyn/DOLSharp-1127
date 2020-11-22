@@ -42,6 +42,22 @@ namespace DOL.GS.PacketHandler
         }
 
         /// <summary>
+        /// 1126 update - less info / shorter packet sent back
+        /// </summary>        
+        public override void SendDupNameCheckReply(string name, byte result)
+        {
+            if (GameClient == null || GameClient.Account == null)
+                return;
+
+            using (var pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.DupNameCheckReply)))
+            {
+                pak.FillString(name, 24);
+                pak.WriteByte(result);
+                SendTCP(pak);
+            }
+        }
+
+        /// <summary>
         /// 1126 update - new packet Id 0xFC, and a few changes but very similar to old 0xFD packet.
         /// </summary>        
         public override void SendCharacterOverview(eRealm realm)
