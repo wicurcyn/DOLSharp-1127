@@ -5886,6 +5886,15 @@ namespace DOL.GS
                 Task.SaveIntoDatabase();
             }
 
+            // see if npc in area can now show us a quest icon
+            foreach (GameNPC npc in GetNPCsInRadius(WorldMgr.VISIBILITY_DISTANCE))
+            {
+                if (npc.CanShowOneQuest(this))
+                {
+                    Out.SendNPCsQuestEffect(npc, eQuestIndicator.Available);
+                }
+            }
+
             // save player to database
             SaveIntoDatabase();
         }
