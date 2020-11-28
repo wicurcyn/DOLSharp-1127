@@ -6126,8 +6126,9 @@ namespace DOL.GS.PacketHandler
         {
             using (var pak = new GSTCPPacketOut(GetPacketCode(eServerPackets.PlayerRevive)))
             {
-                pak.WriteShort((ushort)revivedPlayer.ObjectID);
-                pak.WriteShort(0x00);
+				// when changing regions player.ObjectId will be sent as -1 - this causes issues with 1.127 so we need to send the stored OldObjectId instead
+				pak.WriteShort(revivedPlayer.ObjectID > 0 ? (ushort)revivedPlayer.ObjectID : (ushort)revivedPlayer.OldObjectId);
+				pak.WriteShort(0x00);
                 SendTCP(pak);
             }
         }
