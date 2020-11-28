@@ -328,6 +328,11 @@ namespace DOL.GS
         }
 
         /// <summary>
+        /// Stores players objectId for use with the player revive packet - needed when changing region as player objectId is removed when they zone which is before SendPlayerRevive packet is sent
+        /// </summary>         
+        public ushort OldObjectId = 0;
+
+        /// <summary>
         /// Gets or sets the no help flag for this player
         /// (delegate to property in DBCharacter)
         /// </summary>
@@ -11410,6 +11415,7 @@ break;
 
             if (regionID != CurrentRegionID)
             {
+                OldObjectId = (ushort)this.ObjectID;
                 GameEventMgr.Notify(GamePlayerEvent.RegionChanging, this);
                 if (!RemoveFromWorld())
                 {
