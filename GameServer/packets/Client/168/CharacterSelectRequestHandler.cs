@@ -25,7 +25,7 @@ namespace DOL.GS.PacketHandler.Client.v168
     {
         public void HandlePacket(GameClient client, GSPacketIn packet)
         {
-            if (client.Version >= GameClient.eClientVersion.Version1125 && client.MinorRev == "d") // 1125d support TODO this needs to be changed when a version greater than 1125d comes out
+            if (client.Version == GameClient.eClientVersion.Version1125 && client.MinorRev == "d")
             {
                 var charSelectRequest = new CharacterSelectRequestHandler1125d();
                 charSelectRequest.HandlePacket(client, packet);
@@ -37,7 +37,7 @@ namespace DOL.GS.PacketHandler.Client.v168
                 charSelectRequest.HandlePacket(client, packet);
                 return;
             }
-
+			// 1124 - 1125c
             packet.Skip(4); // Skip the first 4 bytes
             packet.Skip(1);
 
