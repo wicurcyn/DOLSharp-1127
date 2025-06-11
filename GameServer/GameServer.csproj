@@ -168,6 +168,7 @@
     <Compile Include="behaviour\BaseBehaviour.cs" />
     <Compile Include="behaviour\BehaviourBuilder.cs" />
     <Compile Include="behaviour\BehaviourMgr.cs" />
+    <Compile Include="ChatLoggerPacketInterceptor.cs" />
     <Compile Include="commands\admincommands\Account.cs" />
     <Compile Include="commands\admincommands\BenchmarkCommand.cs" />
     <Compile Include="commands\admincommands\code.cs" />
@@ -226,6 +227,11 @@
     <Compile Include="commands\gmcommands\titlegm.cs" />
     <Compile Include="commands\gmcommands\walk.cs" />
     <Compile Include="commands\gmcommands\weather.cs" />
+    <Compile Include="commands\playercommands\gotocamelot.cs" />
+    <Compile Include="commands\playercommands\gotojord.cs" />
+    <Compile Include="commands\playercommands\gototnn.cs" />
+    <Compile Include="commands\playercommands\instaq.cs" />
+    <Compile Include="commands\playercommands\QuitToCharSelectCommand.cs" />
     <Compile Include="commands\RefreshCommandAttribute.cs" />
     <Compile Include="commands\playercommands\advice.cs" />
     <Compile Include="commands\playercommands\advisor.cs" />
@@ -373,6 +379,11 @@
     <Compile Include="gameobjects\CharacterClasses\CharacterClassBase.cs" />
     <Compile Include="gameobjects\CharacterClasses\Midgard\CharacterClassBoneDancer.cs" />
     <Compile Include="gameobjects\CustomNPC\BuffMerchant.cs" />
+    <Compile Include="gameobjects\CustomNPC\ModelChangerNPC.cs" />
+    <Compile Include="gameobjects\CustomNPC\TeleportingMobs\HibTeleportingMob.cs" />
+    <Compile Include="gameobjects\CustomNPC\TeleportingMobs\MidTeleportingMob.cs" />
+    <Compile Include="gameobjects\CustomNPC\TeleportingMobs\PushbackMonster_AdminSafe.cs" />
+    <Compile Include="gameobjects\CustomNPC\TeleportingMobs\TeleportingMobAlbionOnly.cs" />
     <Compile Include="gameobjects\GameInventoryObject.cs" />
     <Compile Include="gameobjects\GameMythirian.cs" />
     <Compile Include="gameobjects\GameNPChelper.cs" />
@@ -2765,6 +2776,7 @@
     <Content Include="language\IT\GameObject\GameGuard.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="gameobjects\CustomNPC\CustomQuest\" />
     <Folder Include="gameutils\KDTree\" />
     <Folder Include="language\DE\Quests\Midgard\" />
     <Folder Include="language\EN\Quests\Midgard\" />

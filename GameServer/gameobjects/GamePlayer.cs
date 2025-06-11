@@ -849,6 +849,12 @@ namespace DOL.GS
         {
             get
             {
+                //  Instant quit in these regions
+                if (CurrentRegionID == 10 || CurrentRegionID == 101 || CurrentRegionID == 201)
+                {
+                    return 0;
+                }
+
                 if (m_quitTimer == null)
                 {
                     // dirty trick ;-) (20sec min quit time)
@@ -872,8 +878,7 @@ namespace DOL.GS
                 return (int)(60 - (CurrentRegion.Time - lastCombatAction + 500) / 1000); // 500 is for rounding
             }
 
-            set
-            { }
+            set { }
         }
 
         /// <summary>
@@ -1132,7 +1137,7 @@ namespace DOL.GS
         /// </summary>
         /// <param name="forced">true if Quit can not be prevented!</param>
         public virtual bool Quit(bool forced)
-        {
+        {            
             if (!forced)
             {
                 if (!IsAlive)

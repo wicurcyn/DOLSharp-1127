@@ -56,20 +56,20 @@ namespace DOL.GS.Commands
                 return;
             }
             
-            if (!ServerProperties.Properties.CUSTOM_TRAIN)
+            if (args.Length == 1)
             {
                 client.Out.SendTrainerWindow();
                 return;
             }
 
-            GameTrainer trainer = client.Player.TargetObject as GameTrainer;
+           // GameTrainer trainer = client.Player.TargetObject as GameTrainer;
 
             // Make sure the player is at a trainer.
-            if (client.Account.PrivLevel == (int)ePrivLevel.Player && (trainer == null || trainer.CanTrain(client.Player) == false))
-            {
-                client.Out.SendMessage("You have to be at your trainer to use this command.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
-                return;
-            }
+           // if (client.Account.PrivLevel == (int)ePrivLevel.Player && (trainer == null || trainer.CanTrain(client.Player) == false))
+           // {
+           //     client.Out.SendMessage("You have to be at your trainer to use this command.", eChatType.CT_System, eChatLoc.CL_SystemWindow);
+           //     return;
+           // }
 
             // Make sure the user gave us atleast the specialization line and the level to train it to.
             if (args.Length < 3)

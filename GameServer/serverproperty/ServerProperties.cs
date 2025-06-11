@@ -110,7 +110,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should the server load quests
         /// </summary>
-        [ServerProperty("system", "load_quests", "Should the server load quests, values True,False", false)]
+        [ServerProperty("system", "load_quests", "Should the server load quests, values True,False", true)]
         public static bool LOAD_QUESTS { get; set; }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should users be able to create characters in all realms using the same account
         /// </summary>
-        [ServerProperty("system", "allow_all_realms", "should we allow characters to be created on all realms using a single account", false)]
+        [ServerProperty("system", "allow_all_realms", "should we allow characters to be created on all realms using a single account", true)]
         public static bool ALLOW_ALL_REALMS { get; set; }
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Use pre 1.105 train or livelike
         /// </summary>
-        [ServerProperty("server", "custom_train", "Train is custom pre-1.105 one ? (false set it to livelike 1.105+)", true)]
+        [ServerProperty("server", "custom_train", "Train is custom pre-1.105 one ? (false set it to livelike 1.105+)", false)]
         public static bool CUSTOM_TRAIN { get; set; }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Should the server disable the tutorial zone
         /// </summary>
-        [ServerProperty("world", "disable_tutorial", "should the server disable the tutorial zone", true)]
+        [ServerProperty("world", "disable_tutorial", "should the server disable the tutorial zone", false)]
         public static bool DISABLE_TUTORIAL { get; set; }
 
         [ServerProperty("world", "world_item_decay_time", "How long (milliseconds) will an item dropped on the ground stay in the world.", (uint)180000)]
@@ -646,7 +646,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Immunity Timer length when a player logs into game or zones into a new region, in seconds
         /// </summary>
-        [ServerProperty("world", "timer_player_init", "Immunity Timer length when a player logs into game or zones into a new region, in seconds", 15)]
+        [ServerProperty("world", "timer_player_init", "Immunity Timer length when a player logs into game or zones into a new region, in seconds", 1)]
         public static int TIMER_PLAYER_INIT { get; set; }
 
         /// <summary>
@@ -766,13 +766,13 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Xp Cap for a player.  Given in percent of level.  Default is 125%
         /// </summary>
-        [ServerProperty("rates", "XP_Cap_Percent", "Maximum XP a player can earn given in percent of their level. Default is 125%", 125)]
+        [ServerProperty("rates", "XP_Cap_Percent", "Maximum XP a player can earn given in percent of their level. Default is 125%", 500)]
         public static int XP_CAP_PERCENT { get; set; }
 
         /// <summary>
         /// Xp Cap for a player in a group.  Given in percent of level.  Default is 125%
         /// </summary>
-        [ServerProperty("rates", "XP_Group_Cap_Percent", "Maximum XP a player can earn while in a group, given in percent of their level. Default is 125%", 125)]
+        [ServerProperty("rates", "XP_Group_Cap_Percent", "Maximum XP a player can earn while in a group, given in percent of their level. Default is 125%", 500)]
         public static int XP_GROUP_CAP_PERCENT { get; set; }
 
         /// <summary>
@@ -784,7 +784,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Hardcap XP a player can earn after all other adjustments are applied.  Given in percent of level, default is 500%  There is no live value that corresponds to this cap.
         /// </summary>
-        [ServerProperty("rates", "XP_HardCap_Percent", "Hardcap XP a player can earn after all other adjustments are applied. Given in percent of their level. Default is 500%", 500)]
+        [ServerProperty("rates", "XP_HardCap_Percent", "Hardcap XP a player can earn after all other adjustments are applied. Given in percent of their level. Default is 500%", 10000)]
         public static int XP_HARDCAP_PERCENT { get; set; }
 
         /// <summary>
@@ -802,7 +802,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// RvR Zones XP Rate
         /// </summary>
-        [ServerProperty("rates", "rvr_zones_xp_rate", "The RvR zones Experience Points Rate Modifier", 1.0)]
+        [ServerProperty("rates", "rvr_zones_xp_rate", "The RvR zones Experience Points Rate Modifier", 20.0)]
         public static double RvR_XP_RATE { get; set; }
 
         /// <summary>
@@ -832,7 +832,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// The percent per con difference (-1 = blue, 0 = yellow, 1 = OJ, 2 = red ...) subtracted to hitchance for spells in PVE.  0 is none, 5 is 5% per con, etc.  Default is 10%
         /// </summary>
-        [ServerProperty("rates", "pve_spell_conhitpercent", "The percent per con (1 = OJ, 2 = red ...) subtracted to hitchance for spells in PVE  Must be >= 0.  0 is none, 5 is 5% per level, etc.  Default is 10%", (uint)10)]
+        [ServerProperty("rates", "pve_spell_conhitpercent", "The percent per con (1 = OJ, 2 = red ...) subtracted to hitchance for spells in PVE  Must be >= 0.  0 is none, 5 is 5% per level, etc.  Default is 10%", (uint)0)]
         public static uint PVE_SPELL_CONHITPERCENT { get; set; }
 
         /// <summary>
@@ -1147,31 +1147,31 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// PvP Immunity Timer - Killed by Mobs
         /// </summary>
-        [ServerProperty("pvp", "Timer_Killed_By_Mob", "Immunity Timer When player killed in PvP, in seconds", 30)] // 30 seconds default
+        [ServerProperty("pvp", "Timer_Killed_By_Mob", "Immunity Timer When player killed in PvP, in seconds", 0)] // 30 seconds default
         public static int TIMER_KILLED_BY_MOB { get; set; }
 
         /// <summary>
         /// PvP Immunity Timer - Killed by Player
         /// </summary>
-        [ServerProperty("pvp", "Timer_Killed_By_Player", "Immunity Timer When player killed in PvP, in seconds", 120)] // 2 min default
+        [ServerProperty("pvp", "Timer_Killed_By_Player", "Immunity Timer When player killed in PvP, in seconds", 0)] // 2 min default
         public static int TIMER_KILLED_BY_PLAYER { get; set; }
 
         /// <summary>
         /// PvP Immunity Timer - Region Changed
         /// </summary>
-        [ServerProperty("pvp", "Timer_Region_Changed", "Immunity Timer when player changes regions, in seconds", 30)] // 30 seconds default
+        [ServerProperty("pvp", "Timer_Region_Changed", "Immunity Timer when player changes regions, in seconds", 0)] // 30 seconds default
         public static int TIMER_REGION_CHANGED { get; set; }
 
         /// <summary>
         /// PvP Immunity Timer - Game Entered
         /// </summary>
-        [ServerProperty("pvp", "Timer_Game_Entered", "Immunity Timer when player enters the game, in seconds", 10)] // 10 seconds default
+        [ServerProperty("pvp", "Timer_Game_Entered", "Immunity Timer when player enters the game, in seconds", 0)] // 10 seconds default
         public static int TIMER_GAME_ENTERED { get; set; }
 
         /// <summary>
         /// PvP Immunity Timer - Teleport
         /// </summary>
-        [ServerProperty("pvp", "Timer_PvP_Teleport", "Immunity Timer when player teleports within the same region, in seconds", 30)] // 30 seconds default
+        [ServerProperty("pvp", "Timer_PvP_Teleport", "Immunity Timer when player teleports within the same region, in seconds", 0)] // 30 seconds default
         public static int TIMER_PVP_TELEPORT { get; set; }
 
         /// <summary>
@@ -1183,7 +1183,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Allow all realms access to DF
         /// </summary>
-        [ServerProperty("pvp", "allow_all_realms_df", "Should we allow all realms access to DF", false)]
+        [ServerProperty("pvp", "allow_all_realms_df", "Should we allow all realms access to DF", true)]
         public static bool ALLOW_ALL_REALMS_DF { get; set; }
 
         /// <summary>
@@ -1219,7 +1219,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Enable WarMap manager
         /// </summary>
-        [ServerProperty("pvp", "enable_warmapmgr", "Shall we enable the WarMap manager ?", false)]
+        [ServerProperty("pvp", "enable_warmapmgr", "Shall we enable the WarMap manager ?", true)]
         public static bool ENABLE_WARMAPMGR { get; set; }
 
         /// <summary>
@@ -1467,7 +1467,7 @@ namespace DOL.GS.ServerProperties
         /// Default is 4.3, which will produce the minimum 1 damage at a 33% chance to hit
         /// Lower numbers reduce damage reduction
         /// </summary>
-        [ServerProperty("pve", "spell_hitchance_damage_reduction_multiplier", "Spell damage reduction multiplier based on hitchance if < 55%. Lower numbers reduce damage reduction.", 4.3)]
+        [ServerProperty("pve", "spell_hitchance_damage_reduction_multiplier", "Spell damage reduction multiplier based on hitchance if < 55%. Lower numbers reduce damage reduction.", 1.0)]
         public static double SPELL_HITCHANCE_DAMAGE_REDUCTION_MULTIPLIER { get; set; }
 
         /// <summary>
@@ -1491,7 +1491,7 @@ namespace DOL.GS.ServerProperties
         /// <summary>
         /// Minimum privilege level to be able to enter Atlantis through teleporters.
         /// </summary>
-        [ServerProperty("pve", "atlantis_teleport_plvl", "Set the minimum privilege level required to enter Atlantis zones.", 2)]
+        [ServerProperty("pve", "atlantis_teleport_plvl", "Set the minimum privilege level required to enter Atlantis zones.", 1)]
         public static int ATLANTIS_TELEPORT_PLVL { get; set; }
 
         /// <summary>

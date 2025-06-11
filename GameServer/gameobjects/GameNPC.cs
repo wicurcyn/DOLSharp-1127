@@ -2428,18 +2428,24 @@ namespace DOL.GS
 
             // Grav: this.Model/Size/Level accessors are triggering SendUpdate()
             // so i must use them, and not directly use private variables
-            
-            var splitModel = template.Model.SplitCSV(true);
-            try
-		    {
-		        ushort.TryParse(splitModel[Util.Random(0, splitModel.Count - 1)], out ushort choosenModel);
-		        this.Model = choosenModel;
+
+            var splitModel = template.Model?.SplitCSV(true);
+            if (splitModel == null || splitModel.Count == 0)
+            {
+                log.ErrorFormat("Template {0} has invalid or empty Model string.", template.TemplateId);
+                return;
             }
-		    catch
-		    {
-                log.ErrorFormat("problem with template id : {0}", template.TemplateId);
-		    }            
-			
+
+            try
+            {
+                ushort.TryParse(splitModel[Util.Random(0, splitModel.Count - 1)], out ushort choosenModel);
+                this.Model = choosenModel;
+            }
+            catch
+            {
+                log.ErrorFormat("Problem with template id : {0}", template.TemplateId);
+                return; // Stop here if it failed
+            }
             int chosenGender = NPCGender.GetNPCGenderFromModel((int)Model);
             this.Gender = (eGender)chosenGender;
 
@@ -2447,18 +2453,22 @@ namespace DOL.GS
             if (!Util.IsEmpty(template.Size))
             {
                 var split = template.Size.SplitCSV(true);
-                byte.TryParse(split[Util.Random(0,split.Count - 1)], out choosenSize);
+                if (split.Count > 0)
+                    byte.TryParse(split[Util.Random(0, split.Count - 1)], out choosenSize);
+                else
+                    log.WarnFormat("Template {0} has empty Size list", template.TemplateId);
             }
-
             Size = choosenSize;
 
             byte choosenLevel = 1;
             if (!Util.IsEmpty(template.Level))
             {
                 var split = template.Level.SplitCSV(true);
-                byte.TryParse(split[Util.Random(0,split.Count - 1)], out choosenLevel);
+                if (split.Count > 0)
+                    byte.TryParse(split[Util.Random(0, split.Count - 1)], out choosenLevel);
+                else
+                    log.WarnFormat("Template {0} has empty Level list", template.TemplateId);
             }
-
             Level = choosenLevel;
 
             // Stats
